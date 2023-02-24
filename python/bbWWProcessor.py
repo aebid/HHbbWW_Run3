@@ -7,13 +7,12 @@ from coffea.nanoevents.methods import vector
 
 import object_selection
 import event_selection
-#import tree_manager
+import tree_manager
 #import jet_corrections
 
 class EventProcess():
     def __init__(self, inputFile, isMC, Runyear, dnn_truth_value, debug=0):
         self.fname = inputFile
-        self.sampleName = sampleName
         self.isMC  = isMC
         self.Runyear = Runyear
         self.dnn_truth_value = dnn_truth_value
@@ -107,6 +106,7 @@ class EventProcess():
         self.double_muon_trigger_cuts = self.double_muon_trigger_cuts[any_HLT_mask]
         self.muon_electron_trigger_cuts = self.muon_electron_trigger_cuts[any_HLT_mask]
         #We also have to cut the cuts arrays because they must be the same shape as the events
+        self.events["dnn_truth_value"] = dnn_truth_value
 
         self.jetmet_corr_dir = "jetmet_corrections/"
         self.ak4_jec_files  =   []
@@ -224,5 +224,5 @@ class EventProcess():
         print("N Double Fake:           ", ak.sum(self.events.Double_Fake))
         print("Double Category Cutflow: ", self.events.double_cutflow)
 
-    #def create_df(self, outname):
-    #    return tree_manager.create_df(self, outname)
+    def create_df(self, outname):
+        return tree_manager.create_df(self, outname)

@@ -2,6 +2,7 @@
 
 from bbWWProcessor import EventProcess
 import awkward as ak
+import os
 
 import time
 startTime = time.time()
@@ -24,7 +25,9 @@ print("Processing: ", fname)
 print("Will save as: ", outname)
 
 fname = "../input_files/"+fname
-outname = "output/"+outname
+if not os.path.isdir("../output"):
+    os.makedirs("../output")
+outname = "../output/"+outname
 
 eventProcess = EventProcess(fname, isMC, Runyear, dnn_truth_value, debug)
 
@@ -36,6 +39,11 @@ eventProcess.single_lepton_category()
 eventProcess.double_lepton_category()
 print('Categories in seconds: ' + str((time.time() - startTime)))
 
+
+eventProcess.create_df(outname)
+
+print('Saved in seconds: ' + str((time.time() - startTime)))
+print('Filename = ', outname)
 
 """
 if isMC:
