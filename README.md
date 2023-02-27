@@ -2,12 +2,15 @@
 
 Package for TAMU analysis of H -> hh -> bbWW
 
-Instructions to use
+Instructions to use directly
 ```
 cd python
-python3 run_bbWW_processing.py
+python3 run_bbWW_processing.py -i Input_File -o Output_File
 ```
-Any changes for input files must be done inside the run_bbWW_processing.py file
+To use through docker, prepare the image named run3_bbww and then
+```
+./run_docker.sh
+```
 
 All major pieces of the analysis are handled by separate files, managed by the bbWWProcessor.py class
 
