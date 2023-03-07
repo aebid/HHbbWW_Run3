@@ -37,7 +37,7 @@ dnn_truth_value = args.dnn_truth_value
 debug = args.debug
 
 Runyear = 2022
-isMC = True
+isMC = False
 
 print("Processing: ", fname)
 print("Will save as: ", outname)
@@ -53,7 +53,7 @@ if isMC:
     eventProcess.ak4_jet_corrector()
     eventProcess.btag_SF()
 
-"""
+
 eventProcess.all_obj_selection()
 print('Object Selection in seconds: ' + str((time.time() - startTime)))
 if debug: eventProcess.print_object_selection()
@@ -66,7 +66,6 @@ eventProcess.create_df(outname)
 
 print('Saved in seconds: ' + str((time.time() - startTime)))
 print('Filename = ', outname)
-"""
 
 
 """
