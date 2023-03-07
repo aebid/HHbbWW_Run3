@@ -8,6 +8,7 @@ from coffea.nanoevents.methods import vector
 import object_selection
 import event_selection
 import tree_manager
+import corrections
 #import jet_corrections
 
 class EventProcess():
@@ -108,26 +109,31 @@ class EventProcess():
         #We also have to cut the cuts arrays because they must be the same shape as the events
         self.events["dnn_truth_value"] = dnn_truth_value
 
-        self.jetmet_corr_dir = "jetmet_corrections/"
-        self.ak4_jec_files  =   []
-        self.ak4_junc_file  =   []
-        self.ak4_jer_file   =   []
-        self.ak4_jersf_file =   []
-        self.ak8_jec_files  =   []
-        self.ak8_junc_file  =   []
-        self.ak8_jer_file   =   []
-        self.ak8_jersf_file =   []
 
-        if self.Runyear == 2016:
-            self.ak4_jec_files  =   ["Summer19UL16_V7_MC_L1FastJet_AK4PFPuppi.jec.txt", "Summer19UL16_V7_MC_L2Relative_AK4PFPuppi.jec.txt", "Summer19UL16_V7_MC_L3Absolute_AK4PFPuppi.jec.txt"]
-            self.ak4_junc_file  =   ["Summer19UL16_V7_MC_Uncertainty_AK4PFPuppi.junc.txt"]
-            self.ak4_jer_file   =   ["Summer20UL16_JRV3_MC_PtResolution_AK4PFPuppi.jr.txt"]
-            self.ak4_jersf_file =   ["Summer20UL16_JRV3_MC_SF_AK4PFPuppi.jersf.txt"]
-            self.ak8_jec_files  =   ["Summer19UL16_V7_MC_L1FastJet_AK8PFPuppi.jec.txt", "Summer19UL16_V7_MC_L2Relative_AK8PFPuppi.jec.txt", "Summer19UL16_V7_MC_L3Absolute_AK8PFPuppi.jec.txt"]
-            self.ak8_junc_file  =   ["Summer19UL16_V7_MC_Uncertainty_AK8PFPuppi.junc.txt"]
-            self.ak8_jer_file   =   ["Summer20UL16_JRV3_MC_PtResolution_AK8PFPuppi.jr.txt"]
-            self.ak8_jersf_file =   ["Summer20UL16_JRV3_MC_SF_AK8PFPuppi.jersf.txt"]
+        #Start of the corrections files -- When 2022 files are available we must update these
+        self.do_systematics = False
+        corrections_dir = "correction_files/2016/"
+        jetmet_dir = corrections_dir+"jetmet/"
+        btag_dir = corrections_dir+"btag_SF/"
+        jetmet_files_dict = {
+            "2022": {
+                "ak4_jec_files": [jetmet_dir+"Summer19UL16_V7_MC_L1FastJet_AK4PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L2Relative_AK4PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L3Absolute_AK4PFPuppi.jec.txt"],
+                "ak4_junc_file": [jetmet_dir+"Summer19UL16_V7_MC_Uncertainty_AK4PFPuppi.junc.txt"],
+                "ak4_jer_file": [jetmet_dir+"Summer20UL16_JRV3_MC_PtResolution_AK4PFPuppi.jr.txt"],
+                "ak4_jersf_file": [jetmet_dir+"Summer20UL16_JRV3_MC_SF_AK4PFPuppi.jersf.txt"],
+                "ak8_jec_files": [jetmet_dir+"Summer19UL16_V7_MC_L1FastJet_AK8PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L2Relative_AK8PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L3Absolute_AK8PFPuppi.jec.txt"],
+                "ak8_junc_file": [jetmet_dir+"Summer19UL16_V7_MC_Uncertainty_AK8PFPuppi.junc.txt"],
+                "ak8_jer_file": [jetmet_dir+"Summer20UL16_JRV3_MC_PtResolution_AK8PFPuppi.jr.txt"],
+                "ak8_jersf_file": [jetmet_dir+"Summer20UL16_JRV3_MC_SF_AK8PFPuppi.jersf.txt"],
+            }
+        }
 
+        btag_SF_file_dict = {
+            "2022": btag_dir+"DeepJet_2016LegacySF_V1.csv",
+        }
+
+        self.jetmet_files = jetmet_files_dict[str(self.Runyear)]
+        self.btag_SF_file = btag_SF_file_dict[str(self.Runyear)]
 
 
         if self.debug > 0:
@@ -174,6 +180,10 @@ class EventProcess():
     #    return jet_corrections.sub_jet_corrector(self)
     #def met_corrector(self):
     #    return jet_corrections.met_corrector(self)
+    def ak4_jet_corrector(self):
+        return corrections.ak4_jet_corrector(self)
+    def btag_SF(self):
+        return corrections.btag_SF(self)
 
     def print_object_selection(self):
 

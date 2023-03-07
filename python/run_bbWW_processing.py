@@ -21,6 +21,9 @@ outname = args.outfile
 
 args = parser.parse_args()
 
+if fname == None:
+    raise Exception("No input file, use python3 run_bbWW_processing.py -i InputFile -o OutputFile")
+
 #index = 0
 #fname_list = ["run2022C_data_doublemuon_nanoaod.root"]
 #fname = fname_list[index]
@@ -34,7 +37,7 @@ dnn_truth_value = args.dnn_truth_value
 debug = args.debug
 
 Runyear = 2022
-isMC = False
+isMC = True
 
 print("Processing: ", fname)
 print("Will save as: ", outname)
@@ -46,7 +49,11 @@ print("Will save as: ", outname)
 
 eventProcess = EventProcess(fname, isMC, Runyear, dnn_truth_value, debug)
 
+if isMC:
+    eventProcess.ak4_jet_corrector()
+    eventProcess.btag_SF()
 
+"""
 eventProcess.all_obj_selection()
 print('Object Selection in seconds: ' + str((time.time() - startTime)))
 if debug: eventProcess.print_object_selection()
@@ -59,6 +66,8 @@ eventProcess.create_df(outname)
 
 print('Saved in seconds: ' + str((time.time() - startTime)))
 print('Filename = ', outname)
+"""
+
 
 """
 if isMC:
