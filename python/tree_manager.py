@@ -254,7 +254,7 @@ def create_df(EventProcess, outname):
     if debug: import time
     if debug: print("Save the tree in uproot")
     if debug: startTime = time.time()
-    outfile = uproot.recreate("uproot_"+outname)
+    outfile = uproot.recreate(outname)
     outfile["Single_Tree"] = single_dicts
     outfile["Double_Tree"] = double_dicts
     if debug: print("Took ", time.time() - startTime, " seconds")
