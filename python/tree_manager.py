@@ -16,20 +16,20 @@ def create_df(EventProcess, outname):
     events = EventProcess.events
     #Muons and Electrons are same for single/double
     muons = events.Muon
-    muons["px"] = muons.px; muons["py"] = muons.py; muons["pz"] = muons.pz; muons["E"] = muons.E
+    muons["px"] = muons.px; muons["py"] = muons.py; muons["pz"] = muons.pz; muons["energy"] = muons.energy
     muons_pre = muons.mask[(muons.preselected)]
     muons_fake = muons.mask[(muons.preselected)]
     muons_tight = muons.mask[(muons.tight)]
 
     electrons = events.Electron
-    electrons["px"] = electrons.px; electrons["py"] = electrons.py; electrons["pz"] = electrons.pz; electrons["E"] = electrons.E
+    electrons["px"] = electrons.px; electrons["py"] = electrons.py; electrons["pz"] = electrons.pz; electrons["energy"] = electrons.energy
     electrons_pre = electrons.mask[(electrons.preselected)]
     electrons_cleaned = electrons.mask[(electrons.cleaned)]
     electrons_fake = electrons.mask[(electrons.preselected)]
     electrons_tight = electrons.mask[(electrons.tight)]
 
     ak4_jets = ak.pad_none(events.Jet, 4)
-    ak4_jets["px"] = ak4_jets.px; ak4_jets["py"] = ak4_jets.py; ak4_jets["pz"] = ak4_jets.pz; ak4_jets["E"] = ak4_jets.E
+    ak4_jets["px"] = ak4_jets.px; ak4_jets["py"] = ak4_jets.py; ak4_jets["pz"] = ak4_jets.pz; ak4_jets["energy"] = ak4_jets.energy
     ak4_jets_cleaned_single = ak4_jets.mask[(ak4_jets.cleaned_single)]
     ak4_jets_cleaned_double = ak4_jets.mask[(ak4_jets.cleaned_double)]
 
@@ -75,7 +75,7 @@ def create_df(EventProcess, outname):
             name+'_conept': np.array(ak.fill_none(lep.conept, underflow_value), dtype=np.float32),
             name+'_eta': np.array(ak.fill_none(lep.eta, underflow_value), dtype=np.float32),
             name+'_phi': np.array(ak.fill_none(lep.phi, underflow_value), dtype=np.float32),
-            name+'_E': np.array(ak.fill_none(lep.E, underflow_value), dtype=np.float32),
+            name+'_E': np.array(ak.fill_none(lep.energy, underflow_value), dtype=np.float32),
             name+'_px': np.array(ak.fill_none(lep.px, underflow_value), dtype=np.float32),
             name+'_py': np.array(ak.fill_none(lep.py, underflow_value), dtype=np.float32),
             name+'_pz': np.array(ak.fill_none(lep.pz, underflow_value), dtype=np.float32),
@@ -87,7 +87,7 @@ def create_df(EventProcess, outname):
             name+'_pt': np.array(ak.fill_none(jet.pt, underflow_value), dtype=np.float32),
             name+'_eta': np.array(ak.fill_none(jet.eta, underflow_value), dtype=np.float32),
             name+'_phi': np.array(ak.fill_none(jet.phi, underflow_value), dtype=np.float32),
-            name+'_E': np.array(ak.fill_none(jet.E, underflow_value), dtype=np.float32),
+            name+'_E': np.array(ak.fill_none(jet.energy, underflow_value), dtype=np.float32),
             name+'_px': np.array(ak.fill_none(jet.px, underflow_value), dtype=np.float32),
             name+'_py': np.array(ak.fill_none(jet.py, underflow_value), dtype=np.float32),
             name+'_pz': np.array(ak.fill_none(jet.pz, underflow_value), dtype=np.float32),
@@ -109,7 +109,7 @@ def create_df(EventProcess, outname):
             name+'_pt': np.array(ak.fill_none(jet.pt, underflow_value), dtype=np.float32),
             name+'_eta': np.array(ak.fill_none(jet.eta, underflow_value), dtype=np.float32),
             name+'_phi': np.array(ak.fill_none(jet.phi, underflow_value), dtype=np.float32),
-            name+'_E': np.array(ak.fill_none(jet.E, underflow_value), dtype=np.float32),
+            name+'_E': np.array(ak.fill_none(jet.energy, underflow_value), dtype=np.float32),
             name+'_px': np.array(ak.fill_none(jet.px, underflow_value), dtype=np.float32),
             name+'_py': np.array(ak.fill_none(jet.py, underflow_value), dtype=np.float32),
             name+'_pz': np.array(ak.fill_none(jet.pz, underflow_value), dtype=np.float32),
@@ -119,13 +119,13 @@ def create_df(EventProcess, outname):
             name+'_tau4': np.array(ak.fill_none(jet.tau4, underflow_value), dtype=np.float32),
             name+'_msoftdrop': np.array(ak.fill_none(jet.msoftdrop, underflow_value), dtype=np.float32),
 
-            name+'_subjet1_E': np.array(ak.fill_none(jet.subjet1.E, underflow_value), dtype=np.float32),
+            name+'_subjet1_E': np.array(ak.fill_none(jet.subjet1.energy, underflow_value), dtype=np.float32),
             name+'_subjet1_px': np.array(ak.fill_none(jet.subjet1.px, underflow_value), dtype=np.float32),
             name+'_subjet1_py': np.array(ak.fill_none(jet.subjet1.py, underflow_value), dtype=np.float32),
             name+'_subjet1_pz': np.array(ak.fill_none(jet.subjet1.pz, underflow_value), dtype=np.float32),
             name+'_subjet1_pt': np.array(ak.fill_none(jet.subjet1.pt, underflow_value), dtype=np.float32),
 
-            name+'_subjet2_E': np.array(ak.fill_none(jet.subjet2.E, underflow_value), dtype=np.float32),
+            name+'_subjet2_E': np.array(ak.fill_none(jet.subjet2.energy, underflow_value), dtype=np.float32),
             name+'_subjet2_px': np.array(ak.fill_none(jet.subjet2.px, underflow_value), dtype=np.float32),
             name+'_subjet2_py': np.array(ak.fill_none(jet.subjet2.py, underflow_value), dtype=np.float32),
             name+'_subjet2_pz': np.array(ak.fill_none(jet.subjet2.pz, underflow_value), dtype=np.float32),
