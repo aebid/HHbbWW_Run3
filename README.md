@@ -22,6 +22,7 @@ Then to run, prepare the input file (default input_files/run2022C_data_doublemuo
 ```
 ./run_docker.sh
 ```
+To use through condor, look at the README in the condor directory
 
 
 All major pieces of the analysis are handled by separate files, managed by the bbWWProcessor.py class
