@@ -3,6 +3,7 @@
 from bbWWProcessor import EventProcess
 import awkward as ak
 import os
+import uproot
 
 import time
 startTime = time.time()
@@ -10,19 +11,20 @@ startTime = time.time()
 import argparse
 
 parser = argparse.ArgumentParser(description='Run3 analysis for H->hh->bbWW')
-parser.add_argument("-i", "--inputFile", dest="infile", type=str, default=None, help="input file name. [Default: None]")
+parser.add_argument("-i", "--inputFileList", dest="infile_list", type=str, nargs='+', default=[], help="input file name. [Default: [] ]")
 parser.add_argument("-o", "--outputFile", dest="outfile", type=str, default="out.root", help="output file name. [Default: out.root]")
 parser.add_argument("-t", "--truth", dest="dnn_truth_value", type=int, default="8", help="DNN Truth value, HH:0 TTbar:1 ST:2 DY:3 H:4 TTbarV(X):5 VV(V):6 Other:7 Data:8. [Default: 8 (Data)]")
 parser.add_argument("-d", "--debug", dest="debug", type=int, default="0", help="Debug. [Default: 0 (False)]")
 args, unknown = parser.parse_known_args()
 
-fname = args.infile
+flist = args.infile_list
 outname = args.outfile
+outfile = uproot.recreate(outname)
 
 args = parser.parse_args()
 
-if fname == None:
-    raise Exception("No input file, use python3 run_bbWW_processing.py -i InputFile -o OutputFile")
+if len(flist) == 0:
+    raise Exception("No input files, use python3 run_bbWW_processing.py -i InputFileList -o OutputFile")
 
 #index = 0
 #fname_list = ["run2022C_data_doublemuon_nanoaod.root"]
@@ -39,7 +41,7 @@ debug = args.debug
 Runyear = 2022
 isMC = False
 
-print("Processing: ", fname)
+print("Processing: ", flist)
 print("Will save as: ", outname)
 
 #fname = "../input_files/"+fname
@@ -47,25 +49,27 @@ print("Will save as: ", outname)
 #    os.makedirs("../output")
 #outname = "../output/"+outname
 
-eventProcess = EventProcess(fname, isMC, Runyear, dnn_truth_value, debug)
+for fname in flist:
+    print("Starting file: ", fname)
+    eventProcess = EventProcess(fname, isMC, Runyear, dnn_truth_value, debug)
 
-if isMC:
-    eventProcess.ak4_jet_corrector()
-    eventProcess.btag_SF()
-
-
-eventProcess.all_obj_selection()
-print('Object Selection in seconds: ' + str((time.time() - startTime)))
-if debug: eventProcess.print_object_selection()
-eventProcess.single_lepton_category()
-eventProcess.double_lepton_category()
-print('Categories in seconds: ' + str((time.time() - startTime)))
+    if isMC:
+        eventProcess.ak4_jet_corrector()
+        eventProcess.btag_SF()
 
 
-eventProcess.create_df(outname)
+    eventProcess.all_obj_selection()
+    print('Object Selection in seconds: ' + str((time.time() - startTime)))
+    if debug: eventProcess.print_object_selection()
+    eventProcess.single_lepton_category()
+    eventProcess.double_lepton_category()
+    print('Categories in seconds: ' + str((time.time() - startTime)))
 
-print('Saved in seconds: ' + str((time.time() - startTime)))
-print('Filename = ', outname)
+
+    eventProcess.update_outfile(outfile)
+
+    print('Updated in seconds: ' + str((time.time() - startTime)))
+    print('Filename = ', outname)
 
 
 """

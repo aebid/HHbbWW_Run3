@@ -1,7 +1,7 @@
 import awkward as ak
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
 import numpy as np
-#import ROOT
+import uproot
 from coffea.nanoevents.methods import vector
 
 
@@ -234,5 +234,5 @@ class EventProcess():
         print("N Double Fake:           ", ak.sum(self.events.Double_Fake))
         print("Double Category Cutflow: ", self.events.double_cutflow)
 
-    def create_df(self, outname):
-        return tree_manager.create_df(self, outname)
+    def update_outfile(self, outfile):
+        return tree_manager.update_outfile(self, outfile)

@@ -2,11 +2,10 @@ import awkward as ak
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
 import numpy as np
 import uproot
-#import ROOT
 from coffea.nanoevents.methods import vector
 
 
-def create_df(EventProcess, outname):
+def update_outfile(EventProcess, outfile):
     isMC = EventProcess.isMC
     debug = EventProcess.debug
     print("Creating save dicts")
@@ -254,27 +253,18 @@ def create_df(EventProcess, outname):
     if debug: import time
     if debug: print("Save the tree in uproot")
     if debug: startTime = time.time()
-    outfile = uproot.recreate(outname)
-    outfile["Single_Tree"] = single_dicts
-    outfile["Double_Tree"] = double_dicts
+    #outfile = uproot.recreate(outname)
+    print("Whats in the keys?")
+    print(outfile.keys())
+    print('\t'.join(outfile.keys()))
+    if "Single_Tree" in '\t'.join(outfile.keys()):
+        print("Extending!")
+        outfile["Single_Tree"].extend(single_dicts)
+    else:
+        outfile["Single_Tree"] = single_dicts
+    if "Double_Tree" in '\t'.join(outfile.keys()):
+        print("Extending!")
+        outfile["Double_Tree"].extend(double_dicts)
+    else:
+        outfile["Double_Tree"] = double_dicts
     if debug: print("Took ", time.time() - startTime, " seconds")
-
-    """
-    print("Save the tree in ROOT")
-    startTime = time.time()
-
-
-    df_single = ROOT.RDF.MakeNumpyDataFrame(event_dict_single)
-    df_double = ROOT.RDF.MakeNumpyDataFrame(double_dicts)
-
-    opts = ROOT.RDF.RSnapshotOptions()
-    opts.fMode = "UPDATE"
-
-    #print(opts)
-    #print(opts.fMode)
-
-    df_single.Snapshot('Single_Tree', outname)
-    df_double.Snapshot('Double_Tree', outname, "", opts)
-
-    print("Took ", time.time() - startTime, " seconds")
-    """
