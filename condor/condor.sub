@@ -5,7 +5,7 @@ Proxy_filename          = x509up_u120525
 Proxy_path              = $(Proxy_filename)
 transfer_input_files    = $(Proxy_path), /afs/cern.ch/work/d/daebi/diHiggs/HHbbWW_Run3/python 
 arguments               = $(Proxy_filename)
-transfer_output_remaps  = "condor_output.root=$(filename).root"
+transfer_output_files   = out_condor_$(filename).root
 should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
 output                  = out/out.$(ClusterId).$(ProcId)
