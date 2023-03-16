@@ -1,12 +1,14 @@
 import os
 import math
+import subprocess
+import re
 
 project_folder = "TTBar"
 file_list = ["/store/mc/Run3Winter22NanoAOD/TTTo2L2Nu_CP5_13p6TeV_powheg-pythia8/NANOAODSIM/122X_mcRun3_2021_realistic_v9-v1/40000/0db470d2-1dfb-471e-b8b0-60fe5cad9ddf.root", "/store/mc/Run3Winter22NanoAOD/TTTo2L2Nu_CP5_13p6TeV_powheg-pythia8/NANOAODSIM/122X_mcRun3_2021_realistic_v9-v1/40000/1e132652-55fb-4732-a077-2e1b013c6fc3.root", "/store/mc/Run3Winter22NanoAOD/TTTo2L2Nu_CP5_13p6TeV_powheg-pythia8/NANOAODSIM/122X_mcRun3_2021_realistic_v9-v1/40000/35c1c54d-4500-4542-9fb4-51baa6d04083.root"]
 
-project_folder = "data"
-file_list = ["/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/aa5a4b71-fd45-45d9-bf26-ea4f2dc42882.root"]
-nFilesPerJob = 2
+project_folder = "data3"
+file_list = ["/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/03dbce72-4887-4164-b63a-7b2eea25abbb.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/734b806e-ff93-4d99-b784-0e3164f2dd4e.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/aa5a4b71-fd45-45d9-bf26-ea4f2dc42882.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/e3a97f0b-715d-40d3-9763-7a3070a5fe5c.root"]
+nFilesPerJob = 3
 
 nJobs = math.ceil(len(file_list)/nFilesPerJob)
 remaining_files = file_list
@@ -39,7 +41,19 @@ for job_count in range(nJobs):
         else:
             job_file.write(line)
 
+voms_proxy_file = [str(name) for name in re.split(r' |\\n|/', [str(name) for name in subprocess.Popen('voms-proxy-info', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True).communicate() if (name != None and "x509" in str(name))][0]) if "x509" in str(name)][0]
 
-
+condor_sub_template = open("condor.sub", 'r')
+condor_sub_file = open(project_folder+"/condor.sub".format(job_count), 'w')
+for line in condor_sub_template:
+    if "Proxy_filename          =" in line:
+        string_to_write = "Proxy_filename          = {}\n".format(voms_proxy_file)
+    elif "transfer_input_files    =" in line:
+        cwd = os.getcwd()
+        pwd_to_python = cwd[:-6] + "python"
+        string_to_write = "transfer_input_files    = $(Proxy_path), {}\n".format(pwd_to_python)
+    else:
+        string_to_write = line
+    condor_sub_file.write(string_to_write)
     
 
