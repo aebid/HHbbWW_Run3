@@ -153,6 +153,15 @@ def update_outfile(EventProcess, outfile):
             name+'_covXY': np.array(ak.fill_none(met.covXY, underflow_value), dtype=np.float32),
             name+'_covYY': np.array(ak.fill_none(met.covYY, underflow_value), dtype=np.float32),
         }
+        if isMC:
+            MC_dict = {
+                name+"_jet_rescale_par": np.array(ak.fill_none(met.par_jet_rescale, underflow_value), dtype=np.float32),
+                name+"_JER_up_par": np.array(ak.fill_none(met.par_JER_up, underflow_value), dtype=np.float32),
+                name+"_JER_down_par": np.array(ak.fill_none(met.par_JER_down, underflow_value), dtype=np.float32),
+                name+"_JES_up_par": np.array(ak.fill_none(met.par_JES_up, underflow_value), dtype=np.float32),
+                name+"_JES_down_par": np.array(ak.fill_none(met.par_JES_down, underflow_value), dtype=np.float32),
+            }
+            dict.update(MC_dict)
         return dict
 
     event_dict_single = {

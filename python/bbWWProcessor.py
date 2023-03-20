@@ -130,13 +130,14 @@ class EventProcess():
         self.muon_electron_trigger_cuts = muon_electron_trigger_cuts_dict[str(self.Runyear)]
 
         #Here we define the used events array passing any of the lepton triggers
-        any_HLT_mask = self.electron_trigger_cuts | self.muon_trigger_cuts | self.double_electron_trigger_cuts | self.double_muon_trigger_cuts | self.muon_electron_trigger_cuts
-        self.events = self.events_pretrigger[any_HLT_mask]
-        self.electron_trigger_cuts = self.electron_trigger_cuts[any_HLT_mask]
-        self.muon_trigger_cuts = self.muon_trigger_cuts[any_HLT_mask]
-        self.double_electron_trigger_cuts = self.double_electron_trigger_cuts[any_HLT_mask]
-        self.double_muon_trigger_cuts = self.double_muon_trigger_cuts[any_HLT_mask]
-        self.muon_electron_trigger_cuts = self.muon_electron_trigger_cuts[any_HLT_mask]
+        #We cannot slim these lists until AFTER we do the JetMet corrections!!!
+        self.any_HLT_mask = self.electron_trigger_cuts | self.muon_trigger_cuts | self.double_electron_trigger_cuts | self.double_muon_trigger_cuts | self.muon_electron_trigger_cuts
+        self.events = self.events_pretrigger[self.any_HLT_mask]
+        self.electron_trigger_cuts = self.electron_trigger_cuts[self.any_HLT_mask]
+        self.muon_trigger_cuts = self.muon_trigger_cuts[self.any_HLT_mask]
+        self.double_electron_trigger_cuts = self.double_electron_trigger_cuts[self.any_HLT_mask]
+        self.double_muon_trigger_cuts = self.double_muon_trigger_cuts[self.any_HLT_mask]
+        self.muon_electron_trigger_cuts = self.muon_electron_trigger_cuts[self.any_HLT_mask]
         #We also have to cut the cuts arrays because they must be the same shape as the events
         self.events["dnn_truth_value"] = dnn_truth_value
 
@@ -146,6 +147,7 @@ class EventProcess():
         corrections_dir = "correction_files/2016/"
         jetmet_dir = corrections_dir+"jetmet/"
         btag_dir = corrections_dir+"btag_SF/"
+        lepton_ID_SF_dir = corrections_dir+"lepton_ID_SF/"
         jetmet_files_dict = {
             "2016": {
                 "ak4_jec_files": [jetmet_dir+"Summer19UL16_V7_MC_L1FastJet_AK4PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L2Relative_AK4PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L3Absolute_AK4PFPuppi.jec.txt"],
@@ -174,9 +176,36 @@ class EventProcess():
             "2022": btag_dir+"DeepJet_2016LegacySF_V1.csv",
         }
 
+        lepton_ID_SF_files_dict = {
+            "2016": {
+                "electron": {
+                    "ext_list": [
+                        "ele_Lt20 EGamma_SF2D "+lepton_ID_SF_dir+"el_scaleFactors_gsf_ptLt20.root",
+                        "ele_Lt20_error EGamma_SF2D_error "+lepton_ID_SF_dir+"el_scaleFactors_gsf_ptLt20.root",
+                        "ele_Gt20 EGamma_SF2D "+lepton_ID_SF_dir+"el_scaleFactors_gsf_ptGt20.root",
+                        "ele_Gt20_error EGamma_SF2D_error "+lepton_ID_SF_dir+"el_scaleFactors_gsf_ptGt20.root",
+                        "ele_loose EGamma_SF2D "+lepton_ID_SF_dir+"TnP_loose_ele_2016.root",
+                        "ele_loose_error EGamma_SF2D_error "+lepton_ID_SF_dir+"TnP_loose_ele_2016.root",
+                        "ele_loosettH EGamma_SF2D "+lepton_ID_SF_dir+"TnP_loosettH_ele_2016.root",
+                        "ele_loosettH_error EGamma_SF2D_error "+lepton_ID_SF_dir+"TnP_loosettH_ele_2016.root"
+                    ],
+                    "pt_cut": [0, 20],
+                    "names_cut": [["ele_Lt20", "ele_loose", "ele_loosettH"], ["ele_Gt20", "ele_loose", "ele_loosettH"]],
+                },
+                "muon": {
+                    "ext_list": [
+                        "mu_loose EGamma_SF2D "+lepton_ID_SF_dir+"TnP_loose_muon_2016.root",
+                        "mu_loose_error EGamma_SF2D_error "+lepton_ID_SF_dir+"TnP_loose_muon_2016.root"
+                    ],
+                    "pt_cut": [0],
+                    "names_cut": [["mu_loose"]],
+                },
+            },
+        }
+
         self.jetmet_files = jetmet_files_dict[str(self.Runyear)]
         self.btag_SF_file = btag_SF_file_dict[str(self.Runyear)]
-
+        self.lepton_ID_SF_files = lepton_ID_SF_files_dict[str(self.Runyear)]
 
         if self.debug > 0:
             print("Muons: ",       self.events.Muon)
@@ -222,10 +251,21 @@ class EventProcess():
     #    return jet_corrections.sub_jet_corrector(self)
     #def met_corrector(self):
     #    return jet_corrections.met_corrector(self)
-    def ak4_jet_corrector(self):
-        return corrections.ak4_jet_corrector(self)
+    def jet_corrector(self):
+        return corrections.jet_corrector(self)
+    def met_corrector(self):
+        return corrections.met_corrector(self)
     def btag_SF(self):
         return corrections.btag_SF(self)
+    def trigger_selection(self):
+        self.events = self.events[self.any_HLT_mask]
+        self.electron_trigger_cuts = self.electron_trigger_cuts[self.any_HLT_mask]
+        self.muon_trigger_cuts = self.muon_trigger_cuts[self.any_HLT_mask]
+        self.double_electron_trigger_cuts = self.double_electron_trigger_cuts[self.any_HLT_mask]
+        self.double_muon_trigger_cuts = self.double_muon_trigger_cuts[self.any_HLT_mask]
+        self.muon_electron_trigger_cuts = self.muon_electron_trigger_cuts[self.any_HLT_mask]
+    def lepton_ID_SF(self):
+        return corrections.lepton_ID_SF(self)
 
     def print_object_selection(self):
 
