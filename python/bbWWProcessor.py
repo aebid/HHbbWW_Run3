@@ -28,19 +28,27 @@ class EventProcess():
 
         #Dicts of variables by year, 2022 is made up for now while we study
         jetDeepJet_WP_dict = {
+            "2016": [0.0613, 0.3093, 0.7221],
             "2022": [0.0494, 0.2770, 0.7264],
         }
 
         ak8_btagDeepB_WP_dict = {
+            "2016": [0.2217, 0.6321, 0.8953],
             "2022": [0.1241, 0.4184, 0.7527],
         }
 
         PFJetID_dict = {
+            "2016": 1,
             "2022": 2,
         }
 
         #Currently we include all trigger paths -- In the future we may remove some
         electron_trigger_cuts_dict = {
+            "2016": (
+                getattr(self.events_pretrigger.HLT, 'Ele27_WPTight_Gsf', False) |
+                getattr(self.events_pretrigger.HLT, 'Ele25_eta2p1_WPTight_Gsf', False) |
+                getattr(self.events_pretrigger.HLT, 'Ele27_eta2p1_WPLoose_Gsf', False)
+            ),
             "2022": (
                 getattr(self.events_pretrigger.HLT, "Ele15_WPLoose_Gsf", False) |
                 getattr(self.events_pretrigger.HLT, "Ele20_WPLoose_Gsf", False) |
@@ -54,6 +62,14 @@ class EventProcess():
             ),
         }
         muon_trigger_cuts_dict = {
+            "2016": (
+                getattr(self.events_pretrigger.HLT, 'IsoMu22', False) |
+                getattr(self.events_pretrigger.HLT, 'IsoTkMu22', False) |
+                getattr(self.events_pretrigger.HLT, 'IsoMu22_eta2p1', False) |
+                getattr(self.events_pretrigger.HLT, 'IsoTkMu22_eta2p1', False) |
+                getattr(self.events_pretrigger.HLT, 'IsoMu24', False) |
+                getattr(self.events_pretrigger.HLT, 'IsoTkMu24', False)
+                ),
             "2022": (
                 getattr(self.events_pretrigger.HLT, "Mu17", False) |
                 getattr(self.events_pretrigger.HLT, "Mu17_TrkIsoVVL", False) |
@@ -65,27 +81,42 @@ class EventProcess():
                 getattr(self.events_pretrigger.HLT, "IsoMu24", False) |
                 getattr(self.events_pretrigger.HLT, "IsoMu24_eta2p1", False) |
                 getattr(self.events_pretrigger.HLT, "IsoMu27", False)
-            )
+            ),
         }
         double_electron_trigger_cuts_dict = {
+            "2016": (
+                getattr(self.events_pretrigger.HLT, 'Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ', False)
+            ),
             "2022": (
                 getattr(self.events_pretrigger.HLT, "Ele23_Ele12_CaloIdL_TrackIdL_IsoVL", False) |
                 getattr(self.events_pretrigger.HLT, "Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", False)
-            )
+            ),
         }
         double_muon_trigger_cuts_dict = {
+            "2016": (
+                getattr(self.events_pretrigger.HLT, 'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL', False) |
+                getattr(self.events_pretrigger.HLT, 'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ', False) |
+                getattr(self.events_pretrigger.HLT, 'Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL', False) |
+                getattr(self.events_pretrigger.HLT, 'Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ', False)
+            ),
             "2022": (
                 getattr(self.events_pretrigger.HLT, "Mu17_TrkIsoVVL_Mu8_TrkIsoVVL", False) |
                 getattr(self.events_pretrigger.HLT, "Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ", False)
-            )
+            ),
         }
         muon_electron_trigger_cuts_dict = {
+            "2016": (
+                getattr(self.events_pretrigger.HLT, 'Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL', False) |
+                getattr(self.events_pretrigger.HLT, 'Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ', False) |
+                getattr(self.events_pretrigger.HLT, 'Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL', False) |
+                getattr(self.events_pretrigger.HLT, 'Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ', False)
+            ),
             "2022": (
                 getattr(self.events_pretrigger.HLT, "Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL", False) |
                 getattr(self.events_pretrigger.HLT, "Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", False) |
                 getattr(self.events_pretrigger.HLT, "Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL", False) |
                 getattr(self.events_pretrigger.HLT, "Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", False)
-            )
+            ),
         }
 
         self.jetDeepJet_WP = jetDeepJet_WP_dict[str(self.Runyear)]
@@ -116,6 +147,16 @@ class EventProcess():
         jetmet_dir = corrections_dir+"jetmet/"
         btag_dir = corrections_dir+"btag_SF/"
         jetmet_files_dict = {
+            "2016": {
+                "ak4_jec_files": [jetmet_dir+"Summer19UL16_V7_MC_L1FastJet_AK4PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L2Relative_AK4PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L3Absolute_AK4PFPuppi.jec.txt"],
+                "ak4_junc_file": [jetmet_dir+"Summer19UL16_V7_MC_Uncertainty_AK4PFPuppi.junc.txt"],
+                "ak4_jer_file": [jetmet_dir+"Summer20UL16_JRV3_MC_PtResolution_AK4PFPuppi.jr.txt"],
+                "ak4_jersf_file": [jetmet_dir+"Summer20UL16_JRV3_MC_SF_AK4PFPuppi.jersf.txt"],
+                "ak8_jec_files": [jetmet_dir+"Summer19UL16_V7_MC_L1FastJet_AK8PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L2Relative_AK8PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L3Absolute_AK8PFPuppi.jec.txt"],
+                "ak8_junc_file": [jetmet_dir+"Summer19UL16_V7_MC_Uncertainty_AK8PFPuppi.junc.txt"],
+                "ak8_jer_file": [jetmet_dir+"Summer20UL16_JRV3_MC_PtResolution_AK8PFPuppi.jr.txt"],
+                "ak8_jersf_file": [jetmet_dir+"Summer20UL16_JRV3_MC_SF_AK8PFPuppi.jersf.txt"],
+            },
             "2022": {
                 "ak4_jec_files": [jetmet_dir+"Summer19UL16_V7_MC_L1FastJet_AK4PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L2Relative_AK4PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L3Absolute_AK4PFPuppi.jec.txt"],
                 "ak4_junc_file": [jetmet_dir+"Summer19UL16_V7_MC_Uncertainty_AK4PFPuppi.junc.txt"],
@@ -125,10 +166,11 @@ class EventProcess():
                 "ak8_junc_file": [jetmet_dir+"Summer19UL16_V7_MC_Uncertainty_AK8PFPuppi.junc.txt"],
                 "ak8_jer_file": [jetmet_dir+"Summer20UL16_JRV3_MC_PtResolution_AK8PFPuppi.jr.txt"],
                 "ak8_jersf_file": [jetmet_dir+"Summer20UL16_JRV3_MC_SF_AK8PFPuppi.jersf.txt"],
-            }
+            },
         }
 
         btag_SF_file_dict = {
+            "2016": btag_dir+"DeepJet_2016LegacySF_V1.csv",
             "2022": btag_dir+"DeepJet_2016LegacySF_V1.csv",
         }
 

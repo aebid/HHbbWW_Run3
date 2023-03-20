@@ -166,7 +166,7 @@ def single_lepton_category(EventProcess):
     tau_veto_cleaning = ak.min(abs(taus_for_veto.delta_r(leps_for_veto)), axis=2) >= 0.3
 
     tau_veto_selection = (
-    (taus.pt > 20) & (abs(taus.eta) < 2.3) & (abs(taus.dxy) <= 1000.0) & (abs(taus.dz) <= 0.2) & (taus.idDecayModeOldDMs) &
+    (taus.pt > 20) & (abs(taus.eta) < 2.3) & (abs(taus.dxy) <= 1000.0) & (abs(taus.dz) <= 0.2) & (getattr(taus, 'idDecayModeNewDMs', False) | getattr(taus, 'idDecayModeOldDMs', False)) &
     (
         (taus.decayMode == 0) | (taus.decayMode == 1) | (taus.decayMode == 2) | (taus.decayMode == 10) | (taus.decayMode == 11)
     ) &
