@@ -13,6 +13,8 @@ import argparse
 parser = argparse.ArgumentParser(description='Run3 analysis for H->hh->bbWW')
 parser.add_argument("-i", "--inputFileList", dest="infile_list", type=str, nargs='+', default=[], help="input file name. [Default: [] ]")
 parser.add_argument("-o", "--outputFile", dest="outfile", type=str, default="out.root", help="output file name. [Default: out.root]")
+parser.add_argument("-ry", "--runyear", dest="Runyear", type=int, default=2022, help="Runyear of the file. [Default: 2022]")
+parser.add_argument("-MC", dest="isMC", type=int, default=0, help="Is the file MC. [Default: 0]")
 parser.add_argument("-t", "--truth", dest="dnn_truth_value", type=int, default="8", help="DNN Truth value, HH:0 TTbar:1 ST:2 DY:3 H:4 TTbarV(X):5 VV(V):6 Other:7 Data:8. [Default: 8 (Data)]")
 parser.add_argument("-d", "--debug", dest="debug", type=int, default="0", help="Debug. [Default: 0 (False)]")
 args, unknown = parser.parse_known_args()
@@ -38,8 +40,8 @@ dnn_truth_value = args.dnn_truth_value
 #outname = "out_"+fname
 debug = args.debug
 
-Runyear = 2022
-isMC = False
+Runyear = args.Runyear
+isMC = args.isMC
 
 print("Processing: ", flist)
 print("Will save as: ", outname)
