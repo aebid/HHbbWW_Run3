@@ -288,6 +288,8 @@ def btag_SF(EventProcess):
 
 def make_evaluator(EventProcess):
     dict_list = EventProcess.SF_dict_list
+    debug = EventProcess.debug
+
     ext = extractor()
     for dict in dict_list:
         for lep in ["electron", "muon"]:
@@ -297,7 +299,7 @@ def make_evaluator(EventProcess):
                     ext.add_weight_sets([ext_string])
     ext.finalize()
     EventProcess.SF_Evaluator = ext.make_evaluator()
-    print("Made evaluator! Kyes are ", EventProcess.SF_Evaluator.keys())
+    if debug: print("Made evaluator! Kyes are ", EventProcess.SF_Evaluator.keys())
 
 def get_SF_from_dict(dict, leptons, eval):
     tmp_value = 1.0
@@ -316,6 +318,7 @@ def lepton_ID_SF(EventProcess):
     electrons = events.Electron
     muons = events.Muon
     dict = EventProcess.lepton_ID_SF_dict
+    debug = EventProcess.debug
 
     for lep_pair in [("electron", electrons), ("muon", muons)]:
         lep = lep_pair[0]
@@ -335,8 +338,8 @@ def lepton_ID_SF(EventProcess):
             nom_value = nom_value * process_nom_value
             up_value = up_value * (process_nom_value + process_up_value)
             down_value = down_value * (process_nom_value - process_down_value)
-            print("Did process ", process, " on ", lep)
-            print(nom_value)
+            if debug: print("Did process ", process, " on ", lep)
+
 
 
         if lep == "electron":
@@ -355,6 +358,7 @@ def lepton_tight_TTH_SF(EventProcess):
     electrons = events.Electron
     muons = events.Muon
     dict = EventProcess.lepton_tight_TTH_SF_dict
+    debug = EventProcess.debug
 
     for lep_pair in [("electron", electrons), ("muon", muons)]:
         lep = lep_pair[0]
@@ -374,8 +378,7 @@ def lepton_tight_TTH_SF(EventProcess):
             #nom_value = process_nom_value
             up_value = process_up_value
             down_value = process_down_value
-            print("Did process ", process, " on ", lep)
-            print(nom_value)
+            if debug: print("Did process ", process, " on ", lep)
 
 
         if lep == "electron":

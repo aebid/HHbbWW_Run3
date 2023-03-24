@@ -56,12 +56,11 @@ for fname in flist:
     print("Starting file: ", fname)
     eventProcess = EventProcess(fname, isMC, Runyear, dnn_truth_value, debug)
 
-    #eventProcess.lepton_ID_SF()
     eventProcess.make_evaluator()
     eventProcess.lepton_ID_SF()
     eventProcess.lepton_tight_TTH_SF()
 
-    """
+
     if isMC:
         eventProcess.jet_corrector()
         eventProcess.met_corrector()
@@ -80,4 +79,4 @@ for fname in flist:
 
     print('Updated in seconds: ' + str((time.time() - startTime)))
     print('Filename = ', outname)
-    """
+    
