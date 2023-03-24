@@ -177,23 +177,82 @@ class EventProcess():
             "2022": btag_dir+"DeepJet_2016LegacySF_V1.csv",
         }
 
-        lepton_tight_TTH_SF_files_dict = {
-            "2016": {
+
+
+        """
+        #Example of SF Dict format, supports multiple files split in pT bins
+        dict_example = {
+            "year": {
+                "branch_name": "",
                 "electron": {
-                    "ext_list": [
-                        "ele_tight_ttH_error_min histo_eff_data_min"+lepton_tight_TTH_SF_dir+"lepMVAEffSF_e_error_2016.root",
-                        "ele_tight_ttH_error_max histo_eff_data_max"+lepton_tight_TTH_SF_dir+"lepMVAEffSF_e_error_2016.root"
-                    ],
-                    "pt_cut": [0],
-                    "names_cut": ["ele_tight_ttH_error_min", "ele_tight_ttH_error_max"]
+                    "source_1": {
+                        "ext_list": [
+                            "local_name RootObjectName "+directory_prefix+"FileName.root",
+                            "local_name_error RootObjectName_error "+directory_prefix+"FileName.root",
+                        ],
+                        "nominal": {
+                            "ext_strings": ["local_name"],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["local_name_error"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["local_name_error"],
+                            "pt_bins": [0],
+                        },
+                    },
                 },
                 "muon": {
-                    "ext_list": [
-                        "mu_tight_ttH_error_min histo_eff_data_min"+lepton_tight_TTH_SF_dir+"lepMVAEffSF_m_error_2016.root",
-                        "mu_tight_ttH_error_max histo_eff_data_max"+lepton_tight_TTH_SF_dir+"lepMVAEffSF_m_error_2016.root"
-                    ],
-                    "pt_cut": [0],
-                    "names_cut": ["mu_tight_ttH_error_min", "mu_tight_ttH_error_max"]
+                    ...
+                },
+            },
+        }
+        """
+
+        lepton_tight_TTH_SF_dict = {
+            "2016": {
+                "branch_name": "lepton_tight_TTH_SF",
+                "electron": {
+                    "tight_TTH": {
+                        "ext_list": [
+                            "ele_tight_ttH_error_min histo_eff_data_min "+lepton_tight_TTH_SF_dir+"lepMVAEffSF_e_error_2016.root",
+                            "ele_tight_ttH_error_max histo_eff_data_max "+lepton_tight_TTH_SF_dir+"lepMVAEffSF_e_error_2016.root"
+                        ],
+                        "nominal": {
+                            "ext_strings": [],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["ele_tight_ttH_error_max"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["ele_tight_ttH_error_min"],
+                            "pt_bins": [0],
+                        },
+                    },
+                },
+                "muon": {
+                    "tight_TTH": {
+                        "ext_list": [
+                            "mu_tight_ttH_error_min histo_eff_data_min "+lepton_tight_TTH_SF_dir+"lepMVAEffSF_m_error_2016.root",
+                            "mu_tight_ttH_error_max histo_eff_data_max "+lepton_tight_TTH_SF_dir+"lepMVAEffSF_m_error_2016.root"
+                        ],
+                        "nominal": {
+                            "ext_strings": [],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["mu_tight_ttH_error_max"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["mu_tight_ttH_error_min"],
+                            "pt_bins": [0],
+                        },
+                    },
                 },
             },
         }
@@ -288,13 +347,11 @@ class EventProcess():
 
 
         self.lepton_ID_SF_dict = lepton_ID_SF_dict[str(self.Runyear)]
-        self.SF_dict_list = [self.lepton_ID_SF_dict]
+        self.lepton_tight_TTH_SF_dict = lepton_tight_TTH_SF_dict[str(self.Runyear)]
+        self.SF_dict_list = [self.lepton_ID_SF_dict, self.lepton_tight_TTH_SF_dict]
 
         self.jetmet_files = jetmet_files_dict[str(self.Runyear)]
         self.btag_SF_file = btag_SF_file_dict[str(self.Runyear)]
-        self.lepton_ID_SF_files = lepton_ID_SF_files_dict[str(self.Runyear)]
-        #self.test_dict_lepton_ID_SF = test_dict_lepton_ID_SF[str(self.Runyear)]
-        self.lepton_tight_TTH_SF_files = lepton_tight_TTH_SF_files_dict[str(self.Runyear)]
 
         if self.debug > 0:
             print("Muons: ",       self.events.Muon)
@@ -355,8 +412,6 @@ class EventProcess():
         self.muon_electron_trigger_cuts = self.muon_electron_trigger_cuts[self.any_HLT_mask]
     def lepton_ID_SF(self):
         return corrections.lepton_ID_SF(self)
-    def lepton_testing_ID_SF(self):
-        return corrections.lepton_testing_ID_SF(self)
     def lepton_tight_TTH_SF(self):
         return corrections.lepton_tight_TTH_SF(self)
     def make_evaluator(self):

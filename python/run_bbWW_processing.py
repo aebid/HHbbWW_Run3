@@ -58,7 +58,8 @@ for fname in flist:
 
     #eventProcess.lepton_ID_SF()
     eventProcess.make_evaluator()
-    eventProcess.lepton_testing_ID_SF()
+    eventProcess.lepton_ID_SF()
+    eventProcess.lepton_tight_TTH_SF()
 
     """
     if isMC:

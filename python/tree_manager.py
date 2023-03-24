@@ -81,9 +81,12 @@ def update_outfile(EventProcess, outfile):
         }
         if isMC:
             MC_dict = {
-                name+'_ID_SF_nominal': np.array(ak.fill_none(lep.ID_SF_nom, underflow_value), dtype=np.int32),
-                name+'_ID_SF_up': np.array(ak.fill_none(lep.ID_SF_up, underflow_value), dtype=np.int32),
-                name+'_ID_SF_down': np.array(ak.fill_none(lep.ID_SF_down, underflow_value), dtype=np.int32),
+                name+'_lepton_ID_SF': np.array(ak.fill_none(lep.lepton_ID_SF, underflow_value), dtype=np.int32),
+                name+'_lepton_ID_SF_up': np.array(ak.fill_none(lep.lepton_ID_SF_up, underflow_value), dtype=np.int32),
+                name+'_lepton_ID_SF_down': np.array(ak.fill_none(lep.lepton_ID_SF_down, underflow_value), dtype=np.int32),
+                name+'_lepton_tight_TTH_SF': np.array(ak.fill_none(lep.lepton_tight_TTH_SF, underflow_value), dtype=np.int32),
+                name+'_lepton_tight_TTH_SF_up': np.array(ak.fill_none(lep.lepton_tight_TTH_SF_up, underflow_value), dtype=np.int32),
+                name+'_lepton_tight_TTH_SF_down': np.array(ak.fill_none(lep.lepton_tight_TTH_SF_down, underflow_value), dtype=np.int32),
             }
         return dict
 
