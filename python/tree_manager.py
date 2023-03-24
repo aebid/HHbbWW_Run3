@@ -79,6 +79,12 @@ def update_outfile(EventProcess, outfile):
             name+'_py': np.array(ak.fill_none(lep.py, underflow_value), dtype=np.float32),
             name+'_pz': np.array(ak.fill_none(lep.pz, underflow_value), dtype=np.float32),
         }
+        if isMC:
+            MC_dict = {
+                name+'_ID_SF_nominal': np.array(ak.fill_none(lep.ID_SF_nom, underflow_value), dtype=np.int32),
+                name+'_ID_SF_up': np.array(ak.fill_none(lep.ID_SF_up, underflow_value), dtype=np.int32),
+                name+'_ID_SF_down': np.array(ak.fill_none(lep.ID_SF_down, underflow_value), dtype=np.int32),
+            }
         return dict
 
     def make_ak4_jet_dict(jet, name):

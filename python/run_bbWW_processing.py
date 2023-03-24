@@ -45,6 +45,7 @@ isMC = args.isMC
 
 print("Processing: ", flist)
 print("Will save as: ", outname)
+print("Args are = ", args)
 
 #fname = "../input_files/"+fname
 #if not os.path.isdir("../output"):
@@ -55,10 +56,16 @@ for fname in flist:
     print("Starting file: ", fname)
     eventProcess = EventProcess(fname, isMC, Runyear, dnn_truth_value, debug)
 
-    if isMC:
-        eventProcess.ak4_jet_corrector()
-        eventProcess.btag_SF()
+    #eventProcess.lepton_ID_SF()
+    eventProcess.make_evaluator()
+    eventProcess.lepton_testing_ID_SF()
 
+    """
+    if isMC:
+        eventProcess.jet_corrector()
+        eventProcess.met_corrector()
+        eventProcess.btag_SF()
+        print("JetMet corrections in seconds: " + str((time.time() - startTime)))
 
     eventProcess.all_obj_selection()
     print('Object Selection in seconds: ' + str((time.time() - startTime)))
@@ -72,20 +79,4 @@ for fname in flist:
 
     print('Updated in seconds: ' + str((time.time() - startTime)))
     print('Filename = ', outname)
-
-
-"""
-if isMC:
-    eventProcess.ak4_jet_corrector()
-    eventProcess.ak8_jet_corrector()
-    #print("Sub jet will always use data-methods!")
-    #eventProcess.sub_jet_corrector()
-    eventProcess.met_corrector()
-    #print('Jet Corrections in seconds: ' + str((time.time() - startTime)))
-
-
-eventProcess.create_df(outname)
-
-print('Saved in seconds: ' + str((time.time() - startTime)))
-print('Filename = ', outname)
-"""
+    """

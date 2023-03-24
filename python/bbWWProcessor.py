@@ -148,6 +148,7 @@ class EventProcess():
         jetmet_dir = corrections_dir+"jetmet/"
         btag_dir = corrections_dir+"btag_SF/"
         lepton_ID_SF_dir = corrections_dir+"lepton_ID_SF/"
+        lepton_tight_TTH_SF_dir = corrections_dir+"tight_tth_SF/"
         jetmet_files_dict = {
             "2016": {
                 "ak4_jec_files": [jetmet_dir+"Summer19UL16_V7_MC_L1FastJet_AK4PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L2Relative_AK4PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L3Absolute_AK4PFPuppi.jec.txt"],
@@ -176,36 +177,124 @@ class EventProcess():
             "2022": btag_dir+"DeepJet_2016LegacySF_V1.csv",
         }
 
-        lepton_ID_SF_files_dict = {
+        lepton_tight_TTH_SF_files_dict = {
             "2016": {
                 "electron": {
                     "ext_list": [
-                        "ele_Lt20 EGamma_SF2D "+lepton_ID_SF_dir+"el_scaleFactors_gsf_ptLt20.root",
-                        "ele_Lt20_error EGamma_SF2D_error "+lepton_ID_SF_dir+"el_scaleFactors_gsf_ptLt20.root",
-                        "ele_Gt20 EGamma_SF2D "+lepton_ID_SF_dir+"el_scaleFactors_gsf_ptGt20.root",
-                        "ele_Gt20_error EGamma_SF2D_error "+lepton_ID_SF_dir+"el_scaleFactors_gsf_ptGt20.root",
-                        "ele_loose EGamma_SF2D "+lepton_ID_SF_dir+"TnP_loose_ele_2016.root",
-                        "ele_loose_error EGamma_SF2D_error "+lepton_ID_SF_dir+"TnP_loose_ele_2016.root",
-                        "ele_loosettH EGamma_SF2D "+lepton_ID_SF_dir+"TnP_loosettH_ele_2016.root",
-                        "ele_loosettH_error EGamma_SF2D_error "+lepton_ID_SF_dir+"TnP_loosettH_ele_2016.root"
+                        "ele_tight_ttH_error_min histo_eff_data_min"+lepton_tight_TTH_SF_dir+"lepMVAEffSF_e_error_2016.root",
+                        "ele_tight_ttH_error_max histo_eff_data_max"+lepton_tight_TTH_SF_dir+"lepMVAEffSF_e_error_2016.root"
                     ],
-                    "pt_cut": [0, 20],
-                    "names_cut": [["ele_Lt20", "ele_loose", "ele_loosettH"], ["ele_Gt20", "ele_loose", "ele_loosettH"]],
+                    "pt_cut": [0],
+                    "names_cut": ["ele_tight_ttH_error_min", "ele_tight_ttH_error_max"]
                 },
                 "muon": {
                     "ext_list": [
-                        "mu_loose EGamma_SF2D "+lepton_ID_SF_dir+"TnP_loose_muon_2016.root",
-                        "mu_loose_error EGamma_SF2D_error "+lepton_ID_SF_dir+"TnP_loose_muon_2016.root"
+                        "mu_tight_ttH_error_min histo_eff_data_min"+lepton_tight_TTH_SF_dir+"lepMVAEffSF_m_error_2016.root",
+                        "mu_tight_ttH_error_max histo_eff_data_max"+lepton_tight_TTH_SF_dir+"lepMVAEffSF_m_error_2016.root"
                     ],
                     "pt_cut": [0],
-                    "names_cut": [["mu_loose"]],
+                    "names_cut": ["mu_tight_ttH_error_min", "mu_tight_ttH_error_max"]
                 },
             },
         }
 
+
+        lepton_ID_SF_dict = {
+            "2016": {
+                "branch_name": "lepton_ID_SF",
+                "electron": {
+                    "POG_SF": {
+                        "ext_list": [
+                            "ele_Lt20 EGamma_SF2D "+lepton_ID_SF_dir+"el_scaleFactors_gsf_ptLt20.root",
+                            "ele_Lt20_error EGamma_SF2D_error "+lepton_ID_SF_dir+"el_scaleFactors_gsf_ptLt20.root",
+                            "ele_Gt20 EGamma_SF2D "+lepton_ID_SF_dir+"el_scaleFactors_gsf_ptGt20.root",
+                            "ele_Gt20_error EGamma_SF2D_error "+lepton_ID_SF_dir+"el_scaleFactors_gsf_ptGt20.root"
+                        ],
+                        "nominal": {
+                            "ext_strings": ["ele_Lt20", "ele_Gt20"],
+                            "pt_bins": [0, 20],
+                        },
+                        "up": {
+                            "ext_strings": ["ele_Lt20_error", "ele_Gt20_error"],
+                            "pt_bins": [0, 20],
+                        },
+                        "down": {
+                            "ext_strings": ["ele_Lt20_error", "ele_Gt20_error"],
+                            "pt_bins": [0, 20],
+                        },
+                    },
+                    "TnP_loose": {
+                        "ext_list": [
+                            "ele_loose EGamma_SF2D "+lepton_ID_SF_dir+"TnP_loose_ele_2016.root",
+                            "ele_loose_error EGamma_SF2D_error "+lepton_ID_SF_dir+"TnP_loose_ele_2016.root"
+                        ],
+                        "nominal": {
+                            "ext_strings": ["ele_loose"],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["ele_loose_error"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["ele_loose_error"],
+                            "pt_bins": [0],
+                        },
+                    },
+                    "TnP_looseTTH": {
+                        "ext_list": [
+                            "ele_loosettH EGamma_SF2D "+lepton_ID_SF_dir+"TnP_loosettH_ele_2016.root",
+                            "ele_loosettH_error EGamma_SF2D_error "+lepton_ID_SF_dir+"TnP_loosettH_ele_2016.root"
+                        ],
+                        "nominal": {
+                            "ext_strings": ["ele_loosettH"],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["ele_loosettH_error"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["ele_loosettH_error"],
+                            "pt_bins": [0],
+                        },
+                    },
+                },
+                "muon": {
+                    "TnP_looseTTH": {
+                        "ext_list": [
+                            "mu_loosettH EGamma_SF2D "+lepton_ID_SF_dir+"TnP_loose_muon_2016.root",
+                            "mu_loosettH_error EGamma_SF2D_error "+lepton_ID_SF_dir+"TnP_loose_muon_2016.root",
+                        ],
+                        "nominal": {
+                            "ext_strings": ["mu_loosettH"],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["mu_loosettH_error"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["mu_loosettH_error"],
+                            "pt_bins": [0],
+                        },
+                    },
+                },
+            },
+            "2022": {
+
+            },
+        }
+
+
+        self.lepton_ID_SF_dict = lepton_ID_SF_dict[str(self.Runyear)]
+        self.SF_dict_list = [self.lepton_ID_SF_dict]
+
         self.jetmet_files = jetmet_files_dict[str(self.Runyear)]
         self.btag_SF_file = btag_SF_file_dict[str(self.Runyear)]
         self.lepton_ID_SF_files = lepton_ID_SF_files_dict[str(self.Runyear)]
+        #self.test_dict_lepton_ID_SF = test_dict_lepton_ID_SF[str(self.Runyear)]
+        self.lepton_tight_TTH_SF_files = lepton_tight_TTH_SF_files_dict[str(self.Runyear)]
 
         if self.debug > 0:
             print("Muons: ",       self.events.Muon)
@@ -266,6 +355,12 @@ class EventProcess():
         self.muon_electron_trigger_cuts = self.muon_electron_trigger_cuts[self.any_HLT_mask]
     def lepton_ID_SF(self):
         return corrections.lepton_ID_SF(self)
+    def lepton_testing_ID_SF(self):
+        return corrections.lepton_testing_ID_SF(self)
+    def lepton_tight_TTH_SF(self):
+        return corrections.lepton_tight_TTH_SF(self)
+    def make_evaluator(self):
+        return corrections.make_evaluator(self)
 
     def print_object_selection(self):
 
