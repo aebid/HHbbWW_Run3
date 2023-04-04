@@ -44,10 +44,11 @@ def make_jobs(subdir, project_folder, file_list, nFilesPerJob):
     if not os.path.exists(subdir):
         os.mkdir(subdir)
     project_folder = subdir+project_folder
-    os.mkdir(project_folder)
-    os.mkdir(project_folder+"/err")
-    os.mkdir(project_folder+"/log")
-    os.mkdir(project_folder+"/out")
+    if not os.path.exists(project_folder):
+        os.mkdir(project_folder)
+        os.mkdir(project_folder+"/err")
+        os.mkdir(project_folder+"/log")
+        os.mkdir(project_folder+"/out")
 
     os.system("cp initialize_condor.sh {}/".format(project_folder))
 
