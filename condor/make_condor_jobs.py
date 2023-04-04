@@ -22,7 +22,11 @@ def main():
 
     if use_dict:
         dataset_dict = pickle.load(open(pickle_file, 'rb'))
-        for dataset_name in dataset_dict.keys():
+        nDataSets = len(dataset_dict.keys())
+        print("Going over {} datasets".format(nDataSets))
+        for i,dataset_name in enumerate(dataset_dict.keys()):
+            if i%(int(nDataSets/10)) == 0:
+                print("At dataset {}".format(i))
             project_folder = dataset_name.split('/')[1]
             file_list = dataset_dict[dataset_name]
             make_jobs(subdir, project_folder, file_list, nFilesPerJob)
