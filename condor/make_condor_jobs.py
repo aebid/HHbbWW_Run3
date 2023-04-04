@@ -16,23 +16,30 @@ def main():
 
     project_folder = "data3"
     file_list = ["/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/03dbce72-4887-4164-b63a-7b2eea25abbb.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/734b806e-ff93-4d99-b784-0e3164f2dd4e.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/aa5a4b71-fd45-45d9-bf26-ea4f2dc42882.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/e3a97f0b-715d-40d3-9763-7a3070a5fe5c.root"]
+
     nFilesPerJob = 3
+    subdir = "2016_jobs/"
 
     if use_dict:
         dataset_dict = pickle.load(open(pickle_file, 'rb'))
         for dataset_name in dataset_dict.keys():
             project_folder = dataset_name.split('/')[1]
             file_list = dataset_dict[dataset_name]
-            make_jobs(project_folder, file_list, nFilesPerJob)
+            make_jobs(subdir, project_folder, file_list, nFilesPerJob)
     else:
-        make_jobs(project_folder, file_list, nFilesPerJob)
+        make_jobs(subdir, project_folder, file_list, nFilesPerJob)
 
 
-def make_jobs(project_folder, file_list, nFilesPerJob):
+def make_jobs(subdir, project_folder, file_list, nFilesPerJob):
+    print("Making "+subdir+project_folder)
+    print("There are ", len(file_list), "total files")
 
     nJobs = math.ceil(len(file_list)/nFilesPerJob)
     remaining_files = file_list
 
+    if not os.path.exists(subdir):
+        os.mkdir(subdir)
+    project_folder = subdir+project_folder
     os.mkdir(project_folder)
     os.mkdir(project_folder+"/err")
     os.mkdir(project_folder+"/log")
