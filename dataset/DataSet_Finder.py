@@ -1,9 +1,10 @@
-#!/usr/bin/python
-import sys, os, pwd, commands
+#!/usr/bin/python3
+import sys, os, pwd, subprocess
 import optparse, shlex, re
 import time
 from time import gmtime, strftime
 import math
+import pickle
 #define function for parsing options
 def parseOptions():
     global observalbesTags, modelTags, runAllSteps
@@ -21,11 +22,12 @@ def parseOptions():
     (opt, args) = parser.parse_args()
 # define function for processing the external os commands
 def processCmd(cmd, quite = 0):
-    #    print cmd
-    status, output = commands.getstatusoutput(cmd)
-    if (status !=0 and not quite):
-        print 'Error in processing command:\n   ['+cmd+']'
-        print 'Output:\n   ['+output+'] \n'
+    subproc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True).communicate()
+    output = str(subproc[0])
+    status = str(subproc[1])
+    if (status != '' and not quite):
+        print('Error in processing command:\n   ['+cmd+']')
+        print('Output:\n   ['+output+'] \n')
         return "ERROR!!! "+output
     else:
         return output
@@ -36,7 +38,7 @@ def datasetParser():
     global opt, args
     parseOptions()
     # get the datasets
-    print '[Gathering Dataset Information]'
+    print('[Gathering Dataset Information]')
     datasets = []
     cross_section = {}
     nfiles = {}
@@ -56,9 +58,11 @@ def datasetParser():
             dataset = dataset.lstrip()
 
             datasets.append(dataset)
+
             cross_section[dataset] = float(line.split()[1])
-            
-            cmd = '/cvmfs/cms.cern.ch/common/dasgoclient --query="file dataset='+dataset+'" --limit=10 | grep ".root"'
+
+            cmd = '/cvmfs/cms.cern.ch/common/dasgoclient --query="file dataset='+dataset+'" --limit=-1 | grep ".root"'            
+            #cmd = '/cvmfs/cms.cern.ch/common/dasgoclient --query="file dataset='+dataset+'" --limit=10 | grep ".root"'
             output = processCmd(cmd)
             while ('error' in output):
                 time.sleep(1.0);
@@ -67,12 +71,17 @@ def datasetParser():
             nfiles[dataset] = len(datasetfiles[dataset])
  
             cmd = '/cvmfs/cms.cern.ch/common/dasgoclient --query="dataset dataset='+dataset+' | grep dataset.nevents" --limit=0'
-            print cmd
+            print(cmd)
             output = processCmd(cmd)
             while ('error' in output):
                 time.sleep(1.0);
                 output = processCmd(cmd)
             nevents[dataset] = (output.rstrip()).lstrip()
-            print dataset,'xs:',cross_section[dataset],'nfiles:',nfiles[dataset],'nevents:',nevents[dataset]
-            print 'files: ',datasetfiles[dataset]
+            print(dataset,'xs:',cross_section[dataset],'nfiles:',nfiles[dataset],'nevents:',nevents[dataset])
+            print('files: ',datasetfiles[dataset])
+
+
+    with open((opt.DATASETS).split('.')[0]+".pkl", "wb") as fp:
+        pickle.dump(datasetfiles, fp)
+
 datasetParser() 
