@@ -37,35 +37,29 @@ if len(flist) == 0:
 dnn_truth_value = args.dnn_truth_value
 #value list example HH:0 TTbar:1 ST:2 DY:3 H:4 TTbarV(X):5 VV(V):6 Other:7 Data:8
 
-#outname = "out_"+fname
 debug = args.debug
 
 Runyear = args.Runyear
 isMC = args.isMC
+doSF = False
 
 print("Processing: ", flist)
 print("Will save as: ", outname)
 print("Args are = ", args)
 
-#fname = "../input_files/"+fname
-#if not os.path.isdir("../output"):
-#    os.makedirs("../output")
-#outname = "../output/"+outname
 
 for fname in flist:
     print("Starting file: ", fname)
-    eventProcess = EventProcess(fname, isMC, Runyear, dnn_truth_value, debug)
-
-    eventProcess.make_evaluator()
-    eventProcess.lepton_ID_SF()
-    eventProcess.lepton_tight_TTH_SF()
-
+    eventProcess = EventProcess(fname, isMC, doSF, Runyear, dnn_truth_value, debug)
 
     if isMC:
-        eventProcess.jet_corrector()
-        eventProcess.met_corrector()
-        eventProcess.btag_SF()
-        print("JetMet corrections in seconds: " + str((time.time() - startTime)))
+        if doSF:
+            eventProcess.add_scale_factors()
+            eventProcess.jet_corrector()
+            eventProcess.met_corrector()
+            eventProcess.btag_SF()
+            print("JetMet corrections in seconds: " + str((time.time() - startTime)))
+
 
     eventProcess.all_obj_selection()
     print('Object Selection in seconds: ' + str((time.time() - startTime)))
@@ -73,10 +67,10 @@ for fname in flist:
     eventProcess.single_lepton_category()
     eventProcess.double_lepton_category()
     print('Categories in seconds: ' + str((time.time() - startTime)))
+    if debug: eventProcess.print_event_selection()
 
 
     eventProcess.update_outfile(outfile)
 
     print('Updated in seconds: ' + str((time.time() - startTime)))
     print('Filename = ', outname)
-    

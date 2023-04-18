@@ -12,9 +12,10 @@ import corrections
 #import jet_corrections
 
 class EventProcess():
-    def __init__(self, inputFile, isMC, Runyear, dnn_truth_value, debug=0):
+    def __init__(self, inputFile, isMC, doSF, Runyear, dnn_truth_value, debug=0):
         self.fname = inputFile
         self.isMC  = isMC
+        self.doSF = doSF
         self.Runyear = Runyear
         self.dnn_truth_value = dnn_truth_value
         self.debug  = debug
@@ -132,12 +133,16 @@ class EventProcess():
         #Here we define the used events array passing any of the lepton triggers
         #We cannot slim these lists until AFTER we do the JetMet corrections!!!
         self.any_HLT_mask = self.electron_trigger_cuts | self.muon_trigger_cuts | self.double_electron_trigger_cuts | self.double_muon_trigger_cuts | self.muon_electron_trigger_cuts
-        self.events = self.events_pretrigger[self.any_HLT_mask]
-        self.electron_trigger_cuts = self.electron_trigger_cuts[self.any_HLT_mask]
-        self.muon_trigger_cuts = self.muon_trigger_cuts[self.any_HLT_mask]
-        self.double_electron_trigger_cuts = self.double_electron_trigger_cuts[self.any_HLT_mask]
-        self.double_muon_trigger_cuts = self.double_muon_trigger_cuts[self.any_HLT_mask]
-        self.muon_electron_trigger_cuts = self.muon_electron_trigger_cuts[self.any_HLT_mask]
+
+        self.events = self.events_pretrigger
+        filter_by_HLT = True
+        if filter_by_HLT:
+            self.events = self.events_pretrigger[self.any_HLT_mask]
+            self.electron_trigger_cuts = self.electron_trigger_cuts[self.any_HLT_mask]
+            self.muon_trigger_cuts = self.muon_trigger_cuts[self.any_HLT_mask]
+            self.double_electron_trigger_cuts = self.double_electron_trigger_cuts[self.any_HLT_mask]
+            self.double_muon_trigger_cuts = self.double_muon_trigger_cuts[self.any_HLT_mask]
+            self.muon_electron_trigger_cuts = self.muon_electron_trigger_cuts[self.any_HLT_mask]
         #We also have to cut the cuts arrays because they must be the same shape as the events
         self.events["dnn_truth_value"] = dnn_truth_value
 
@@ -149,6 +154,9 @@ class EventProcess():
         btag_dir = corrections_dir+"btag_SF/"
         lepton_ID_SF_dir = corrections_dir+"lepton_ID_SF/"
         lepton_tight_TTH_SF_dir = corrections_dir+"tight_tth_SF/"
+        lepton_relaxed_TTH_SF_dir = corrections_dir+"relaxed_tth_SF/"
+        single_lepton_trigger_SF_dir = corrections_dir+"single_lepton_trigger_SF/"
+
         jetmet_files_dict = {
             "2016": {
                 "ak4_jec_files": [jetmet_dir+"Summer19UL16_V7_MC_L1FastJet_AK4PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L2Relative_AK4PFPuppi.jec.txt", jetmet_dir+"Summer19UL16_V7_MC_L3Absolute_AK4PFPuppi.jec.txt"],
@@ -346,9 +354,108 @@ class EventProcess():
         }
 
 
+        lepton_relaxed_TTH_SF_dict = {
+            "2016": {
+                "branch_name": "lepton_relaxed_TTH_SF",
+                "electron": {
+                    "tight_TTH": {
+                        "ext_list": [
+                            "ele_relaxed_ttH EGamma_SF2D "+lepton_relaxed_TTH_SF_dir+"lepMVAEffSF_e_2016_recomp.root",
+                            "ele_relaxed_ttH_error EGamma_SF2D_error "+lepton_relaxed_TTH_SF_dir+"lepMVAEffSF_e_2016_recomp.root",
+                        ],
+                        "nominal": {
+                            "ext_strings": ["ele_relaxed_ttH"],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["ele_relaxed_ttH_error"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["ele_relaxed_ttH_error"],
+                            "pt_bins": [0],
+                        },
+                    },
+                },
+                "muon": {
+                    "tight_TTH": {
+                        "ext_list": [
+                            "mu_relaxed_ttH EGamma_SF2D "+lepton_relaxed_TTH_SF_dir+"lepMVAEffSF_m_2016_recomp.root",
+                            "mu_relaxed_ttH_error EGamma_SF2D_error "+lepton_relaxed_TTH_SF_dir+"lepMVAEffSF_m_2016_recomp.root",
+                        ],
+                        "nominal": {
+                            "ext_strings": ["mu_relaxed_ttH"],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["mu_relaxed_ttH_error"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["mu_relaxed_ttH_error"],
+                            "pt_bins": [0],
+                        },
+                    },
+                },
+            },
+        }
+
+
+        single_lepton_trigger_SF_dict = {
+            "2016": {
+                "branch_name": "single_lepton_trigger_SF",
+                "electron": {
+                    "single_lepton_trigger": {
+                        "ext_list": [
+                            "ele_single_trigger etaBinsH "+single_lepton_trigger_SF_dir+"Electron_Run2016_legacy_Ele25.root",
+                            "ele_single_trigger_error etaBinsH_error "+single_lepton_trigger_SF_dir+"Electron_Run2016_legacy_Ele25.root",
+                        ],
+                        "nominal": {
+                            "ext_strings": ["ele_single_trigger"],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["ele_single_trigger_error"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["ele_single_trigger_error"],
+                            "pt_bins": [0],
+                        },
+                    },
+                },
+                "muon": {
+                    "single_lepton_trigger": {
+                        "ext_list": [
+                            "mu_single_trigger etaBinsH "+single_lepton_trigger_SF_dir+"Muon_Run2016_legacy_IsoMu22.root",
+                            "mu_single_trigger_error etaBinsH_error "+single_lepton_trigger_SF_dir+"Muon_Run2016_legacy_IsoMu22.root",
+                        ],
+                        "nominal": {
+                            "ext_strings": ["mu_single_trigger"],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["mu_single_trigger_error"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["mu_single_trigger_error"],
+                            "pt_bins": [0],
+                        },
+                    },
+                },
+            },
+            "2022":{
+
+            },
+        }
+
+
         self.lepton_ID_SF_dict = lepton_ID_SF_dict[str(self.Runyear)]
         self.lepton_tight_TTH_SF_dict = lepton_tight_TTH_SF_dict[str(self.Runyear)]
-        self.SF_dict_list = [self.lepton_ID_SF_dict, self.lepton_tight_TTH_SF_dict]
+        self.lepton_relaxed_TTH_SF_dict = lepton_relaxed_TTH_SF_dict[str(self.Runyear)]
+        self.single_lepton_trigger_SF_dict = single_lepton_trigger_SF_dict[str(self.Runyear)]
+        self.SF_dict_list = [self.lepton_ID_SF_dict, self.lepton_tight_TTH_SF_dict, self.lepton_relaxed_TTH_SF_dict, self.single_lepton_trigger_SF_dict]
 
         self.jetmet_files = jetmet_files_dict[str(self.Runyear)]
         self.btag_SF_file = btag_SF_file_dict[str(self.Runyear)]
@@ -403,6 +510,7 @@ class EventProcess():
         return corrections.met_corrector(self)
     def btag_SF(self):
         return corrections.btag_SF(self)
+    """
     def trigger_selection(self):
         self.events = self.events[self.any_HLT_mask]
         self.electron_trigger_cuts = self.electron_trigger_cuts[self.any_HLT_mask]
@@ -410,12 +518,17 @@ class EventProcess():
         self.double_electron_trigger_cuts = self.double_electron_trigger_cuts[self.any_HLT_mask]
         self.double_muon_trigger_cuts = self.double_muon_trigger_cuts[self.any_HLT_mask]
         self.muon_electron_trigger_cuts = self.muon_electron_trigger_cuts[self.any_HLT_mask]
+    """
     def lepton_ID_SF(self):
         return corrections.lepton_ID_SF(self)
     def lepton_tight_TTH_SF(self):
         return corrections.lepton_tight_TTH_SF(self)
+    def lepton_relaxed_TTH_SF(self):
+        return corrections.lepton_relaxed_TTH_SF(self)
     def make_evaluator(self):
         return corrections.make_evaluator(self)
+    def add_scale_factors(self):
+        return corrections.add_scale_factors(self)
 
     def print_object_selection(self):
 

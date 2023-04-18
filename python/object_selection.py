@@ -107,7 +107,9 @@ def muon_selection(EventProcess):
     events.Muon = ak.with_field(events.Muon, muon_fakeable_mask & muon_preselection_mask, "fakeable")
     events.Muon = ak.with_field(events.Muon, muon_tight_mask & muon_fakeable_mask & muon_preselection_mask, "tight")
 
-    events.Muon = ak.with_field(events.Muon, ((getattr(muons, 'genPartFlav', False) == 1) | getattr(muons, 'genPartFlav', False) == 15), "MC_Match")
+
+    events.Muon = ak.with_field(events.Muon, (getattr(muons, 'genPartFlav', False) == 1) | (getattr(muons, 'genPartFlav', False) == 15), "MC_Match")
+
     #NanoAOD -- 1 = prompt muon -- 15 = muon from prompt tau
 
 
@@ -182,7 +184,8 @@ def electron_selection(EventProcess):
     events.Electron = ak.with_field(events.Electron, electron_fakeable_mask & electron_cleaning_mask & electron_preselection_mask, "fakeable")
     events.Electron = ak.with_field(events.Electron, electron_tight_mask & electron_fakeable_mask & electron_cleaning_mask & electron_preselection_mask, "tight")
 
-    events.Electron = ak.with_field(events.Electron, ((getattr(electrons, 'genPartFlav', False) == 1) | getattr(electrons, 'genPartFlav', False) == 15), "MC_Match")
+    events.Electron = ak.with_field(events.Electron, (getattr(electrons, 'genPartFlav', 0) == 1) | (getattr(electrons, 'genPartFlav', 0) == 15), "MC_Match")
+
     #NanoAOD -- 1 = prompt electron -- 15 = electron from prompt tau
 
 

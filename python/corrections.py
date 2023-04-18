@@ -335,6 +335,7 @@ def lepton_ID_SF(EventProcess):
             #THIS IS WHERE YOU MUST WRITE YOUR OWN CODE
             #Here you decide what values will go into the nom/up/down branches
             #THIS COULD BE DIFFERENT FOR EVERY PROCESS
+            #For POG + loose ttH, we multiple all SF together, where up = nom+up and down = nom-down
             nom_value = nom_value * process_nom_value
             up_value = up_value * (process_nom_value + process_up_value)
             down_value = down_value * (process_nom_value - process_down_value)
@@ -375,6 +376,7 @@ def lepton_tight_TTH_SF(EventProcess):
             #THIS IS WHERE YOU MUST WRITE YOUR OWN CODE
             #Here you decide what values will go into the nom/up/down branches
             #THIS COULD BE DIFFERENT FOR EVERY PROCESS
+            #For tight ttH, we only have error up and error down, nom = 1.0
             #nom_value = process_nom_value
             up_value = process_up_value
             down_value = process_down_value
@@ -391,59 +393,93 @@ def lepton_tight_TTH_SF(EventProcess):
             events.Muon = ak.with_field(events.Muon, up_value, branch_name+"_up")
             events.Muon = ak.with_field(events.Muon, down_value, branch_name+"_down")
 
-
-def add_scale_factors(EventProcess):
-    return
-
-"""
-def lepton_tight_TTH_SF(EventProcess): #Handles Tight TTH MVA
+def lepton_relaxed_TTH_SF(EventProcess):
+    eval = EventProcess.SF_Evaluator
     events = EventProcess.events
     electrons = events.Electron
     muons = events.Muon
-    lepton_tight_TTH_SF_files = EventProcess.lepton_tight_TTH_SF_files
+    dict = EventProcess.lepton_relaxed_TTH_SF_dict
+    debug = EventProcess.debug
 
-    electron_file_dict = lepton_tight_TTH_SF_files["electron"]
-    muon_file_dict = lepton_tight_TTH_SF_files["muon"]
+    for lep_pair in [("electron", electrons), ("muon", muons)]:
+        lep = lep_pair[0]
+        lep_list = lep_pair[1]
+        branch_name = dict["branch_name"]
+        nom_value = 1.0
+        up_value = 1.0
+        down_value = 1.0
+        for process in dict[lep]:
+            process_nom_value = get_SF_from_dict(dict[lep][process]["nominal"], lep_list, eval)
+            process_up_value = get_SF_from_dict(dict[lep][process]["up"], lep_list, eval)
+            process_down_value = get_SF_from_dict(dict[lep][process]["down"], lep_list, eval)
 
-    electron_ext = extractor()
-    for ele_ext_str in electron_file_dict["ext_list"]:
-        electron_ext.add_weight_sets([ele_ext_str])
-    electron_ext.finalize()
+            #THIS IS WHERE YOU MUST WRITE YOUR OWN CODE
+            #Here you decide what values will go into the nom/up/down branches
+            #THIS COULD BE DIFFERENT FOR EVERY PROCESS
+            #For relaxed ttH, we do nom, nom+up, nom-down
+            nom_value = process_nom_value
+            up_value = process_nom_value + process_up_value
+            down_value = process_nom_value - process_down_value
+            if debug: print("Did process ", process, " on ", lep)
 
-    electron_evaluator = electron_ext.make_evaluator()
 
-    electrons.tight_TTH_SF_nom = 1.0
-    electrons.tight_TTH_SF_up = 1.0
-    electrons.tight_TTH_SF_down = 1.0
-    for SF_names_cut in electron_file_dict["names_cut"]:
-        ele_SF_nom = 1.0
-        ele_SF_up = 1.0
-        ele_SF_down = 1.0
-        if type(SF_names_cut) is list:
-            ele_SF = ak.where(
-                electrons.pt > electron_file_dict["pt_cut"][0],
-                    ak.where(
-                        electrons.pt > electron_file_dict["pt_cut"][1],
-                            electron_evaluator[SF_names_cut[1]](electrons.eta, electrons.pt),
-                            electron_evaluator[SF_names_cut[0]](electrons.eta, electrons.pt),
-                    ),
-                    0.0,
-            )
-            ele_SF_error = ak.where(
-                electrons.pt > electron_file_dict["pt_cut"][0],
-                    ak.where(
-                        electrons.pt > electron_file_dict["pt_cut"][1],
-                            electron_evaluator[SF_names_cut[1]+"_error"](electrons.eta, electrons.pt),
-                            electron_evaluator[SF_names_cut[0]+"_error"](electrons.eta, electrons.pt),
-                    ),
-                    0.0,
-            )
-        else:
-            ele_SF = electron_evaluator[SF_names_cut](electrons.eta, electrons.pt)
-            ele_SF_error = electron_evaluator[SF_names_cut+"_error"](electrons.eta, electrons.pt)
+        if lep == "electron":
+            events.Electron = ak.with_field(events.Electron, nom_value, branch_name)
+            events.Electron = ak.with_field(events.Electron, up_value, branch_name+"_up")
+            events.Electron = ak.with_field(events.Electron, down_value, branch_name+"_down")
 
-        electrons.tight_TTH_SF_nom = electrons.tight_TTH_SF_nom * ele_SF
-        electrons.tight_TTH_SF_up = electrons.tight_TTH_SF_up * (ele_SF + ele_SF_error)
-        electrons.tight_TTH_SF_down = electrons.tight_TTH_SF_down * (ele_SF - ele_SF_error)
+        if lep == "muon":
+            events.Muon = ak.with_field(events.Muon, nom_value, branch_name)
+            events.Muon = ak.with_field(events.Muon, up_value, branch_name+"_up")
+            events.Muon = ak.with_field(events.Muon, down_value, branch_name+"_down")
 
-"""
+
+def single_lepton_trigger_SF(EventProcess):
+    eval = EventProcess.SF_Evaluator
+    events = EventProcess.events
+    electrons = events.Electron
+    muons = events.Muon
+    dict = EventProcess.single_lepton_trigger_SF_dict
+    debug = EventProcess.debug
+
+    for lep_pair in [("electron", electrons), ("muon", muons)]:
+        lep = lep_pair[0]
+        lep_list = lep_pair[1]
+        branch_name = dict["branch_name"]
+        nom_value = 1.0
+        up_value = 1.0
+        down_value = 1.0
+        for process in dict[lep]:
+            process_nom_value = get_SF_from_dict(dict[lep][process]["nominal"], lep_list, eval)
+            process_up_value = get_SF_from_dict(dict[lep][process]["up"], lep_list, eval)
+            process_down_value = get_SF_from_dict(dict[lep][process]["down"], lep_list, eval)
+
+            #THIS IS WHERE YOU MUST WRITE YOUR OWN CODE
+            #Here you decide what values will go into the nom/up/down branches
+            #THIS COULD BE DIFFERENT FOR EVERY PROCESS
+            #For relaxed ttH, we do nom, nom+up, nom-down
+            nom_value = process_nom_value
+            up_value = process_nom_value + process_up_value
+            down_value = process_nom_value - process_down_value
+            if debug: print("Did process ", process, " on ", lep)
+
+
+        if lep == "electron":
+            events.Electron = ak.with_field(events.Electron, nom_value, branch_name)
+            events.Electron = ak.with_field(events.Electron, up_value, branch_name+"_up")
+            events.Electron = ak.with_field(events.Electron, down_value, branch_name+"_down")
+
+        if lep == "muon":
+            events.Muon = ak.with_field(events.Muon, nom_value, branch_name)
+            events.Muon = ak.with_field(events.Muon, up_value, branch_name+"_up")
+            events.Muon = ak.with_field(events.Muon, down_value, branch_name+"_down")
+
+
+
+
+def add_scale_factors(EventProcess):
+    make_evaluator(EventProcess)
+    lepton_ID_SF(EventProcess)
+    lepton_tight_TTH_SF(EventProcess)
+    lepton_relaxed_TTH_SF(EventProcess)
+    #single_lepton_trigger_SF(EventProcess)
