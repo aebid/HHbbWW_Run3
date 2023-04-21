@@ -8,7 +8,7 @@ import pickle
 def main():
 
     use_dict = True
-    pickle_file = "../dataset/dataset_names/2016/MC_2016_datasets.pkl"
+    pickle_file = "../dataset/dataset_names/2016/2016_Datasets.pkl"
 
 
     project_folder = "TTBar"
@@ -17,7 +17,7 @@ def main():
     project_folder = "data3"
     file_list = ["/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/03dbce72-4887-4164-b63a-7b2eea25abbb.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/734b806e-ff93-4d99-b784-0e3164f2dd4e.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/aa5a4b71-fd45-45d9-bf26-ea4f2dc42882.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/e3a97f0b-715d-40d3-9763-7a3070a5fe5c.root"]
 
-    nFilesPerJob = 3
+    nFilesPerJob = 5
     subdir = "2016_jobs/"
 
     if use_dict:
@@ -76,7 +76,7 @@ def make_jobs(subdir, project_folder, file_list, nFilesPerJob):
     voms_proxy_file = [str(name) for name in re.split(r' |\\n|/', [str(name) for name in subprocess.Popen('voms-proxy-info', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True).communicate() if (name != None and "x509" in str(name))][0]) if "x509" in str(name)][0]
 
     condor_sub_template = open("condor.sub", 'r')
-    condor_sub_file = open(project_folder+"/condor.sub".format(job_count), 'w')
+    condor_sub_file = open(project_folder+"/condor.sub", 'w')
     for line in condor_sub_template:
         if "Proxy_filename          =" in line:
             string_to_write = "Proxy_filename          = {}\n".format(voms_proxy_file)
