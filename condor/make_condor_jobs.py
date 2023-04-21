@@ -19,6 +19,7 @@ def main():
 
     nFilesPerJob = 5
     subdir = "2016_jobs/"
+    runyear = "2016"
 
     if use_dict:
         dataset_dict = pickle.load(open(pickle_file, 'rb'))
@@ -29,12 +30,12 @@ def main():
                 print("At dataset {}".format(i))
             project_folder = dataset_name.split('/')[1]
             file_list = dataset_dict[dataset_name]
-            make_jobs(subdir, project_folder, file_list, nFilesPerJob)
+            make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear)
     else:
-        make_jobs(subdir, project_folder, file_list, nFilesPerJob)
+        make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear)
 
 
-def make_jobs(subdir, project_folder, file_list, nFilesPerJob):
+def make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear):
     print("Making "+subdir+project_folder)
     print("There are ", len(file_list), "total files")
 
@@ -70,6 +71,8 @@ def make_jobs(subdir, project_folder, file_list, nFilesPerJob):
             elif "filename=" in line:
                 filename = "job{}.sh".format(job_count)
                 job_file.write('filename=("{}")\n'.format(filename))
+            elif "runyear=" in line:
+                job_file.write('runyear=("{}")\n'.format(runyear))
             else:
                 job_file.write(line)
 
