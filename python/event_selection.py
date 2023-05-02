@@ -148,8 +148,6 @@ def single_lepton_category(EventProcess):
     single_step5_mask = ak.fill_none(HLT_cut, False)
 
     #MC match for leading and subleading leptons
-    if debug: print(leading_leptons.genPartFlav)
-    if debug: print(leading_leptons.MC_Match)
     leading_MC_match = leading_leptons.MC_Match | (isMC == False)
 
     single_step6_mask = ak.fill_none(leading_MC_match, False)
@@ -190,12 +188,19 @@ def single_lepton_category(EventProcess):
     #   0 ak8 btagged jets and 3 or more cleaned ak4 jets
     #   or
     #   1 or more ak8 btagged jets and 1 or more cleaned ak4 jets 1.2dR away from an ak8 bjet
-    ak8_jets_btag_single = ak8_jets.mask[ak8_jets.btag_single]
-    ak8_jets_btag_single_sorted = ak8_jets_btag_single[ak.argsort(ak8_jets_btag_single.pt, axis=1, ascending=False)]
+    #ak8_jets_btag_single = ak8_jets.mask[ak8_jets.btag_single]
+    ak8_jets_btag_single = ak8_jets[ak8_jets.btag_single]
+
+    ak8_jets_btag_single_sorted = ak8_jets_btag_single
+    if ak.any(ak8_jets_btag_single): #Required in case no ak8 jets available, can happen with data
+        ak8_jets_btag_single_sorted = ak8_jets_btag_single[ak.argsort(ak8_jets_btag_single.pt, axis=1, ascending=False)]
+
     ak8_jets_btag_single_sorted_padded = ak.pad_none(ak8_jets_btag_single_sorted, 1)
+
     ak4_jets_padded = ak.pad_none(ak4_jets, 1)
 
     clean_ak4_jets_btagged_ak8_jets = ak.cartesian([ak4_jets_padded.mask[ak4_jets_padded.cleaned_single], ak8_jets_btag_single_sorted_padded], nested=True)
+
     clean_ak4_for_veto, btag_ak8_for_veto = ak.unzip(clean_ak4_jets_btagged_ak8_jets)
 
     ak4_jets.jets_that_not_bb = abs(clean_ak4_for_veto.delta_r(btag_ak8_for_veto)) > 1.2
@@ -447,7 +452,9 @@ def double_lepton_category(EventProcess):
     #res_2b -- n_ak4 cleaned >= 2 & n_ak4.medium_btag == 2
     #Since boosted/resolved isn't exclusive, priority is given as -- HbbFat > res_1b > res_2b
     cleaned_ak8_jets = ak8_jets.mask[ak8_jets.cleaned_double]
-    cleaned_ak8_jets_sorted = cleaned_ak8_jets[ak.argsort(cleaned_ak8_jets.pt, axis=1, ascending=False)]
+    cleaned_ak8_jets_sorted = cleaned_ak8_jets
+    if ak.any(cleaned_ak8_jets_sorted): #Required in case no ak8 jets available, can happen with data
+        cleaned_ak8_jets_sorted = cleaned_ak8_jets[ak.argsort(cleaned_ak8_jets.pt, axis=1, ascending=False)]
     leading_ak8_jet_cleaned = ak.pad_none(cleaned_ak8_jets_sorted, 1)[:,0]
 
     double_hbbfat_cut = ak.fill_none((ak.sum(ak8_jets.cleaned_double, axis=1) >= 1) & (leading_ak8_jet_cleaned.btag_double), False)
