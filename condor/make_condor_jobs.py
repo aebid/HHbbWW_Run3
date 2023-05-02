@@ -28,7 +28,8 @@ def main():
         for i,dataset_name in enumerate(dataset_dict.keys()):
             if i%(int(nDataSets/10)) == 0:
                 print("At dataset {}".format(i))
-            project_folder = dataset_name.split('/')[1]
+            project_folder = dataset_name.split('/')[1] + "/" + dataset_name.split('/')[2]
+            print("Project folder = ", project_folder)
             file_list = dataset_dict[dataset_name]
             make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear)
     else:
@@ -43,18 +44,29 @@ def make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear):
     remaining_files = file_list
 
     if not os.path.exists(subdir):
-        os.mkdir(subdir)
+        os.makedirs(subdir)
+    os.system("cp initialize_condor.sh {}/".format(subdir))
+    os.system("cp initialize_condor_ALL.py {}/".format(subdir))
+
     project_folder = subdir+project_folder
     if not os.path.exists(project_folder):
-        os.mkdir(project_folder)
-        os.mkdir(project_folder+"/err")
-        os.mkdir(project_folder+"/log")
-        os.mkdir(project_folder+"/out")
+        os.makedirs(project_folder)
+        os.makedirs(project_folder+"/err")
+        os.makedirs(project_folder+"/log")
+        os.makedirs(project_folder+"/out")
 
     os.system("cp initialize_condor.sh {}/".format(project_folder))
 
     os.system("cp condor.sub {}/".format(project_folder))
 
+    project_folder_names = project_folder.split('/')
+    isMC = 1
+    trigger_lists = ["EGamma", "SingleElectron", "SingleMuon", "DoubleEG", "DoubleMuon", "MuonEG"]
+    print("Name? = ", project_folder_names[1])
+    if project_folder.split('/')[1] in trigger_lists:
+        isMC = 0
+
+    os.system("cp submit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
 
     for job_count in range(nJobs):
         job_template = open("job_template.sh", 'r')
@@ -73,6 +85,8 @@ def make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear):
                 job_file.write('filename=("{}")\n'.format(filename))
             elif "runyear=" in line:
                 job_file.write('runyear=("{}")\n'.format(runyear))
+            elif "isMC=" in line:
+                job_file.write('isMC=("{}")\n'.format(isMC))
             else:
                 job_file.write(line)
 
