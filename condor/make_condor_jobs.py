@@ -47,6 +47,8 @@ def make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear):
         os.makedirs(subdir)
     os.system("cp initialize_condor.sh {}/".format(subdir))
     os.system("cp initialize_condor_ALL.py {}/".format(subdir))
+    os.system("cp submit_all.py {}/".format(subdir))
+    os.system("cp resubmit_all.py {}/".format(subdir))
 
     project_folder = subdir+project_folder
     if not os.path.exists(project_folder):
@@ -67,6 +69,7 @@ def make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear):
         isMC = 0
 
     os.system("cp submit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
+    os.system("cp resubmit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
 
     for job_count in range(nJobs):
         job_template = open("job_template.sh", 'r')
