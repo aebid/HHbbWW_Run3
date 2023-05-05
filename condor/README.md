@@ -16,3 +16,41 @@ make_condor_jobs.py will create the work directory, copy the template files, and
 initialize_condor.sh will check your grid proxy by doing voms-proxy-init, and copying the certificate to the current directory for condor to use
 
 condor.sub will submit all the job*.sh files in the current area
+
+## To run on entire datasets from a pkl file
+
+make_condor_jobs.py will create the subdirectory and individual folders for each dataset
+
+You can utilize initialize_condor_ALL.py, submit_all.py, and resubmit_all.py to manage multiple datasets at once
+
+```
+python3 make_condor_jobs.py
+cd work_dir/
+python3 initialize_condor_ALL.py
+python3 submit_all.py
+```
+
+And to resubmit failed jobs
+
+```
+python3 resubmit_all.py
+```
+
+Or to submit individual datasets, you can use submit_dataset.py and resubmit_dataset.py
+
+```
+python3 make_condor_jobs.py
+cd work_dir/
+python3 initialize_condor_ALL.py
+cd dataset/
+python3 submit_dataset.py
+```
+
+And to resubmit failed jobs
+
+```
+python3 resubmit_dataset.py
+```
+
+
+
