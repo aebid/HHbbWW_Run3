@@ -74,3 +74,5 @@ for fname in flist:
 
     print('Updated in seconds: ' + str((time.time() - startTime)))
     print('Filename = ', outname)
+
+print("Finished processing all files!")

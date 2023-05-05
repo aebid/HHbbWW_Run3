@@ -22,7 +22,10 @@ class EventProcess():
         print("Starting NanoAOD processing")
         print("Debug set to ", self.debug)
 
-        events = NanoEventsFactory.from_root(self.fname, schemaclass=NanoAODSchema.v7).events()
+        uproot_file = uproot.open(self.fname)
+        events = NanoEventsFactory.from_root(uproot_file, schemaclass=NanoAODSchema.v7).events()
+
+        #events = NanoEventsFactory.from_root(self.fname, schemaclass=NanoAODSchema.v7).events()
 
         #Load all events, then we will cut on HLT early to slim the array
         self.events_pretrigger = events
