@@ -50,58 +50,6 @@
 /MuonEG/Run2016F-UL2016_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
 /MuonEG/Run2016G-UL2016_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
 /MuonEG/Run2016H-UL2016_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-##########################2017##########################################
-#UL SingleElectron Run2017
-/SingleElectron/Run2017B-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/SingleElectron/Run2017C-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/SingleElectron/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/SingleElectron/Run2017E-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/SingleElectron/Run2017F-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-#UL DoubleEG Run2017
-/DoubleEG/Run2017B-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/DoubleEG/Run2017C-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/DoubleEG/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/DoubleEG/Run2017E-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/DoubleEG/Run2017F-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-#UL SingleMuon Run2017
-/SingleMuon/Run2017B-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/SingleMuon/Run2017C-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/SingleMuon/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/SingleMuon/Run2017E-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/SingleMuon/Run2017F-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-#UL DoubleMuon Run2017
-/DoubleMuon/Run2017B-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/DoubleMuon/Run2017C-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/DoubleMuon/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/DoubleMuon/Run2017E-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/DoubleMuon/Run2017F-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-#UL MuonEG Run2017
-/MuonEG/Run2017B-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/MuonEG/Run2017C-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/MuonEG/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/MuonEG/Run2017E-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/MuonEG/Run2017F-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-##########################2018##########################################
-#UL Egamma Run2018 (merged SingleElectron and DoubleEG )
-/EGamma/Run2018A-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/EGamma/Run2018B-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/EGamma/Run2018C-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/EGamma/Run2018D-UL2018_MiniAODv2_NanoAODv9-v3/NANOAOD 1.0
-#UL SingleMuon Run2018
-/SingleMuon/Run2018A-UL2018_MiniAODv2_NanoAODv9-v2/NANOAOD 1.0
-/SingleMuon/Run2018B-UL2018_MiniAODv2_NanoAODv9-v2/NANOAOD 1.0
-/SingleMuon/Run2018C-UL2018_MiniAODv2_NanoAODv9-v2/NANOAOD 1.0
-/SingleMuon/Run2018D-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-#UL DoubleMuon Run2018
-/DoubleMuon/Run2018A-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/DoubleMuon/Run2018B-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/DoubleMuon/Run2018C-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/DoubleMuon/Run2018D-UL2018_MiniAODv2_NanoAODv9-v2/NANOAOD 1.0
-#UL MuonEG Run2018
-/MuonEG/Run2018A-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/MuonEG/Run2018B-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/MuonEG/Run2018C-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
-/MuonEG/Run2018D-UL2018_MiniAODv2_NanoAODv9-v1/NANOAOD 1.0
 ##########################MC##########################################
 #####################Resonant Signal samples 2016 (Spin-0 ggF, HH: bbWW->2l samples)#################
 /GluGluToRadionToHHTo2B2VTo2L2Nu_M-260_narrow_13TeV-madgraph-v2/RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1/NANOAODSIM 0.026422
