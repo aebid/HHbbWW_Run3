@@ -16,15 +16,24 @@ for folder1 in resubmit_folder_list:
     #Find finished jobs and check if failed
     joblist = [f for f in os.listdir('.') if 'job' in f and '.py' not in f and '.root' not in f]
     for job in joblist:
+        if not os.path.exists("./log/log."+job+".txt"):
+            failed_joblist.append(job)
+            finished_joblist.append(job)
+            #For some reason, the job log is missing
+            continue
         #Check if running first, then if failed
         with open("./log/log."+job+".txt") as f:
             if any("terminated" in line for line in f.readlines()):
-                print("Finished, checking if failed")
+                #print("Finished, checking if failed")
                 finished_joblist.append(job)
+                if not os.path.exists("./out/out."+job+".txt"):
+                    failed_joblist.append(job)
+                    #For some reason, the job out is missing
+                    continue
                 with open("./out/out."+job+".txt") as f2:
                     if "Finished processing all files!\n" not in f2.readlines():
-                        print("Failed!")
-                        print(job)
+                        #print("Failed!")
+                        #print(job)
                         failed_joblist.append(job)
 
     if len(finished_joblist) == 0:
@@ -50,7 +59,7 @@ for folder1 in resubmit_folder_list:
             string_to_write = "queue filename matching files"
             for jobname in failed_joblist:
                 string_to_write = string_to_write + " " + jobname
-                print("Removing old log/err/out files")
+                #print("Removing old log/err/out files")
                 os.system("rm ./log/log."+jobname+".txt")
                 os.system("rm ./err/err."+jobname+".txt")
                 os.system("rm ./out/out."+jobname+".txt")
