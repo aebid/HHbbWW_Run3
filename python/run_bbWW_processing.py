@@ -51,6 +51,7 @@ print("Args are = ", args)
 for fname in flist:
     print("Starting file: ", fname)
     eventProcess = EventProcess(fname, isMC, doSF, Runyear, dnn_truth_value, debug)
+    if eventProcess.skip_file: continue
 
     if isMC:
         if doSF:

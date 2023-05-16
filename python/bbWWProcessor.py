@@ -21,9 +21,14 @@ class EventProcess():
         self.debug  = debug
         print("Starting NanoAOD processing")
         print("Debug set to ", self.debug)
+        self.skip_file = False #Bool to look at if a file is broken
 
         uproot_file = uproot.open(self.fname)
         events = NanoEventsFactory.from_root(uproot_file, schemaclass=NanoAODSchema.v7).events()
+        if len(events) == 0:
+            print("Zero events! This will fail ):")
+            self.skip_file = True
+            return
 
         #events = NanoEventsFactory.from_root(self.fname, schemaclass=NanoAODSchema.v7).events()
 
