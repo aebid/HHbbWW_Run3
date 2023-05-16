@@ -47,9 +47,11 @@ class EventProcess():
         }
 
         PFJetID_dict = {
-            "2016": 1,
+            "2016": 1, #The UL version of 2016 has the PUID set to even intead of odd https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookNanoAOD#Jets
             "2022": 2,
         }
+        if not self.isMC:
+            PFJetID_dict["2016"] = 2
 
         #Currently we include all trigger paths -- In the future we may remove some
         electron_trigger_cuts_dict = {
