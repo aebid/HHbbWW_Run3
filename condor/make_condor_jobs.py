@@ -20,6 +20,7 @@ def main():
     nFilesPerJob = 5
     subdir = "2016_jobs/"
     runyear = "2016"
+    storage_folder = ""
 
     if use_dict:
         dataset_dict = pickle.load(open(pickle_file, 'rb'))
@@ -42,6 +43,9 @@ def make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear):
 
     nJobs = math.ceil(len(file_list)/nFilesPerJob)
     remaining_files = file_list
+
+    if not os.path.exists(storage_folder+'/'+project_folder_names[0]):
+        os.makedirs(storage_folder+'/'+project_folder_names[0]))
 
     if not os.path.exists(subdir):
         os.makedirs(subdir)
@@ -70,6 +74,10 @@ def make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear):
 
     os.system("cp submit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
     os.system("cp resubmit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
+    hadd_script = open(project_folder_names[0]+"/"+project_folder_names[1]+"/hadd_jobs_and_move.sh", 'w')
+    hadd_script.write('for d in */; do hadd out_"${d%?}".root "$d"out_condor_job*.sh.root; done')
+    hadd_script.write('mv out_* '+storage_folder+'/'+project_folder_names[0]+'/.')
+    
 
     for job_count in range(nJobs):
         job_template = open("job_template.sh", 'r')
