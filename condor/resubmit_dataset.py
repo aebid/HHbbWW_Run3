@@ -2,7 +2,7 @@ import os
 import time
 import subprocess
 
-
+debug = False
 cwd = os.getcwd()
 
 resubmit_folder_list = [folder for folder in os.listdir(".") if os.path.isdir(folder)]
@@ -16,6 +16,7 @@ for folder1 in resubmit_folder_list:
     #Find finished jobs and check if failed
     joblist = [f for f in os.listdir('.') if 'job' in f and '.py' not in f and '.root' not in f]
     for job in joblist:
+        if debug: print("Job ", job)
         if not os.path.exists("./log/log."+job+".txt"):
             failed_joblist.append(job)
             finished_joblist.append(job)
@@ -23,18 +24,24 @@ for folder1 in resubmit_folder_list:
             continue
         #Check if running first, then if failed
         with open("./log/log."+job+".txt") as f:
-            if any("terminated" in line for line in f.readlines()):
-                #print("Finished, checking if failed")
+            freadlines = f.readlines()
+            if any("terminated" in line for line in freadlines) or any("aborted" in line for line in freadlines):
+                if debug: print("Finished, checking if failed")
                 finished_joblist.append(job)
                 if not os.path.exists("./out/out."+job+".txt"):
                     failed_joblist.append(job)
                     #For some reason, the job out is missing
+                    if debug: print("No out file?")
                     continue
                 with open("./out/out."+job+".txt") as f2:
                     if "Finished processing all files!\n" not in f2.readlines():
-                        #print("Failed!")
+                        if debug: print("Failed!")
                         #print(job)
                         failed_joblist.append(job)
+            else:
+                print("Job still running ", job)
+
+    if debug: print("Finished vs failed", len(finished_joblist), len(failed_joblist), len(joblist))
 
     if len(finished_joblist) == 0:
         print("No jobs are finished, try again later")
