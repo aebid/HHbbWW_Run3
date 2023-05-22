@@ -61,8 +61,14 @@ def update_outfile(EventProcess, outfile):
     ak8_jets_double_cleaned = ak.pad_none(ak8_jets_double_cleaned, 1)
     ak8_jets_single_cleaned = ak.pad_none(ak8_jets_single_cleaned, 1)
 
-    ak8_jets_double_cleaned_sorted = ak8_jets_double_cleaned[ak.argsort(ak8_jets_double_cleaned.pt, axis=1, ascending=False)]
-    ak8_jets_single_cleaned_sorted = ak8_jets_single_cleaned[ak.argsort(ak8_jets_single_cleaned.pt, axis=1, ascending=False)]
+    ak8_jets_double_cleaned_sorted = ak8_jets_double_cleaned
+    ak8_jets_double_cleaned_all_none = ak.all(ak.all(ak.is_none(ak8_jets_double_cleaned_sorted, axis=1), axis=1))
+    if not ak8_jets_double_cleaned_all_none:
+        ak8_jets_double_cleaned_sorted = ak8_jets_double_cleaned[ak.argsort(ak8_jets_double_cleaned.pt, axis=1, ascending=False)]
+    ak8_jets_single_cleaned_sorted = ak8_jets_single_cleaned
+    ak8_jets_single_cleaned_all_none = ak.all(ak.all(ak.is_none(ak8_jets_single_cleaned_sorted, axis=1), axis=1))
+    if not ak8_jets_single_cleaned_all_none:
+        ak8_jets_single_cleaned_sorted = ak8_jets_single_cleaned[ak.argsort(ak8_jets_single_cleaned.pt, axis=1, ascending=False)]
 
     leptons_fakeable_single = ak.concatenate([electrons_single_fake, muons_single_fake], axis=1)
     leptons_fakeable_single = ak.pad_none(leptons_fakeable_single[ak.argsort(leptons_fakeable_single.conept, ascending=False)], 2)
