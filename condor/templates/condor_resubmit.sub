@@ -1,0 +1,16 @@
+universe                = docker
+docker_image            = gitlab-registry.cern.ch/daebi/hhbbww_run3:latest
+executable              = $(filename)
+Proxy_filename          = x509up_u120525
+Proxy_path              = $(Proxy_filename)
+transfer_input_files    = $(Proxy_path), /afs/cern.ch/work/d/daebi/diHiggs/HHbbWW_Run3/python 
+arguments               = $(Proxy_filename)
+transfer_output_files   = out_condor_$(filename).root
+should_transfer_files   = YES
+when_to_transfer_output = ON_EXIT
+output                  = out/out.$(filename).txt
+error                   = err/err.$(filename).txt
+log                     = log/log.$(filename).txt
+request_memory          = 4000M
++MaxRuntime             = 288000
+queue filename matching files dummy_job0.sh dummy_job1.sh ...

@@ -7,6 +7,7 @@ import pickle
 
 def main():
 
+    #If use dict, will run over the pickle file, otherwise will use the project_folder
     use_dict = True
     pickle_file = "../dataset/dataset_names/2016/2016_Datasets.pkl"
 
@@ -20,7 +21,7 @@ def main():
     nFilesPerJob = 5
     subdir = "2016_jobs/"
     runyear = "2016"
-    storage_folder = ""
+    storage_folder = "/eos/user/d/daebi/"
 
     if use_dict:
         dataset_dict = pickle.load(open(pickle_file, 'rb'))
@@ -49,10 +50,10 @@ def make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear):
 
     if not os.path.exists(subdir):
         os.makedirs(subdir)
-    os.system("cp initialize_condor.sh {}/".format(subdir))
-    os.system("cp initialize_condor_ALL.py {}/".format(subdir))
-    os.system("cp submit_all.py {}/".format(subdir))
-    os.system("cp resubmit_all.py {}/".format(subdir))
+    os.system("cp templates/initialize_condor.sh {}/".format(subdir))
+    os.system("cp templates/initialize_condor_ALL.py {}/".format(subdir))
+    os.system("cp templates/submit_all.py {}/".format(subdir))
+    os.system("cp templates/resubmit_all.py {}/".format(subdir))
 
     project_folder = subdir+project_folder
     if not os.path.exists(project_folder):
@@ -61,9 +62,9 @@ def make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear):
         os.makedirs(project_folder+"/log")
         os.makedirs(project_folder+"/out")
 
-    os.system("cp initialize_condor.sh {}/".format(project_folder))
+    os.system("cp templates/initialize_condor.sh {}/".format(project_folder))
 
-    os.system("cp condor.sub {}/".format(project_folder))
+    os.system("cp templates/condor.sub {}/".format(project_folder))
 
     project_folder_names = project_folder.split('/')
     isMC = 1
@@ -72,15 +73,12 @@ def make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear):
     if project_folder.split('/')[1] in trigger_lists:
         isMC = 0
 
-    os.system("cp submit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
-    os.system("cp resubmit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
-    hadd_script = open(project_folder_names[0]+"/"+project_folder_names[1]+"/hadd_jobs_and_move.sh", 'w')
-    hadd_script.write('for d in */; do hadd out_"${d%?}".root "$d"out_condor_job*.sh.root; done')
-    hadd_script.write('mv out_* '+storage_folder+'/'+project_folder_names[0]+'/.')
+    os.system("cp templates/submit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
+    os.system("cp templates/resubmit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
     
 
     for job_count in range(nJobs):
-        job_template = open("job_template.sh", 'r')
+        job_template = open("templates/job_template.sh", 'r')
         job_file = open(project_folder+"/job{}.sh".format(job_count), 'w')
         for line in job_template:
             if "list_of_files=" in line:
@@ -103,7 +101,7 @@ def make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear):
 
     voms_proxy_file = [str(name) for name in re.split(r' |\\n|/', [str(name) for name in subprocess.Popen('voms-proxy-info', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True).communicate() if (name != None and "x509" in str(name))][0]) if "x509" in str(name)][0]
 
-    condor_sub_template = open("condor.sub", 'r')
+    condor_sub_template = open("templates/condor.sub", 'r')
     condor_sub_file = open(project_folder+"/condor.sub", 'w')
     for line in condor_sub_template:
         if "Proxy_filename          =" in line:
