@@ -9,6 +9,7 @@ import object_selection
 import event_selection
 import tree_manager
 import corrections
+import genparticles
 #import jet_corrections
 
 class EventProcess():
@@ -588,6 +589,12 @@ class EventProcess():
         print("N Double Signal:         ", ak.sum(self.events.Double_Signal))
         print("N Double Fake:           ", ak.sum(self.events.Double_Fake))
         print("Double Category Cutflow: ", self.events.double_cutflow)
+
+    def single_lepton_genpart(self):
+        self.genpart_sgl = genparticles.single_lepton_genpart(self)
+    
+    def double_lepton_genpart(self):
+        self.genpart_dbl = genparticles.double_lepton_genpart(self)
 
     def update_outfile(self, outfile):
         return tree_manager.update_outfile(self, outfile)
