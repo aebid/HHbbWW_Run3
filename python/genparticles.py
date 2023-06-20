@@ -54,21 +54,12 @@ def single_lepton_genpart(EventProcess):
     lepFromW = find_genpart(genparts, [11, 13, 15], [24, 25])
     nuFromW = find_genpart(genparts, [12, 14, 16], [24, 25])
 
-    events = ak.with_field(events, bFromH.pt, "bFromH_pt")
-    events = ak.with_field(events, bFromH.eta, "bFromH_eta")
-    events = ak.with_field(events, bFromH.phi, "bFromH_phi")
-    
-    events = ak.with_field(events, qFromW.pt, "qFromW_pt")
-    events = ak.with_field(events, qFromW.eta, "qFromW_eta")
-    events = ak.with_field(events, qFromW.phi, "qFromW_phi")
-
-    events = ak.with_field(events, lepFromW.pt, "lepFromW_pt")
-    events = ak.with_field(events, lepFromW.eta, "lepFromW_eta")
-    events = ak.with_field(events, lepFromW.phi, "lepFromW_phi")
-    
-    events = ak.with_field(events, nuFromW.pt, "nuFromW_pt")
-    events = ak.with_field(events, nuFromW.eta, "nuFromW_eta")
-    events = ak.with_field(events, nuFromW.phi, "nuFromW_phi")
+    return {
+        "bFromH": bFromH,
+        "qFromW": qFromW,
+        "lepFromW": lepFromW,
+        "nuFromW": nuFromW,
+    }
 
 def double_lepton_genpart(EventProcess):
     events = EventProcess.events
@@ -81,15 +72,9 @@ def double_lepton_genpart(EventProcess):
     # leptons from W decay
     lepFromW = find_genpart(genparts, [11, 13, 15], [24, 25])
     nuFromW = find_genpart(genparts, [12, 14, 16], [24, 25])
-
-    events = ak.with_field(events, bFromH.pt, "bFromH_pt")
-    events = ak.with_field(events, bFromH.eta, "bFromH_eta")
-    events = ak.with_field(events, bFromH.phi, "bFromH_phi")
     
-    events = ak.with_field(events, lepFromW.pt, "lepFromW_pt")
-    events = ak.with_field(events, lepFromW.eta, "lepFromW_eta")
-    events = ak.with_field(events, lepFromW.phi, "lepFromW_phi")
-    
-    events = ak.with_field(events, nuFromW.pt, "nuFromW_pt")
-    events = ak.with_field(events, nuFromW.eta, "nuFromW_eta")
-    events = ak.with_field(events, nuFromW.phi, "nuFromW_phi")
+    return {
+        "bFromH": bFromH,
+        "lepFromW": lepFromW,
+        "nuFromW": nuFromW,
+    }

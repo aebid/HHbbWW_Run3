@@ -591,10 +591,10 @@ class EventProcess():
         print("Double Category Cutflow: ", self.events.double_cutflow)
 
     def single_lepton_genpart(self):
-        genparticles.single_lepton_genpart(self)
+        self.genpart_sgl = genparticles.single_lepton_genpart(self)
     
     def double_lepton_genpart(self):
-        genparticles.double_lepton_genpart(self)
+        self.genpart_dbl = genparticles.double_lepton_genpart(self)
 
     def update_outfile(self, outfile):
         return tree_manager.update_outfile(self, outfile)
