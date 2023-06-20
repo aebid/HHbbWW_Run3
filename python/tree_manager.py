@@ -79,16 +79,28 @@ def update_outfile(EventProcess, outfile):
     lep0_double = leptons_fakeable_double[:,0]; lep1_double = leptons_fakeable_double[:,1]
 
     #Take first 2 B tagged, then second 2 pT ordered (after removing bTags)
-    ak4_jets_bsorted_single = ak4_jets_single_cleaned[ak.argsort(ak4_jets_single_cleaned.btagDeepFlavB, ascending=False)]
+    ak4_jets_bsorted_single = ak4_jets_single_cleaned
+    ak4_jets_bsorted_single_all_none = ak.all(ak.all(ak.is_none(ak4_jets_bsorted_single, axis=1), axis=1))
+    if not ak4_jets_bsorted_single_all_none:
+        ak4_jets_bsorted_single = ak4_jets_single_cleaned[ak.argsort(ak4_jets_single_cleaned.btagDeepFlavB, ascending=False)]
     ak4_jet0_single = ak4_jets_bsorted_single[:,0]; ak4_jet1_single = ak4_jets_bsorted_single[:,1]
     ak4_jets_without_bjets_single = ak4_jets_bsorted_single[:,2:]
-    ak4_jets_ptsorted_single = ak4_jets_without_bjets_single[ak.argsort(ak4_jets_without_bjets_single.pt, ascending=False)]
+    ak4_jets_ptsorted_single = ak4_jets_without_bjets_single
+    ak4_jets_ptsorted_single_all_none = ak.all(ak.all(ak.is_none(ak4_jets_ptsorted_single, axis=1), axis=1))
+    if not ak4_jets_ptsorted_single_all_none:
+        ak4_jets_ptsorted_single = ak4_jets_without_bjets_single[ak.argsort(ak4_jets_without_bjets_single.pt, ascending=False)]
     ak4_jet2_single = ak4_jets_ptsorted_single[:,0]; ak4_jet3_single = ak4_jets_ptsorted_single[:,1]
 
-    ak4_jets_bsorted_double = ak4_jets_double_cleaned[ak.argsort(ak4_jets_double_cleaned.btagDeepFlavB, ascending=False)]
+    ak4_jets_bsorted_double = ak4_jets_double_cleaned
+    ak4_jets_bsorted_double_all_none = ak.all(ak.all(ak.is_none(ak4_jets_bsorted_double, axis=1), axis=1))
+    if not ak4_jets_bsorted_double_all_none:
+        ak4_jets_bsorted_double = ak4_jets_double_cleaned[ak.argsort(ak4_jets_double_cleaned.btagDeepFlavB, ascending=False)]
     ak4_jet0_double = ak4_jets_bsorted_double[:,0]; ak4_jet1_double = ak4_jets_bsorted_double[:,1]
     ak4_jets_without_bjets_double = ak4_jets_bsorted_double[:,2:]
-    ak4_jets_ptsorted_double = ak4_jets_without_bjets_double[ak.argsort(ak4_jets_without_bjets_double.pt, ascending=False)]
+    ak4_jets_ptsorted_double = ak4_jets_without_bjets_double
+    ak4_jets_ptsorted_double_all_none = ak.all(ak.all(ak.is_none(ak4_jets_ptsorted_double, axis=1), axis=1))
+    if not ak4_jets_ptsorted_double_all_none:
+        ak4_jets_ptsorted_double = ak4_jets_without_bjets_double[ak.argsort(ak4_jets_without_bjets_double.pt, ascending=False)]
     ak4_jet2_double = ak4_jets_ptsorted_double[:,0]; ak4_jet3_double = ak4_jets_ptsorted_double[:,1]
 
     ak8_jet0_single = ak8_jets_single_cleaned_sorted[:,0]
