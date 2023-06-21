@@ -17,6 +17,7 @@ parser.add_argument("-ry", "--runyear", dest="Runyear", type=int, default=2022, 
 parser.add_argument("-MC", dest="isMC", type=int, default=0, help="Is the file MC. [Default: 0]")
 parser.add_argument("-t", "--truth", dest="dnn_truth_value", type=int, default="8", help="DNN Truth value, HH:0 TTbar:1 ST:2 DY:3 H:4 TTbarV(X):5 VV(V):6 Other:7 Data:8. [Default: 8 (Data)]")
 parser.add_argument("-d", "--debug", dest="debug", type=int, default="0", help="Debug. [Default: 0 (False)]")
+parser.add_argument("-XS", dest="XS", type=float, default=1.0, help="Cross Section. [Default: 1.0]")
 args, unknown = parser.parse_known_args()
 
 flist = args.infile_list
@@ -41,7 +42,9 @@ debug = args.debug
 
 Runyear = args.Runyear
 isMC = args.isMC
+XS = args.XS
 doSF = False
+do_genMatch = False
 
 print("Processing: ", flist)
 print("Will save as: ", outname)
@@ -50,7 +53,7 @@ print("Args are = ", args)
 
 for fname in flist:
     print("Starting file: ", fname)
-    eventProcess = EventProcess(fname, isMC, doSF, Runyear, dnn_truth_value, debug)
+    eventProcess = EventProcess(fname, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug)
     if eventProcess.skip_file: continue
 
     if isMC:

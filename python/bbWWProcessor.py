@@ -13,12 +13,14 @@ import genparticles
 #import jet_corrections
 
 class EventProcess():
-    def __init__(self, inputFile, isMC, doSF, Runyear, dnn_truth_value, debug=0):
+    def __init__(self, inputFile, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug=0):
         self.fname = inputFile
         self.isMC  = isMC
         self.doSF = doSF
+        self.do_genMatch = do_genMatch
         self.Runyear = Runyear
         self.dnn_truth_value = dnn_truth_value
+        self.XS = XS
         self.debug  = debug
         print("Starting NanoAOD processing")
         print("Debug set to ", self.debug)
@@ -26,7 +28,8 @@ class EventProcess():
 
         uproot_file = uproot.open(self.fname)
         events = NanoEventsFactory.from_root(uproot_file, schemaclass=NanoAODSchema.v7).events()
-        if len(events) == 0:
+        self.nEvents = len(events)
+        if self.nEvents == 0:
             print("Zero events! This will fail ):")
             self.skip_file = True
             return
@@ -592,7 +595,7 @@ class EventProcess():
 
     def single_lepton_genpart(self):
         self.genpart_sgl = genparticles.single_lepton_genpart(self)
-    
+
     def double_lepton_genpart(self):
         self.genpart_dbl = genparticles.double_lepton_genpart(self)
 

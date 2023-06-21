@@ -42,12 +42,13 @@ debug = args.debug
 Runyear = args.Runyear
 isMC = args.isMC
 doSF = False
+do_genMatch = True
 
 print("Processing: ", flist)
 
 for fname in flist:
     print("Starting file: ", fname)
-    eventProcess = EventProcess(fname, isMC, doSF, Runyear, dnn_truth_value, debug)
+    eventProcess = EventProcess(fname, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, debug)
     if eventProcess.skip_file: continue
 
     eventProcess.all_obj_selection()
@@ -57,11 +58,11 @@ for fname in flist:
     eventProcess.double_lepton_category()
     print('Categories in seconds: ' + str((time.time() - startTime)))
     if debug: eventProcess.print_event_selection()
-    
+
     eventProcess.single_lepton_genpart()
     eventProcess.double_lepton_genpart()
     print('GenParts in seconds: ' + str((time.time() - startTime)))
-    
+
     eventProcess.update_outfile(outfile)
     print('Updated in seconds: ' + str((time.time() - startTime)))
     print('Filename = ', outname)

@@ -8,6 +8,7 @@ from coffea.nanoevents.methods import vector
 def update_outfile(EventProcess, outfile):
     isMC = EventProcess.isMC
     doSF = EventProcess.doSF
+    do_genMatch = EventProcess.do_genMatch
     debug = EventProcess.debug
     print("Creating save dicts")
     underflow_value = -999999.0
@@ -257,6 +258,7 @@ def update_outfile(EventProcess, outfile):
         'single_is_m': np.array(ak.fill_none(events_single.is_m, False), dtype=np.int32),
 
         'dnn_truth_value': np.array(events_single.dnn_truth_value, dtype=np.int32),
+        'XS': np.array(ak.ones_like(events_single.run)*EventProcess.XS, dtype=np.float32),
     }
 
     event_dict_double = {
@@ -292,8 +294,11 @@ def update_outfile(EventProcess, outfile):
         'double_is_em': np.array(ak.fill_none(events_double.is_em, False), dtype=np.int32),
 
         'dnn_truth_value': np.array(events_double.dnn_truth_value, dtype=np.int32),
+        'XS': np.array(ak.ones_like(events_double.run)*EventProcess.XS, dtype=np.float32),
     }
-    
+
+
+
     lep_dict_single = make_lep_dict(lep0_single, 'lep0') | make_lep_dict(lep1_single, 'lep1')
     ak4_jet_dict_single = make_ak4_jet_dict(ak4_jet0_single, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet1_single, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet2_single, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet3_single, 'ak4_jet0')
     ak8_jet_dict_single = make_ak8_jet_dict(ak8_jet0_single, 'ak8_jet0')
@@ -307,17 +312,17 @@ def update_outfile(EventProcess, outfile):
 
     single_dicts = event_dict_single | lep_dict_single | ak4_jet_dict_single | ak8_jet_dict_single | met_dict_single
     double_dicts = event_dict_double | lep_dict_double | ak4_jet_dict_double | ak8_jet_dict_double | met_dict_double
-    
-    if isMC:
+
+    if isMC and do_genMatch:
         genpart_sgl = EventProcess.genpart_sgl
         genpart_dbl = EventProcess.genpart_dbl
 
-        gen_bFromH_single = genpart_sgl["bFromH"][(events.Single_Signal | events.Single_Fake)] 
-        gen_qFromW_single = genpart_sgl["qFromW"][(events.Single_Signal | events.Single_Fake)] 
+        gen_bFromH_single = genpart_sgl["bFromH"][(events.Single_Signal | events.Single_Fake)]
+        gen_qFromW_single = genpart_sgl["qFromW"][(events.Single_Signal | events.Single_Fake)]
         gen_lepFromW_single = genpart_sgl["lepFromW"][(events.Single_Signal | events.Single_Fake)]
         gen_nuFromW_single = genpart_sgl["nuFromW"][(events.Single_Signal | events.Single_Fake)]
-        
-        gen_bFromH_double = genpart_dbl["bFromH"][(events.Double_Signal | events.Double_Fake)] 
+
+        gen_bFromH_double = genpart_dbl["bFromH"][(events.Double_Signal | events.Double_Fake)]
         gen_lepFromW_double = genpart_dbl["lepFromW"][(events.Double_Signal | events.Double_Fake)]
         gen_nuFromW_double = genpart_dbl["nuFromW"][(events.Double_Signal | events.Double_Fake)]
 
@@ -335,7 +340,7 @@ def update_outfile(EventProcess, outfile):
         genpart_dict_single.update(genpart_dict(gen_bFromH_single[:,1], "gen_bquark2"))
         genpart_dict_single.update(genpart_dict(gen_lepFromW_single[:,0], "gen_lep"))
         genpart_dict_single.update(genpart_dict(gen_nuFromW_single[:,0], "gen_nu"))
-        
+
         genpart_dict_double = genpart_dict(gen_bFromH_double[:,0], "gen_bquark1")
         genpart_dict_double.update(genpart_dict(gen_bFromH_double[:,1], "gen_bquark2"))
         genpart_dict_double.update(genpart_dict(gen_lepFromW_double[:,0], "gen_lep1"))
@@ -364,4 +369,14 @@ def update_outfile(EventProcess, outfile):
         outfile["Double_Tree"].extend(double_dicts)
     else:
         outfile["Double_Tree"] = double_dicts
+
+    nEvents_dict = {
+        'nEvents': np.array([EventProcess.nEvents], dtype=np.int32),
+    }
+    if "nEntries" in '\t'.join(outfile.keys()):
+        print("Extending!")
+        outfile["nEvents"].extend(nEvents_dict)
+    else:
+        outfile["nEvents"] = nEvents_dict
+
     if debug: print("Took ", time.time() - startTime, " seconds")
