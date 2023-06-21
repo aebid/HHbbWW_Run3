@@ -22,23 +22,25 @@ def main():
     subdir = "2016_jobs/"
     runyear = "2016"
     storage_folder = "/eos/user/d/daebi/"
+    cross_section = 1.0
 
     if use_dict:
         dataset_dict = pickle.load(open(pickle_file, 'rb'))
         nDataSets = len(dataset_dict.keys())
         print("Going over {} datasets".format(nDataSets))
-        for i,dataset_name in enumerate(dataset_dict.keys()):
+        for i,dataset_name in enumerate(dataset_dict['files'].keys()):
             if i%(int(nDataSets/10)) == 0:
                 print("At dataset {}".format(i))
             project_folder = dataset_name.split('/')[1] + "/" + dataset_name.split('/')[2]
             print("Project folder = ", project_folder)
-            file_list = dataset_dict[dataset_name]
-            make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear)
+            file_list = dataset_dict['files'][dataset_name]
+            cross_section = dataset_dict['xs'][dataset_name]
+            make_jobs(subdir, project_folder, file_list, cross_section, nFilesPerJob, runyear)
     else:
-        make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear)
+        make_jobs(subdir, project_folder, file_list, cross_section, nFilesPerJob, runyear)
 
 
-def make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear):
+def make_jobs(subdir, project_folder, file_list, cross_section, nFilesPerJob, runyear):
     print("Making "+subdir+project_folder)
     print("There are ", len(file_list), "total files")
 
@@ -96,6 +98,8 @@ def make_jobs(subdir, project_folder, file_list, nFilesPerJob, runyear):
                 job_file.write('runyear=("{}")\n'.format(runyear))
             elif "isMC=" in line:
                 job_file.write('isMC=("{}")\n'.format(isMC))
+            elif "XS=" in line:
+                job_file.write('XS=("{}")\n'.format(cross_section))
             else:
                 job_file.write(line)
 

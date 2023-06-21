@@ -61,7 +61,7 @@ def datasetParser():
 
             cross_section[dataset] = float(line.split()[1])
 
-            cmd = '/cvmfs/cms.cern.ch/common/dasgoclient --query="file dataset='+dataset+'" --limit=-1 | grep ".root"'            
+            cmd = '/cvmfs/cms.cern.ch/common/dasgoclient --query="file dataset='+dataset+'" --limit=-1 | grep ".root"'
             #cmd = '/cvmfs/cms.cern.ch/common/dasgoclient --query="file dataset='+dataset+'" --limit=10 | grep ".root"'
             output = processCmd(cmd)
             while ('error' in output):
@@ -69,7 +69,7 @@ def datasetParser():
                 output = processCmd(cmd)
             datasetfiles[dataset] =  output.split()
             nfiles[dataset] = len(datasetfiles[dataset])
- 
+
             cmd = '/cvmfs/cms.cern.ch/common/dasgoclient --query="dataset dataset='+dataset+' | grep dataset.nevents" --limit=0'
             print(cmd)
             output = processCmd(cmd)
@@ -80,8 +80,12 @@ def datasetParser():
             print(dataset,'xs:',cross_section[dataset],'nfiles:',nfiles[dataset],'nevents:',nevents[dataset])
             print('files: ',datasetfiles[dataset])
 
-
     with open((opt.DATASETS).split('.')[0]+".pkl", "wb") as fp:
-        pickle.dump(datasetfiles, fp)
+        dataset_info = {
+            'files': datasetfiles,
+            'xs': cross_section,
+            'nevents': nevents,
+        }
+        pickle.dump(dataset_info, fp)
 
-datasetParser() 
+datasetParser()
