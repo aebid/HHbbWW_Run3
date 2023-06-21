@@ -38,7 +38,6 @@ def update_outfile(EventProcess, outfile):
     ak8_subjets_double = ak8_subjets[(events.Double_Signal | events.Double_Fake)]
     ak8_subjets_single = ak8_subjets[(events.Single_Signal | events.Single_Fake)]
 
-
     muons_double["px"] = muons_double.px; muons_double["py"] = muons_double.py; muons_double["pz"] = muons_double.pz; muons_double["energy"] = muons_double.energy
     muons_double_pre = muons_double[(muons_double.preselected)]; muons_double_fake = muons_double[(muons_double.fakeable)]; muons_double_tight = muons_double[(muons_double.tight)]
     muons_single["px"] = muons_single.px; muons_single["py"] = muons_single.py; muons_single["pz"] = muons_single.pz; muons_single["energy"] = muons_single.energy
@@ -294,8 +293,7 @@ def update_outfile(EventProcess, outfile):
 
         'dnn_truth_value': np.array(events_double.dnn_truth_value, dtype=np.int32),
     }
-
-
+    
     lep_dict_single = make_lep_dict(lep0_single, 'lep0') | make_lep_dict(lep1_single, 'lep1')
     ak4_jet_dict_single = make_ak4_jet_dict(ak4_jet0_single, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet1_single, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet2_single, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet3_single, 'ak4_jet0')
     ak8_jet_dict_single = make_ak8_jet_dict(ak8_jet0_single, 'ak8_jet0')
@@ -309,6 +307,44 @@ def update_outfile(EventProcess, outfile):
 
     single_dicts = event_dict_single | lep_dict_single | ak4_jet_dict_single | ak8_jet_dict_single | met_dict_single
     double_dicts = event_dict_double | lep_dict_double | ak4_jet_dict_double | ak8_jet_dict_double | met_dict_double
+    
+    if isMC:
+        genpart_sgl = EventProcess.genpart_sgl
+        genpart_dbl = EventProcess.genpart_dbl
+
+        gen_bFromH_single = genpart_sgl["bFromH"][(events.Single_Signal | events.Single_Fake)] 
+        gen_qFromW_single = genpart_sgl["qFromW"][(events.Single_Signal | events.Single_Fake)] 
+        gen_lepFromW_single = genpart_sgl["lepFromW"][(events.Single_Signal | events.Single_Fake)]
+        gen_nuFromW_single = genpart_sgl["nuFromW"][(events.Single_Signal | events.Single_Fake)]
+        
+        gen_bFromH_double = genpart_dbl["bFromH"][(events.Double_Signal | events.Double_Fake)] 
+        gen_lepFromW_double = genpart_dbl["lepFromW"][(events.Double_Signal | events.Double_Fake)]
+        gen_nuFromW_double = genpart_dbl["nuFromW"][(events.Double_Signal | events.Double_Fake)]
+
+        def genpart_dict(genpart, name):
+            dic = {
+                f"{name}_pt": genpart.pt,
+                f"{name}_eta": genpart.eta,
+                f"{name}_phi": genpart.phi,
+                f"{name}_mass": genpart.mass,
+                f"{name}_pdgId": genpart.pdgId
+            }
+            return dic
+
+        genpart_dict_single = genpart_dict(gen_bFromH_single[:,0], "gen_bquark1")
+        genpart_dict_single.update(genpart_dict(gen_bFromH_single[:,1], "gen_bquark2"))
+        genpart_dict_single.update(genpart_dict(gen_lepFromW_single[:,0], "gen_lep"))
+        genpart_dict_single.update(genpart_dict(gen_nuFromW_single[:,0], "gen_nu"))
+        
+        genpart_dict_double = genpart_dict(gen_bFromH_double[:,0], "gen_bquark1")
+        genpart_dict_double.update(genpart_dict(gen_bFromH_double[:,1], "gen_bquark2"))
+        genpart_dict_double.update(genpart_dict(gen_lepFromW_double[:,0], "gen_lep1"))
+        genpart_dict_double.update(genpart_dict(gen_lepFromW_double[:,1], "gen_lep2"))
+        genpart_dict_double.update(genpart_dict(gen_nuFromW_double[:,0], "gen_nu1"))
+        genpart_dict_double.update(genpart_dict(gen_nuFromW_double[:,1], "gen_nu2"))
+
+        single_dicts = single_dicts | genpart_dict_single
+        double_dicts = double_dicts | genpart_dict_double
 
 
     if debug: import time
