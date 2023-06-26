@@ -24,9 +24,6 @@ Then to run, prepare the input file (default input_files/run2022C_data_doublemuo
 ```
 To use through condor, look at the README in the condor directory
 
-To make data/MC plots:
-- define variable to plot, binning, axis title etc at end of 'Plots_stack.py' file(which will be feeded to 'make_plot' function ) and run simply by 'python3 Plots_stack.py'
-
 
 All major pieces of the analysis are handled by separate files, managed by the bbWWProcessor.py class
 
@@ -34,3 +31,6 @@ Steps are:
 - Object Selection
 - Event Selection
 - Tree Creation
+
+To make data/MC plots:
+- define variable to plot, binning, axis title etc at end of 'Plots_stack.py' file(which will be feeded to 'make_plot' function ) and run simply by 'python3 Plots_stack.py'
