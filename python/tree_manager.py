@@ -120,6 +120,7 @@ def update_outfile(EventProcess, outfile):
             name+'_px': np.array(ak.fill_none(lep.px, underflow_value), dtype=np.float32),
             name+'_py': np.array(ak.fill_none(lep.py, underflow_value), dtype=np.float32),
             name+'_pz': np.array(ak.fill_none(lep.pz, underflow_value), dtype=np.float32),
+            name+'_MC_Match': np.array(ak.fill_none(lep.MC_Match, underflow_value), dtype=np.float32),
         }
         if isMC and doSF:
             MC_dict = {

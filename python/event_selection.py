@@ -235,9 +235,10 @@ def single_lepton_category(EventProcess):
     if debug: print("N single events step5: ", ak.sum(events.single_lepton), " HLT Cuts")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
-    events["single_lepton"] = single_step6_mask & events.single_lepton
-    if debug: print("N single events step6: ", ak.sum(events.single_lepton), " MC match for leading lepton")
-    increment_cutflow(events, events.single_lepton, "single_cutflow")
+    #Asking for the MC Match was a bad idea, we want to keep both cases and just have a lepton bool for match or not
+    #events["single_lepton"] = single_step6_mask & events.single_lepton
+    #if debug: print("N single events step6: ", ak.sum(events.single_lepton), " MC match for leading lepton")
+    #increment_cutflow(events, events.single_lepton, "single_cutflow")
 
     events["single_lepton"] = single_step7_mask & events.single_lepton
     if debug: print("N single events step7: ", ak.sum(events.single_lepton), " Require no more than 1 tight lepton")
@@ -484,9 +485,10 @@ def double_lepton_category(EventProcess):
     if debug: print("N double events step5: ", ak.sum(events.double_lepton), " HLT Cuts")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
-    events["double_lepton"] = double_step6_mask & events.double_lepton
-    if debug: print("N double events step6: ", ak.sum(events.double_lepton), " MC match for leading and subleading leptons")
-    increment_cutflow(events, events.double_lepton, "double_cutflow")
+    #Asking for the MC Match was a bad idea, we want to keep both cases and just have a lepton bool for match or not
+    #events["double_lepton"] = double_step6_mask & events.double_lepton
+    #if debug: print("N double events step6: ", ak.sum(events.double_lepton), " MC match for leading and subleading leptons")
+    #increment_cutflow(events, events.double_lepton, "double_cutflow")
 
     events["double_lepton"] = double_step7_mask & events.double_lepton
     if debug: print("N double events step7: ", ak.sum(events.double_lepton), " No more than 2 tight leptons")
