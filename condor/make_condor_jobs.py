@@ -18,7 +18,7 @@ def main():
     project_folder = "data3"
     file_list = ["/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/03dbce72-4887-4164-b63a-7b2eea25abbb.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/734b806e-ff93-4d99-b784-0e3164f2dd4e.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/aa5a4b71-fd45-45d9-bf26-ea4f2dc42882.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/e3a97f0b-715d-40d3-9763-7a3070a5fe5c.root"]
 
-    nFilesPerJob = 5
+    nFilesPerJob = 2
     subdir = "2016_jobs/"
     runyear = "2016"
     storage_folder = "/eos/user/d/daebi/"
@@ -26,7 +26,7 @@ def main():
 
     if use_dict:
         dataset_dict = pickle.load(open(pickle_file, 'rb'))
-        nDataSets = len(dataset_dict.keys())
+        nDataSets = len(dataset_dict['files'].keys())
         print("Going over {} datasets".format(nDataSets))
         for i,dataset_name in enumerate(dataset_dict['files'].keys()):
             if i%(int(nDataSets/10)) == 0:
@@ -35,20 +35,21 @@ def main():
             print("Project folder = ", project_folder)
             file_list = dataset_dict['files'][dataset_name]
             cross_section = dataset_dict['xs'][dataset_name]
-            make_jobs(subdir, project_folder, file_list, cross_section, nFilesPerJob, runyear)
+            make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, nFilesPerJob, runyear)
     else:
-        make_jobs(subdir, project_folder, file_list, cross_section, nFilesPerJob, runyear)
+        make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, nFilesPerJob, runyear)
 
 
-def make_jobs(subdir, project_folder, file_list, cross_section, nFilesPerJob, runyear):
+def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, nFilesPerJob, runyear):
     print("Making "+subdir+project_folder)
     print("There are ", len(file_list), "total files")
 
     nJobs = math.ceil(len(file_list)/nFilesPerJob)
     remaining_files = file_list
 
+    project_folder_names = project_folder.split('/')
     if not os.path.exists(storage_folder+'/'+project_folder_names[0]):
-        os.makedirs(storage_folder+'/'+project_folder_names[0]))
+        os.makedirs(storage_folder+'/'+project_folder_names[0])
 
     if not os.path.exists(subdir):
         os.makedirs(subdir)
