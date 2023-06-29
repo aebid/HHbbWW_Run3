@@ -20,24 +20,30 @@ def update_outfile(EventProcess, outfile):
     ak4_jets = events.Jet
     ak8_jets = events.FatJet
     ak8_subjets = events.SubJet
+    met = events.MET
 
-    events_double = events[(events.Double_Signal | events.Double_Fake)]
-    events_single = events[(events.Single_Signal | events.Single_Fake)]
+    double_mask = (events.Double_Signal | events.Double_Fake)
+    single_mask = (events.Single_Signal | events.Single_Fake)
 
-    muons_double = muons[(events.Double_Signal | events.Double_Fake)]
-    muons_single = muons[(events.Single_Signal | events.Single_Fake)]
+    events_double = events[double_mask]
+    events_single = events[single_mask]
+    muons_double = muons[double_mask]
+    muons_single = muons[single_mask]
 
-    electrons_double = electrons[(events.Double_Signal | events.Double_Fake)]
-    electrons_single = electrons[(events.Single_Signal | events.Single_Fake)]
+    electrons_double = electrons[double_mask]
+    electrons_single = electrons[single_mask]
 
-    ak4_jets_double = ak4_jets[(events.Double_Signal | events.Double_Fake)]
-    ak4_jets_single = ak4_jets[(events.Single_Signal | events.Single_Fake)]
+    ak4_jets_double = ak4_jets[double_mask]
+    ak4_jets_single = ak4_jets[single_mask]
 
-    ak8_jets_double = ak8_jets[(events.Double_Signal | events.Double_Fake)]
-    ak8_jets_single = ak8_jets[(events.Single_Signal | events.Single_Fake)]
+    ak8_jets_double = ak8_jets[double_mask]
+    ak8_jets_single = ak8_jets[single_mask]
 
-    ak8_subjets_double = ak8_subjets[(events.Double_Signal | events.Double_Fake)]
-    ak8_subjets_single = ak8_subjets[(events.Single_Signal | events.Single_Fake)]
+    ak8_subjets_double = ak8_subjets[double_mask]
+    ak8_subjets_single = ak8_subjets[single_mask]
+
+    met_double = met[double_mask]
+    met_single = met[single_mask]
 
     muons_double["px"] = muons_double.px; muons_double["py"] = muons_double.py; muons_double["pz"] = muons_double.pz; muons_double["energy"] = muons_double.energy
     muons_double_pre = muons_double[(muons_double.preselected)]; muons_double_fake = muons_double[(muons_double.fakeable)]; muons_double_tight = muons_double[(muons_double.tight)]
@@ -301,14 +307,14 @@ def update_outfile(EventProcess, outfile):
 
 
     lep_dict_single = make_lep_dict(lep0_single, 'lep0') | make_lep_dict(lep1_single, 'lep1')
-    ak4_jet_dict_single = make_ak4_jet_dict(ak4_jet0_single, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet1_single, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet2_single, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet3_single, 'ak4_jet0')
+    ak4_jet_dict_single = make_ak4_jet_dict(ak4_jet0_single, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet1_single, 'ak4_jet1') | make_ak4_jet_dict(ak4_jet2_single, 'ak4_jet2') | make_ak4_jet_dict(ak4_jet3_single, 'ak4_jet3')
     ak8_jet_dict_single = make_ak8_jet_dict(ak8_jet0_single, 'ak8_jet0')
-    met_dict_single = make_met_dict(events_single.MET, 'met')
+    met_dict_single = make_met_dict(met_single, 'met')
 
     lep_dict_double = make_lep_dict(lep0_double, 'lep0') | make_lep_dict(lep1_double, 'lep1')
-    ak4_jet_dict_double = make_ak4_jet_dict(ak4_jet0_double, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet1_double, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet2_double, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet3_double, 'ak4_jet0')
+    ak4_jet_dict_double = make_ak4_jet_dict(ak4_jet0_double, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet1_double, 'ak4_jet1') | make_ak4_jet_dict(ak4_jet2_double, 'ak4_jet2') | make_ak4_jet_dict(ak4_jet3_double, 'ak4_jet3')
     ak8_jet_dict_double = make_ak8_jet_dict(ak8_jet0_double, 'ak8_jet0')
-    met_dict_double = make_met_dict(events_double.MET, 'met')
+    met_dict_double = make_met_dict(met_double, 'met')
 
 
     single_dicts = event_dict_single | lep_dict_single | ak4_jet_dict_single | ak8_jet_dict_single | met_dict_single

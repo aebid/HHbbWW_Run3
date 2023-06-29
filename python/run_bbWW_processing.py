@@ -43,7 +43,7 @@ debug = args.debug
 Runyear = args.Runyear
 isMC = args.isMC
 XS = args.XS
-doSF = False
+doSF = True
 do_genMatch = False
 
 print("Processing: ", flist)
