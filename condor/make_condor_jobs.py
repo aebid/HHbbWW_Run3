@@ -3,7 +3,7 @@ import math
 import subprocess
 import re
 import pickle
-
+import glob
 
 def main():
 
@@ -18,7 +18,7 @@ def main():
     project_folder = "data3"
     file_list = ["/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/03dbce72-4887-4164-b63a-7b2eea25abbb.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/734b806e-ff93-4d99-b784-0e3164f2dd4e.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/aa5a4b71-fd45-45d9-bf26-ea4f2dc42882.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/e3a97f0b-715d-40d3-9763-7a3070a5fe5c.root"]
 
-    nFilesPerJob = 2
+    nFilesPerJob = 1
     subdir = "2016_jobs/"
     runyear = "2016"
     storage_folder = "/eos/user/d/daebi/"
@@ -71,10 +71,41 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
 
     project_folder_names = project_folder.split('/')
     isMC = 1
+    DNN_Truth = -1
+    dataset_name = project_folder_names[1]
     trigger_lists = ["EGamma", "SingleElectron", "SingleMuon", "DoubleEG", "DoubleMuon", "MuonEG"]
     print("Name? = ", project_folder_names[1])
-    if project_folder.split('/')[1] in trigger_lists:
+    if dataset_name in trigger_lists:
         isMC = 0
+        DNN_Truth = 8
+    elif (("GluGluToBulkGravitonToHHTo" in dataset_name) or ("GluGluToRadionToHHTo" in dataset_name)):
+        DNN_Truth = 0
+    elif ("TTTo" in dataset_name):
+        DNN_Truth = 1
+    elif ("ST_" in dataset_name):
+        DNN_Truth = 2
+    elif ("DY" in dataset_name):
+        DNN_Truth = 3
+    elif ("GluGluHTo" in dataset_name):
+        DNN_Truth = 4
+    elif (("TTW" in dataset_name) or ("TTZ" in dataset_name)):
+        DNN_Truth = 5
+    elif (("WWTo" in dataset_name) or ("ZZTo" in dataset_name) or ("WWW_" in dataset_name) or ("WWZ_" in dataset_name) or ("WZ_" in dataset_name) or ("WZZ_" in dataset_name) or ("ZZZ_" in dataset_name)):
+        DNN_Truth = 6
+    else:
+        DNN_Truth = 7
+
+    #Find what DNN Truth Value to add
+    #value list example HH:0 TTbar:1 ST:2 DY:3 H:4 TTbarV(X):5 VV(V):6 Other:7 Data:8
+    
+    #HH_list = glob.glob("GluGluToBulkGravitonToHHTo*/") + glob.glob("GluGluToRadionToHHTo*/")
+    #TT = glob.glob("TTTo*/")
+    #ST = glob.glob("ST_*/")
+    #DY = glob.glob("DY*/")
+    #H = glob.glob("GluGluHTo*/")
+    #TTV = glob.glob("TTW*/") + glob.glob("TTZ*/")
+    #VV = glob.glob("WWTo*/") + glob.glob("ZZTo*/")
+    #Data = glob.glob("DoubleEG*/") + glob.glob("DoubleMuon*/") + glob.glob("SingleElectron*/") + glob.glob("SingleMuon*/") + glob.glob("MuonEG*/")
 
     os.system("cp templates/submit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
     os.system("cp templates/resubmit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
@@ -101,6 +132,8 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
                 job_file.write('isMC=("{}")\n'.format(isMC))
             elif "XS=" in line:
                 job_file.write('XS=("{}")\n'.format(cross_section))
+            elif "DNN=" in line:
+                job_file.write('DNN=("{}")\n'.format(DNN_Truth))
             else:
                 job_file.write(line)
 
