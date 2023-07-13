@@ -31,11 +31,11 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
     'DYToLL_0J_13TeV-amcatnloFXFX-pythia8',
     'DYToLL_1J_13TeV-amcatnloFXFX-pythia8',
     'DYToLL_2J_13TeV-amcatnloFXFX-pythia8',
-    'DYToLL_2J_13TeV-amcatnloFXFX-pythia8', #extension sample
+    #'DYToLL_2J_13TeV-amcatnloFXFX-pythia8', #extension sample
     #SM Higgs
      ##ggH
     'GluGluHToBB_M125_13TeV_amcatnloFXFX_pythia8',
-    'GluGluHToBB_M125_13TeV_amcatnloFXFX_pythia8', #extension sample
+    #'GluGluHToBB_M125_13TeV_amcatnloFXFX_pythia8', #extension sample
     'GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8',
     'GluGluHToMuMu_M-125_TuneCP5_PSweights_13TeV_powheg_pythia8',
     'GluGluHToTauTau_M125_13TeV_powheg_pythia8',
@@ -45,9 +45,9 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
     'HZJ_HToWW_M125_13TeV_powheg_pythia8',
      ##VBF
     'VBFHToBB_M-125_13TeV_powheg_pythia8_weightfix',
-    'VBFHToBB_M-125_13TeV_powheg_pythia8_weightfix',
+    #'VBFHToBB_M-125_13TeV_powheg_pythia8_weightfix', #extension sample
     'VBFHToGG_M125_13TeV_amcatnlo_pythia8',
-    'VBFHToGG_M125_13TeV_amcatnlo_pythia8',
+    #'VBFHToGG_M125_13TeV_amcatnlo_pythia8', #extension sample
     'VBFHToMuMu_M-125_TuneCP5_PSweights_13TeV_powheg_pythia8',
     'VBFHToTauTau_M125_13TeV_powheg_pythia8',
     'VBFHToWWTo2L2Nu_M125_13TeV_powheg_JHUgenv628_pythia8',
@@ -57,9 +57,9 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
     'VHToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8',
     ##WH
     'WminusH_HToBB_WToLNu_M125_13TeV_powheg_pythia8',
-    'WminusH_HToBB_WToLNu_M125_13TeV_powheg_pythia8',
+    #'WminusH_HToBB_WToLNu_M125_13TeV_powheg_pythia8', #extension sample
     'WplusH_HToBB_WToLNu_M125_13TeV_powheg_pythia8',
-    'WplusH_HToBB_WToLNu_M125_13TeV_powheg_pythia8',
+    #'WplusH_HToBB_WToLNu_M125_13TeV_powheg_pythia8', #extension sample
     ##ZH
     'ZH_HToBB_ZToLL_M125_13TeV_powheg_pythia8',
     'ZHToTauTau_M125_13TeV_powheg_pythia8',
@@ -97,19 +97,19 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
     'TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8',
     #mulit
     'TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',#included in others
-    'TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',#included in others
+    #'TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',#included in others #extension sample
     'TTTT_TuneCUETP8M1_13TeV-amcatnlo-pythia8',#included in others
     'TTWH_TuneCUETP8M2T4_13TeV-madgraph-pythia8',#included in others
-    'TTZH_TuneCUETP8M2T4_13TeV-madgraph-pythia8', #included in others
+    #'TTZH_TuneCUETP8M2T4_13TeV-madgraph-pythia8', #included in others #extension sample
     'TTZToLL_M-1to10_TuneCUETP8M1_13TeV-madgraphMLM-pythia8', #included in others
     ##ttw
     'TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
-    'TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
+    #'TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8', #extension sample
     'TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
     ##ttZ
     'TTZToLL_M-1to10_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
     'TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-    'TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
+    #'TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8', #extension sample
     'TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
      #Tzq
     'tZq_ll_4f_13TeV-amcatnlo-pythia8', #included in others
@@ -117,13 +117,13 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
      #W(WW/WWW)
     'WGToLNuG_01J_5f_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8', #included in others
     'WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-    'WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+    #'WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8', #extension sample
     #WW/WWW
     'WpWpJJ_EWK-QCD_TuneCUETP8M1_13TeV-madgraph-pythia8', #included in others
     'WWTo2L2Nu_13TeV-powheg',
     'WWTo2L2Nu_DoubleScattering_13TeV-pythia8',
     'WWToLNuQQ_13TeV-powheg',
-    'WWToLNuQQ_13TeV-powheg',
+    #'WWToLNuQQ_13TeV-powheg', #extension sample
     'WWW_4F_TuneCUETP8M1_13TeV-amcatnlo-pythia8  ',
      #WZ
     'WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
