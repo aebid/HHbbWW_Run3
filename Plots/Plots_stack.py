@@ -144,6 +144,10 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
     lumiplot2016 = '35.9 fb^{-1}'
     lumi2016 = 35900
     passedSelection = ""
+    if "Double" in channel:
+        passedSelection = "Double_Fake | Double_Signal"
+    if "Single" in channel:
+        passedSelection = "Single_Fake | Single_Signal"
     cut = passedSelection
  
     Variable = {}
@@ -186,19 +190,21 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
             #fix me: all others weigh per event (like PU weight, lepton SF) can mutplied on RH in numenator 
         histName = Sample
         Variable[histName] = TH1D(histName, histName, bin,low,high) 
-        print('Sample: ', Sample)
-        if ('Single' in channel):   
+        print('Sample: ', Sample, ' with Weight: ', weight)
+        if ('Single' in channel):
+            print('Total entries = ', Single_Tree[Sample].GetEntries())
             if ('Single' in Sample):
                 Single_Tree[Sample].Draw(var + " >> " + histName, weight+"*("+ cut + ")", 'goff')
             else:
                 Single_Tree[Sample].Draw(var + " >> " + histName, weight+"*("+ cut + ")", 'goff')
         if ('Double' in channel):
+            print('Total entries = ', Double_Tree[Sample].GetEntries())
             if ('Double' in Sample):
                 Double_Tree[Sample].Draw(var + " >> " + histName, weight+"*("+ cut + ")", 'goff')
             else:
                 Double_Tree[Sample].Draw(var + " >> " + histName, weight+"*("+ cut + ")", 'goff')
         print(Sample,Variable[histName].Integral())
-        if (Sample.startswith('Data') or Sample.startswith('Single')):
+        if (Sample.startswith('Data') or Sample.startswith('Single') or Sample.startswith('Double')):
             data.Add(Variable[histName])
         elif (Sample.startswith('fake')): #fix me
             fake_bkg.Add(Variable[histName])
@@ -421,4 +427,4 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
         c1.Update()
     c1.SaveAs('Histo_' + save + '.png')
     c1.SaveAs('Histo_' + save + '.pdf')
-make_plot('Singlelepton','leadJetPt', 94, 30, 500, 'p_{T}^{j}', 'GeV', True, False, True)
+make_plot('Singlelepton','ak4_jet1_btagDeepFlavB', 25, 0, 1.0, 'B_{Tag}^{j1}', 'Score', True, False, True)

@@ -6,8 +6,8 @@ import time
 from time import gmtime, strftime
 import math
 import pickle
-dirMC_16 = '/eos/user/d/daebi/2016_jobs_2filesper/'
-dirData_16 = '/eos/user/d/daebi/2016_jobs_2filesper/data_2016/'
+dirMC_16 = '/eos/user/d/daebi/2016_jobs/'
+dirData_16 = '/eos/user/d/daebi/2016_jobs/data_2016/'
 SamplesMC_16 = [
 'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8_ext2-v1.root',
@@ -98,7 +98,7 @@ SamplesMC_16 = [
 'GluGluToRadionToHHTo2B2Tau_M-500_narrow_13TeV-madgraph/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
 'GluGluToRadionToHHTo2B2Tau_M-550_narrow_13TeV-madgraph/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
 'GluGluToRadionToHHTo2B2Tau_M-600_narrow_13TeV-madgraph/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
-'GluGluToRadionToHHTo2B2Tau_M-650_narrow_13TeV-madgraph/out_RunIISummer16NanoAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.root',
+#'GluGluToRadionToHHTo2B2Tau_M-650_narrow_13TeV-madgraph/out_RunIISummer16NanoAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.root', #File is empty ):
 'GluGluToRadionToHHTo2B2Tau_M-700_narrow_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
 'GluGluToRadionToHHTo2B2Tau_M-750_narrow_TuneCUETP8M1_PSWeights_13TeV-madgraph-pythia8/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
 'GluGluToRadionToHHTo2B2Tau_M-800_narrow_13TeV-madgraph/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
@@ -130,7 +130,7 @@ SamplesMC_16 = [
 'GluGluToRadionToHHTo2B2WToLNu2J_M-500_narrow_13TeV-madgraph/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
 'GluGluToRadionToHHTo2B2WToLNu2J_M-550_narrow_13TeV-madgraph/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
 'GluGluToRadionToHHTo2B2WToLNu2J_M-600_narrow_13TeV-madgraph/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
-'GluGluToRadionToHHTo2B2WToLNu2J_M-650_narrow_13TeV-madgraph/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
+#'GluGluToRadionToHHTo2B2WToLNu2J_M-650_narrow_13TeV-madgraph/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root', #Sample doesn't exist
 'GluGluToRadionToHHTo2B2WToLNu2J_M-700_narrow_13TeV-madgraph/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
 'GluGluToRadionToHHTo2B2WToLNu2J_M-800_narrow_13TeV-madgraph/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
 'GluGluToRadionToHHTo2B2WToLNu2J_M-900_narrow_13TeV-madgraph/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
@@ -254,11 +254,12 @@ SamplesData_16 = [
 ]
 ###################################################### 
 #/TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8/RunIISummer16NanoAODv7-PUMoriond17/NANOAODSIM
-RootFile = {} 
+RootFile = {}
 Single_Tree = {} 
 Double_Tree = {}
 nEvents = {} 
 xsection = {}
+
 personInfo = pickle.load(open("../dataset/dataset_names/2016/2016_Datasets.pkl", "rb"))
 # define function for processing the external os commands
 def LoadData():
@@ -269,17 +270,29 @@ def LoadData():
         dataset_part2 = "_".join(dataset_part2_temp)
         dataset_part3 = "NANOAODSIM"
         dataset_name = "/"+sample+"/"+dataset_part2+"/"+dataset_part3
-        RootFile[sample] = TFile(dirMC_16+'/'+SamplesMC_16[i],"READ")
-        Single_Tree[sample] = RootFile[sample].Get("Single_Tree") 
-        Double_Tree[sample] = RootFile[sample].Get("Double_Tree")
-        nEvents[sample] = personInfo['nevents'][dataset_name]
-        xsection[sample] = personInfo['xs'][dataset_name]
+
+        if sample in nEvents:
+            print("Already found sample ", sample, " extending!!!")
+            nEvents[sample] += int(personInfo['nevents'][dataset_name])
+            if xsection[sample] != personInfo['xs'][dataset_name]:
+                print("BAD XSEC FOR THIS SAMPLE, EXTENSION DOESN'T MATCH!")
+        else:
+            print("New sample ", sample)
+            Single_Tree[sample] = TChain("Single_Tree")
+            Double_Tree[sample] = TChain("Double_Tree")
+            nEvents[sample] = int(personInfo['nevents'][dataset_name])
+            xsection[sample] = personInfo['xs'][dataset_name]
+
+        Single_Tree[sample].Add(dirMC_16+'/'+SamplesMC_16[i])
+        Double_Tree[sample].Add(dirMC_16+'/'+SamplesMC_16[i])
+
         if (not Single_Tree[sample]): print(sample+' has no Single tree')
         else:
             print(sample,"nevents",nEvents[sample],"xsection",xsection[sample])
         if (not Double_Tree[sample]): print(sample+' has no Double tree')
         else:
             print(sample,"nevents",nEvents[sample],"xsection",xsection[sample])
+
     for i in range(0,len(SamplesData_16)):
 
         sample = SamplesData_16[i].split('/')[0]
@@ -294,4 +307,4 @@ def LoadData():
             if (not Double_Tree[sample]): print(sample+' has no Double tree')
             else:
                 print(sample,"nevents: ", Double_Tree[sample].GetEntries())
-LoadData()
+#LoadData()
