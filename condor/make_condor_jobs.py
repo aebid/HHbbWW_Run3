@@ -43,6 +43,8 @@ def main():
 def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, nFilesPerJob, runyear):
     print("Making "+subdir+project_folder)
     print("There are ", len(file_list), "total files")
+    SF = 0
+    print("Setting SF to ", SF)
 
     nJobs = math.ceil(len(file_list)/nFilesPerJob)
     remaining_files = file_list
@@ -134,6 +136,8 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
                 job_file.write('XS=("{}")\n'.format(cross_section))
             elif "DNN=" in line:
                 job_file.write('DNN=("{}")\n'.format(DNN_Truth))
+            elif "SF=" in line:
+                job_file.write('SF=("{}")\n'.format(SF))
             else:
                 job_file.write(line)
 

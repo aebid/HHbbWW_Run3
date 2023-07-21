@@ -18,6 +18,7 @@ parser.add_argument("-MC", dest="isMC", type=int, default=0, help="Is the file M
 parser.add_argument("-t", "--truth", dest="dnn_truth_value", type=int, default="8", help="DNN Truth value, HH:0 TTbar:1 ST:2 DY:3 H:4 TTbarV(X):5 VV(V):6 Other:7 Data:8. [Default: 8 (Data)]")
 parser.add_argument("-d", "--debug", dest="debug", type=int, default="0", help="Debug. [Default: 0 (False)]")
 parser.add_argument("-XS", dest="XS", type=float, default=1.0, help="Cross Section. [Default: 1.0]")
+parser.add_argument("-SF", dest="SF", type=int, default=0, help="Add Scale Factors. [Default: 0 (False)]")
 args, unknown = parser.parse_known_args()
 
 flist = args.infile_list
@@ -43,7 +44,7 @@ debug = args.debug
 Runyear = args.Runyear
 isMC = args.isMC
 XS = args.XS
-doSF = True
+doSF = args.SF
 do_genMatch = False
 
 print("Processing: ", flist)
@@ -56,13 +57,16 @@ for fname in flist:
     eventProcess = EventProcess(fname, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug)
     if eventProcess.skip_file: continue
 
-    if isMC:
-        if doSF:
+    if doSF:
+        if isMC:
             eventProcess.add_scale_factors()
-            eventProcess.jet_corrector()
-            eventProcess.met_corrector()
+            print("Scale Factors in seconds: " + str((time.time() - startTime)))
             eventProcess.btag_SF()
-            print("JetMet corrections in seconds: " + str((time.time() - startTime)))
+            print("BTag SF in seconds: " + str((time.time() - startTime)))
+        eventProcess.jet_corrector()
+        print("Jet Corrector in seconds: " + str((time.time() - startTime)))
+        eventProcess.met_corrector()
+        print("MET Corrector in seconds: " + str((time.time() - startTime)))
 
 
     eventProcess.all_obj_selection()
