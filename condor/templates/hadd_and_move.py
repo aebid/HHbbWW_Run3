@@ -1,6 +1,6 @@
 import os
 
-storage_dir = "/eos/user/d/daebi/2016_jobs_2filesper/"
+storage_dir = "/eos/user/d/daebi/2016_jobs/"
 
 datasetnames = os.listdir(".")
 for datasetname in datasetnames:

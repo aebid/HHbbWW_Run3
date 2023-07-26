@@ -5,11 +5,17 @@ import subprocess
 debug = False
 cwd = os.getcwd()
 
+base_storage_folder = '/eos/user/d/daebi/2016_data_fullSF_CF/'
+
+
+storage_folder = (base_storage_folder+cwd.split(base_storage_folder.split('/')[-2])[-1])+'/'
 resubmit_folder_list = [folder for folder in os.listdir(".") if os.path.isdir(folder)]
 
 for folder1 in resubmit_folder_list:
     if not os.path.isdir(folder1): continue
     print("Looking at dataset ", folder1)
+    tmp_store = storage_folder+folder1
+    print("Storage folder ", tmp_store)
     os.chdir(folder1)
     failed_joblist = []
     finished_joblist = []
@@ -28,12 +34,12 @@ for folder1 in resubmit_folder_list:
             if any("terminated" in line for line in freadlines) or any("aborted" in line for line in freadlines):
                 if debug: print("Finished, checking if failed")
                 finished_joblist.append(job)
-                if not os.path.exists("./out/out."+job+".txt"):
+                if not os.path.exists(tmp_store+"/out/out."+job+".txt"):
                     failed_joblist.append(job)
                     #For some reason, the job out is missing
                     if debug: print("No out file?")
                     continue
-                with open("./out/out."+job+".txt") as f2:
+                with open(tmp_store+"/out/out."+job+".txt") as f2:
                     if "Finished processing all files!\n" not in f2.readlines():
                         if debug: print("Failed!")
                         #print(job)
@@ -68,8 +74,8 @@ for folder1 in resubmit_folder_list:
                 string_to_write = string_to_write + " " + jobname
                 #print("Removing old log/err/out files")
                 os.system("rm ./log/log."+jobname+".txt")
-                os.system("rm ./err/err."+jobname+".txt")
-                os.system("rm ./out/out."+jobname+".txt")
+                os.system("rm "+tmp_store+"/err/err."+jobname+".txt")
+                os.system("rm "+tmp_store+"/out/out."+jobname+".txt")
         else:
             string_to_write = line
         condor_resubmit_file.write(string_to_write)

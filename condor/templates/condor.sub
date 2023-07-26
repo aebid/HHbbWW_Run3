@@ -8,6 +8,7 @@ arguments               = $(Proxy_filename)
 transfer_output_files   = out_condor_$(filename).root
 should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
+output_destination      = root://eosuser.cern.ch//eos/user/d/daebi/
 output                  = out/out.$(filename).txt
 error                   = err/err.$(filename).txt
 log                     = log/log.$(filename).txt

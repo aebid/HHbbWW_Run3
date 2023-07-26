@@ -19,7 +19,7 @@ def main():
     file_list = ["/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/03dbce72-4887-4164-b63a-7b2eea25abbb.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/734b806e-ff93-4d99-b784-0e3164f2dd4e.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/aa5a4b71-fd45-45d9-bf26-ea4f2dc42882.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/e3a97f0b-715d-40d3-9763-7a3070a5fe5c.root"]
 
     nFilesPerJob = 1
-    subdir = "2016_jobs/"
+    subdir = "2016_data_fullSF_CF/"
     runyear = "2016"
     storage_folder = "/eos/user/d/daebi/"
     cross_section = 1.0
@@ -43,33 +43,46 @@ def main():
 def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, nFilesPerJob, runyear):
     print("Making "+subdir+project_folder)
     print("There are ", len(file_list), "total files")
-    SF = 0
+    SF = 1
     print("Setting SF to ", SF)
 
     nJobs = math.ceil(len(file_list)/nFilesPerJob)
     remaining_files = file_list
 
     project_folder_names = project_folder.split('/')
-    if not os.path.exists(storage_folder+'/'+project_folder_names[0]):
-        os.makedirs(storage_folder+'/'+project_folder_names[0])
+    dataset_storage_folder = storage_folder+'/'+subdir+'/'+project_folder_names[0]+'/'+project_folder_names[1]+'/'
+    if not os.path.exists(dataset_storage_folder):
+        print("Making "+dataset_storage_folder)
+        os.makedirs(dataset_storage_folder)
+        os.makedirs(dataset_storage_folder+"/err")
+        os.makedirs(dataset_storage_folder+"/log")
+        os.makedirs(dataset_storage_folder+"/out")
 
     if not os.path.exists(subdir):
         os.makedirs(subdir)
     os.system("cp templates/initialize_condor.sh {}/".format(subdir))
     os.system("cp templates/initialize_condor_ALL.py {}/".format(subdir))
     os.system("cp templates/submit_all.py {}/".format(subdir))
-    os.system("cp templates/resubmit_all.py {}/".format(subdir))
+
+
+    resub_all_template = open("templates/resubmit_all.py", 'r')
+    resub_all_file = open(subdir+"/resubmit_all.py", 'w')
+    for line in resub_all_template:
+        if "base_storage_folder =" in line:
+            string_to_write = "base_storage_folder = '{}'".format(storage_folder+subdir)
+        else:
+            string_to_write = line
+        resub_all_file.write(string_to_write)
+
+
 
     project_folder = subdir+project_folder
     if not os.path.exists(project_folder):
+        print("Making "+project_folder)
         os.makedirs(project_folder)
-        os.makedirs(project_folder+"/err")
         os.makedirs(project_folder+"/log")
-        os.makedirs(project_folder+"/out")
 
     os.system("cp templates/initialize_condor.sh {}/".format(project_folder))
-
-    os.system("cp templates/condor.sub {}/".format(project_folder))
 
     project_folder_names = project_folder.split('/')
     isMC = 1
@@ -110,8 +123,16 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
     #Data = glob.glob("DoubleEG*/") + glob.glob("DoubleMuon*/") + glob.glob("SingleElectron*/") + glob.glob("SingleMuon*/") + glob.glob("MuonEG*/")
 
     os.system("cp templates/submit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
-    os.system("cp templates/resubmit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
     
+    resub_dataset_template = open("templates/resubmit_dataset.py", 'r')
+    resub_dataset_file = open(project_folder_names[0]+"/"+project_folder_names[1]+"/resubmit_dataset.py", 'w')
+    for line in resub_dataset_template:
+        if "base_storage_folder =" in line:
+            string_to_write = "base_storage_folder = '{}'".format(storage_folder+subdir)
+        else:
+            string_to_write = line
+        resub_dataset_file.write(string_to_write)
+
 
     for job_count in range(nJobs):
         job_template = open("templates/job_template.sh", 'r')
@@ -152,6 +173,8 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
             cwd = os.getcwd()
             pwd_to_python = cwd[:-6] + "python"
             string_to_write = "transfer_input_files    = $(Proxy_path), {}\n".format(pwd_to_python)
+        elif "output_destination      =" in str(line):
+            string_to_write = 'output_destination      = root://eosuser.cern.ch/'+dataset_storage_folder+'/\n'
         else:
             string_to_write = line
         condor_sub_file.write(string_to_write)

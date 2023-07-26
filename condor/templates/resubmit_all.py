@@ -4,6 +4,8 @@ import subprocess
 import time
 import ROOT
 
+base_storage_folder = '/eos/user/d/daebi/2016_data_fullSF_CF/'
+
 def check_jobs():
     subfolder_pass_rate_hist = ROOT.TH1F("subfolder_pass_rate", "subfolder_pass_rate", 11, 0, 1.1)
     cwd = os.getcwd()
@@ -21,6 +23,8 @@ def check_jobs():
         for subfolder in subfolder_list:
             os.chdir(subfolder)
 
+            tmp_storage = base_storage_folder+dataset+'/'+subfolder+'/'
+
             joblist = [job for job in os.listdir(".") if 'job' in job and '.py' not in job and '.root' not in job]
             finished_joblist = []
             if len(joblist) == 0:
@@ -28,8 +32,8 @@ def check_jobs():
                 continue
 
             for job in joblist:
-                if not os.path.exists("./out/out."+job+".txt"): continue
-                with open("./out/out."+job+".txt") as f:
+                if not os.path.exists(tmp_storage+"/out/out."+job+".txt"): continue
+                with open(tmp_storage+"/out/out."+job+".txt") as f:
                     if "Finished processing all files!\n" in f.readlines():
                         finished_joblist.append(job)
 
@@ -84,27 +88,33 @@ def check_jobs():
     h1.SetStats(0)
 
     canvas1.SaveAs("condor_job_analysis.pdf")
+    print("Saved canvas!")
 
-
-    return dataset_pass_rate
+    return dataset_pass_rate, finished_dataset_list
 
 
 cwd = os.getcwd()
 
 resub = True
 
+finished_list = []
 while resub:
     for folder1 in os.listdir("."):
         if not os.path.isdir(folder1): continue
+        if folder1 in finished_list:
+            #print("Dataset is already done, skipping! ", folder1)
+            continue
         print("Submitting dataset ", folder1)
         time.sleep(2)
         os.chdir(folder1)
         os.system("python3 resubmit_dataset.py")
         os.chdir(cwd)
 
-    job_status = check_jobs()
+    job_status, finished_list = check_jobs()
     print("Job status has dataset pass rate ", job_status)
     if job_status >= 1.0: resub = False
+    not_finished = [x for x in os.listdir(".") if ((x not in finished_list) and (not os.path.isdir(x)))]
+    print("NOT finished jobs are ", not_finished)
     time.sleep(5)
 
 
