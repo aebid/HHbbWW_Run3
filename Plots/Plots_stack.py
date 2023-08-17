@@ -151,7 +151,6 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
         passedSelection = "Single_HbbFat_WjjRes_AllReco"
     """
     cut = passedSelection
- 
     Variable = {}
     stack = THStack('stack', 'stack')
     added_bkg = TH1D('added_bkg','added_bkg',bin,low,high)
@@ -446,6 +445,9 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
         c1.Update()
     c1.SaveAs('Histo_' + save + '_' + passedSelection + '.png')
     c1.SaveAs('Histo_' + save + '_' + passedSelection + '.pdf')
+    del var
+    del histName
+
 """
 make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_HbbFat_WjjRes_AllReco")
 make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_HbbFat_WjjRes_MissJet")
@@ -474,4 +476,4 @@ binhigh = 200.0
 #make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_Fake | Single_Signal")
 
 
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Double_Fake | Double_Signal")
+make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, 'GeV', True, False, True, "Double_Fake || Double_Signal")
