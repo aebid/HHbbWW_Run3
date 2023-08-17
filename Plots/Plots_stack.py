@@ -11,7 +11,7 @@ setTDRStyle()
 from LoadData import *
 LoadData()
 
-def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, setLogY):
+def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, setLogY, passedSelection=""):
 
     print('channel: ', channel)
     print('==========================================')
@@ -143,11 +143,13 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
         ]
     lumiplot2016 = '35.9 fb^{-1}'
     lumi2016 = 35900
-    passedSelection = ""
+    """
     if "Double" in channel:
         passedSelection = "Double_Fake | Double_Signal"
     if "Single" in channel:
         passedSelection = "Single_Fake | Single_Signal"
+        passedSelection = "Single_HbbFat_WjjRes_AllReco"
+    """
     cut = passedSelection
  
     Variable = {}
@@ -191,6 +193,8 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
         histName = Sample
         Variable[histName] = TH1D(histName, histName, bin,low,high) 
         print('Sample: ', Sample, ' with Weight: ', weight)
+        print("Before fill we have")
+        print(Sample,Variable[histName].Integral())
         if ('Single' in channel):
             print('Total entries = ', Single_Tree[Sample].GetEntries())
             if ('Single' in Sample):
@@ -388,6 +392,21 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
     print('Data:',data.Integral(1,lastbin))
     print("KS:",data.KolmogorovTest(added_bkg))
     print('')
+
+    print('Lets look at bin1 only')
+    print('W+Jets Bkg:',wjets_bkg.Integral(1,2))
+    print('ttbar Bkg:',ttbar_bkg.Integral(1,2))
+    print('Single Top Bkg:',singleT_bkg.Integral(1,2))
+    print('Single H Bkg:',singleH_bkg.Integral(1,2))
+    print('DY Bkg:',DY_bkg.Integral(1,2))
+    print('Diboson/Triboson Bkg:',diboson_triboson_bkg.Integral(1,2))
+    print('Fake Bkg:',fake_bkg.Integral(1,2))
+    print('Others Bkg:',others_bkg.Integral(1,2))
+    print('Signal bbzz:',sig_bbzz.Integral(1,2))
+    print('Signal bbtt:',sig_bbzz.Integral(1,2))
+    print('Signal bbww:',sig_bbzz.Integral(1,2))
+    print('added Bkg:',added_bkg.Integral(1,2))
+    print('Data:',data.Integral(1,2))
     gPad.RedrawAxis()
 
     if (doratio):
@@ -425,6 +444,34 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
         ratio.Draw("ep");
         c1.Modified();
         c1.Update()
-    c1.SaveAs('Histo_' + save + '.png')
-    c1.SaveAs('Histo_' + save + '.pdf')
-make_plot('Singlelepton','ak4_jet1_btagDeepFlavB', 25, 0, 1.0, 'B_{Tag}^{j1}', 'Score', True, False, True)
+    c1.SaveAs('Histo_' + save + '_' + passedSelection + '.png')
+    c1.SaveAs('Histo_' + save + '_' + passedSelection + '.pdf')
+"""
+make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_HbbFat_WjjRes_AllReco")
+make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_HbbFat_WjjRes_MissJet")
+make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_Res_allReco_2b")
+make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_Res_allReco_1b")
+make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_Res_MissWJet_2b")
+make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_Res_MissWJet_1b")
+
+make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_Fake | Single_Signal")
+"""
+
+
+
+var = 'lep0_conept'
+varname = 'lep0_{cone-pT}'
+nBins = 20
+binlow = 0.0
+binhigh = 200.0
+#make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_HbbFat_WjjRes_AllReco")
+#make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_HbbFat_WjjRes_MissJet")
+#make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_Res_allReco_2b")
+#make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_Res_allReco_1b")
+#make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_Res_MissWJet_2b")
+#make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_Res_MissWJet_1b")
+
+#make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_Fake | Single_Signal")
+
+
+make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Double_Fake | Double_Signal")

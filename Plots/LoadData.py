@@ -6,8 +6,8 @@ import time
 from time import gmtime, strftime
 import math
 import pickle
-dirMC_16 = '/eos/user/d/daebi/2016_jobs/'
-dirData_16 = '/eos/user/d/daebi/2016_jobs/data_2016/'
+dirMC_16 = '/eos/user/d/daebi/2016_data_fullSF/'
+dirData_16 = '/eos/user/d/daebi/2016_data_fullSF/data/'
 SamplesMC_16 = [
 'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8-v1.root',
 'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/out_RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8_ext2-v1.root',
