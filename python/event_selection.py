@@ -260,13 +260,13 @@ def single_lepton_category(EventProcess):
 
     events["Single_HbbFat_WjjRes_MissJet"] = ak.fill_none((events.single_lepton) & (ak.sum(ak8_jets.btag_single, axis=1) >= 1) & (n_jets_that_not_bb < 2), False)
 
-    events["Single_Res_allReco_2b"] = ak.fill_none((events.single_lepton) & (ak.sum(ak8_jets.btag_single, axis=1) == 0) & (ak.sum(ak4_jets.cleaned_single, axis=1) >= 4) & (ak.sum(ak4_jets.medium_btag_single, axis=1) >= 1), False)
+    events["Single_Res_allReco_2b"] = ak.fill_none((events.single_lepton) & (ak.sum(ak8_jets.btag_single, axis=1) == 0) & (ak.sum(ak4_jets.cleaned_single, axis=1) >= 4) & (ak.sum(ak4_jets.medium_btag_single, axis=1) > 1), False)
 
-    events["Single_Res_allReco_1b"] = ak.fill_none((events.single_lepton) & (ak.sum(ak8_jets.btag_single, axis=1) == 0) & (ak.sum(ak4_jets.cleaned_single, axis=1) >= 4) & (ak.sum(ak4_jets.medium_btag_single, axis=1) < 1), False)
+    events["Single_Res_allReco_1b"] = ak.fill_none((events.single_lepton) & (ak.sum(ak8_jets.btag_single, axis=1) == 0) & (ak.sum(ak4_jets.cleaned_single, axis=1) >= 4) & (ak.sum(ak4_jets.medium_btag_single, axis=1) == 1), False)
 
-    events["Single_Res_MissWJet_2b"] = ak.fill_none((events.single_lepton) & (ak.sum(ak8_jets.btag_single, axis=1) == 0) & (ak.sum(ak4_jets.cleaned_single, axis=1) < 4) & (ak.sum(ak4_jets.medium_btag_single, axis=1) >= 1), False)
+    events["Single_Res_MissWJet_2b"] = ak.fill_none((events.single_lepton) & (ak.sum(ak8_jets.btag_single, axis=1) == 0) & (ak.sum(ak4_jets.cleaned_single, axis=1) < 4) & (ak.sum(ak4_jets.medium_btag_single, axis=1) > 1), False)
 
-    events["Single_Res_MissWJet_1b"] = ak.fill_none((events.single_lepton) & (ak.sum(ak8_jets.btag_single, axis=1) == 0) & (ak.sum(ak4_jets.cleaned_single, axis=1) < 4) & (ak.sum(ak4_jets.medium_btag_single, axis=1) < 1), False)
+    events["Single_Res_MissWJet_1b"] = ak.fill_none((events.single_lepton) & (ak.sum(ak8_jets.btag_single, axis=1) == 0) & (ak.sum(ak4_jets.cleaned_single, axis=1) < 4) & (ak.sum(ak4_jets.medium_btag_single, axis=1) == 1), False)
 
     events["Single_Signal"] = ak.fill_none((events.single_lepton) & ((ak.sum(leptons_tight_sorted.tight, axis=1) == 1) & (leading_leptons.tight)), False)
 
