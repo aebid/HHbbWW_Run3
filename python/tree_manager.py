@@ -164,15 +164,26 @@ def update_outfile(EventProcess, outfile):
             name+'_pz': np.array(ak.fill_none(jet.pz, underflow_value), dtype=np.float32),
             name+'_btagDeepFlavB': np.array(ak.fill_none(jet.btagDeepFlavB, underflow_value), dtype=np.float32),
         }
-        if isMC and doSF:
-            MC_dict = {
-                name+"_jet_rescale_par": np.array(ak.fill_none(jet.par_jet_rescale, underflow_value), dtype=np.float32),
-                name+"_JER_up_par": np.array(ak.fill_none(jet.par_JER_up, underflow_value), dtype=np.float32),
-                name+"_JER_down_par": np.array(ak.fill_none(jet.par_JER_down, underflow_value), dtype=np.float32),
-                name+"_JES_up_par": np.array(ak.fill_none(jet.par_JES_up, underflow_value), dtype=np.float32),
-                name+"_JES_down_par": np.array(ak.fill_none(jet.par_JES_down, underflow_value), dtype=np.float32),
-            }
-            dict.update(MC_dict)
+        if isMC:
+            if do_genMatch:
+                gen_dict = {
+                    name+'_gen_pt': np.array(ak.fill_none(jet.genJets.pt, underflow_value), dtype=np.float32),
+                    name+'_gen_eta': np.array(ak.fill_none(jet.genJets.eta, underflow_value), dtype=np.float32),
+                    name+'_gen_phi': np.array(ak.fill_none(jet.genJets.phi, underflow_value), dtype=np.float32),
+                    name+'_gen_mass': np.array(ak.fill_none(jet.genJets.mass, underflow_value), dtype=np.float32),
+                    name+'_gen_partonFlavour': np.array(ak.fill_none(jet.genJets.partonFlavour, underflow_value), dtype=np.float32),
+                    name+'_gen_hadronFlavour': np.array(ak.fill_none(jet.genJets.hadronFlavour, underflow_value), dtype=np.float32),
+                }
+                dict.update(gen_dict)
+            if doSF:
+                MC_dict = {
+                    name+"_jet_rescale_par": np.array(ak.fill_none(jet.par_jet_rescale, underflow_value), dtype=np.float32),
+                    name+"_JER_up_par": np.array(ak.fill_none(jet.par_JER_up, underflow_value), dtype=np.float32),
+                    name+"_JER_down_par": np.array(ak.fill_none(jet.par_JER_down, underflow_value), dtype=np.float32),
+                    name+"_JES_up_par": np.array(ak.fill_none(jet.par_JES_up, underflow_value), dtype=np.float32),
+                    name+"_JES_down_par": np.array(ak.fill_none(jet.par_JES_down, underflow_value), dtype=np.float32),
+                }
+                dict.update(MC_dict)
         return dict
 
     def make_ak8_jet_dict(jet, name):
@@ -202,15 +213,26 @@ def update_outfile(EventProcess, outfile):
             name+'_subjet2_pz': np.array(ak.fill_none(jet.subjet2.pz, underflow_value), dtype=np.float32),
             name+'_subjet2_pt': np.array(ak.fill_none(jet.subjet2.pt, underflow_value), dtype=np.float32),
         }
-        if isMC and doSF:
-            MC_dict = {
-                name+"_jet_rescale_par": np.array(ak.fill_none(jet.par_jet_rescale, underflow_value), dtype=np.float32),
-                name+"_JER_up_par": np.array(ak.fill_none(jet.par_JER_up, underflow_value), dtype=np.float32),
-                name+"_JER_down_par": np.array(ak.fill_none(jet.par_JER_down, underflow_value), dtype=np.float32),
-                name+"_JES_up_par": np.array(ak.fill_none(jet.par_JES_up, underflow_value), dtype=np.float32),
-                name+"_JES_down_par": np.array(ak.fill_none(jet.par_JES_down, underflow_value), dtype=np.float32),
-            }
-            dict.update(MC_dict)
+        if isMC:
+            if do_genMatch:
+                gen_dict = {
+                    name+'_genFat_pt': np.array(ak.fill_none(jet.genFatJets.pt, underflow_value), dtype=np.float32),
+                    name+'_genFat_eta': np.array(ak.fill_none(jet.genFatJets.eta, underflow_value), dtype=np.float32),
+                    name+'_genFat_phi': np.array(ak.fill_none(jet.genFatJets.phi, underflow_value), dtype=np.float32),
+                    name+'_genFat_mass': np.array(ak.fill_none(jet.genFatJets.mass, underflow_value), dtype=np.float32),
+                    name+'_genFat_partonFlavour': np.array(ak.fill_none(jet.genFatJets.partonFlavour, underflow_value), dtype=np.float32),
+                    name+'_genFat_hadronFlavour': np.array(ak.fill_none(jet.genFatJets.hadronFlavour, underflow_value), dtype=np.float32),
+                }
+                dict.update(gen_dict)
+            if doSF:
+                MC_dict = {
+                    name+"_jet_rescale_par": np.array(ak.fill_none(jet.par_jet_rescale, underflow_value), dtype=np.float32),
+                    name+"_JER_up_par": np.array(ak.fill_none(jet.par_JER_up, underflow_value), dtype=np.float32),
+                    name+"_JER_down_par": np.array(ak.fill_none(jet.par_JER_down, underflow_value), dtype=np.float32),
+                    name+"_JES_up_par": np.array(ak.fill_none(jet.par_JES_up, underflow_value), dtype=np.float32),
+                    name+"_JES_down_par": np.array(ak.fill_none(jet.par_JES_down, underflow_value), dtype=np.float32),
+                }
+                dict.update(MC_dict)
         return dict
 
     def make_met_dict(met, name):

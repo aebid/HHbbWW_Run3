@@ -71,6 +71,7 @@ for fname in flist:
     if do_genMatch:
         eventProcess.single_lepton_genpart()
         eventProcess.double_lepton_genpart()
+        eventProcess.recoJet_to_genJet()
         print('GenParts in seconds: ' + str((time.time() - startTime)))
 
     eventProcess.all_obj_selection()
