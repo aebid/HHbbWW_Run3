@@ -45,7 +45,7 @@ Runyear = args.Runyear
 isMC = args.isMC
 XS = args.XS
 doSF = args.SF
-do_genMatch = False
+do_genMatch = True
 
 print("Processing: ", flist)
 print("Will save as: ", outname)
@@ -68,6 +68,10 @@ for fname in flist:
         eventProcess.met_corrector()
         print("MET Corrector in seconds: " + str((time.time() - startTime)))
 
+    if do_genMatch:
+        eventProcess.single_lepton_genpart()
+        eventProcess.double_lepton_genpart()
+        print('GenParts in seconds: ' + str((time.time() - startTime)))
 
     eventProcess.all_obj_selection()
     print('Object Selection in seconds: ' + str((time.time() - startTime)))
