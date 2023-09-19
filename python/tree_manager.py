@@ -25,7 +25,7 @@ def update_outfile(EventProcess, outfile):
     double_mask = (events.Double_Signal | events.Double_Fake)
     single_mask = (events.Single_Signal | events.Single_Fake)
 
-    use_all_data = True
+    use_all_data = False
     if use_all_data:
         double_mask = ak.ones_like(events.Double_Signal)
         single_mask = ak.ones_like(events.Single_Signal)
@@ -80,6 +80,7 @@ def update_outfile(EventProcess, outfile):
     ak8_jets_single_cleaned_all_none = ak.all(ak.all(ak.is_none(ak8_jets_single_cleaned_sorted, axis=1), axis=1))
     if not ak8_jets_single_cleaned_all_none:
         ak8_jets_single_cleaned_sorted = ak8_jets_single_cleaned[ak.argsort(ak8_jets_single_cleaned.pt, axis=1, ascending=False)]
+
 
     leptons_fakeable_single = ak.concatenate([electrons_single_fake, muons_single_fake], axis=1)
     leptons_fakeable_single = ak.pad_none(leptons_fakeable_single[ak.argsort(leptons_fakeable_single.conept, ascending=False)], 2)
@@ -329,27 +330,29 @@ def update_outfile(EventProcess, outfile):
         genpart_sgl = EventProcess.genpart_sgl
         genpart_dbl = EventProcess.genpart_dbl
 
-        gen_bFromH_single = genpart_sgl["bFromH"][(events.Single_Signal | events.Single_Fake)]
-        gen_qFromW_single = genpart_sgl["qFromW"][(events.Single_Signal | events.Single_Fake)]
-        gen_lepFromW_single = genpart_sgl["lepFromW"][(events.Single_Signal | events.Single_Fake)]
-        gen_nuFromW_single = genpart_sgl["nuFromW"][(events.Single_Signal | events.Single_Fake)]
+        gen_bFromH_single = ak.pad_none(genpart_sgl["bFromH"][single_mask], 2)
+        gen_qFromW_single = ak.pad_none(genpart_sgl["qFromW"][single_mask], 2)
+        gen_lepFromW_single = ak.pad_none(genpart_sgl["lepFromW"][single_mask], 1)
+        gen_nuFromW_single = ak.pad_none(genpart_sgl["nuFromW"][single_mask], 1)
 
-        gen_bFromH_double = genpart_dbl["bFromH"][(events.Double_Signal | events.Double_Fake)]
-        gen_lepFromW_double = genpart_dbl["lepFromW"][(events.Double_Signal | events.Double_Fake)]
-        gen_nuFromW_double = genpart_dbl["nuFromW"][(events.Double_Signal | events.Double_Fake)]
+        gen_bFromH_double = ak.pad_none(genpart_dbl["bFromH"][double_mask], 2)
+        gen_lepFromW_double = ak.pad_none(genpart_dbl["lepFromW"][double_mask], 2)
+        gen_nuFromW_double = ak.pad_none(genpart_dbl["nuFromW"][double_mask], 2)
 
         def genpart_dict(genpart, name):
             dic = {
-                f"{name}_pt": genpart.pt,
-                f"{name}_eta": genpart.eta,
-                f"{name}_phi": genpart.phi,
-                f"{name}_mass": genpart.mass,
-                f"{name}_pdgId": genpart.pdgId
+                f"{name}_pt": ak.fill_none(genpart.pt, 0),
+                f"{name}_eta": ak.fill_none(genpart.eta, 0),
+                f"{name}_phi": ak.fill_none(genpart.phi, 0),
+                f"{name}_mass": ak.fill_none(genpart.mass, 0),
+                f"{name}_pdgId": ak.fill_none(genpart.pdgId, 0)
             }
             return dic
 
         genpart_dict_single = genpart_dict(gen_bFromH_single[:,0], "gen_bquark1")
         genpart_dict_single.update(genpart_dict(gen_bFromH_single[:,1], "gen_bquark2"))
+        genpart_dict_single.update(genpart_dict(gen_qFromW_single[:,0], "gen_lquark1"))
+        genpart_dict_single.update(genpart_dict(gen_qFromW_single[:,1], "gen_lquark2"))
         genpart_dict_single.update(genpart_dict(gen_lepFromW_single[:,0], "gen_lep"))
         genpart_dict_single.update(genpart_dict(gen_nuFromW_single[:,0], "gen_nu"))
 
