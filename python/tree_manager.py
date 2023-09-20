@@ -21,11 +21,14 @@ def update_outfile(EventProcess, outfile):
     ak8_jets = events.FatJet
     ak8_subjets = events.SubJet
     met = events.MET
+    met['z'] = 0
+    met['t'] = 0
+    met['charge'] = 0
 
     double_mask = (events.Double_Signal | events.Double_Fake)
     single_mask = (events.Single_Signal | events.Single_Fake)
 
-    use_all_data = True
+    use_all_data = False
     if use_all_data:
         double_mask = ak.ones_like(events.Double_Signal)
         single_mask = ak.ones_like(events.Single_Signal)
@@ -80,6 +83,7 @@ def update_outfile(EventProcess, outfile):
     ak8_jets_single_cleaned_all_none = ak.all(ak.all(ak.is_none(ak8_jets_single_cleaned_sorted, axis=1), axis=1))
     if not ak8_jets_single_cleaned_all_none:
         ak8_jets_single_cleaned_sorted = ak8_jets_single_cleaned[ak.argsort(ak8_jets_single_cleaned.pt, axis=1, ascending=False)]
+
 
     leptons_fakeable_single = ak.concatenate([electrons_single_fake, muons_single_fake], axis=1)
     leptons_fakeable_single = ak.pad_none(leptons_fakeable_single[ak.argsort(leptons_fakeable_single.conept, ascending=False)], 2)
@@ -163,15 +167,27 @@ def update_outfile(EventProcess, outfile):
             name+'_pz': np.array(ak.fill_none(jet.pz, underflow_value), dtype=np.float32),
             name+'_btagDeepFlavB': np.array(ak.fill_none(jet.btagDeepFlavB, underflow_value), dtype=np.float32),
         }
-        if isMC and doSF:
-            MC_dict = {
-                name+"_jet_rescale_par": np.array(ak.fill_none(jet.par_jet_rescale, underflow_value), dtype=np.float32),
-                name+"_JER_up_par": np.array(ak.fill_none(jet.par_JER_up, underflow_value), dtype=np.float32),
-                name+"_JER_down_par": np.array(ak.fill_none(jet.par_JER_down, underflow_value), dtype=np.float32),
-                name+"_JES_up_par": np.array(ak.fill_none(jet.par_JES_up, underflow_value), dtype=np.float32),
-                name+"_JES_down_par": np.array(ak.fill_none(jet.par_JES_down, underflow_value), dtype=np.float32),
-            }
-            dict.update(MC_dict)
+        if isMC:
+            if do_genMatch:
+                gen_dict = {
+                    name+'_gen_pt': np.array(ak.fill_none(jet.genJets.pt, underflow_value), dtype=np.float32),
+                    name+'_gen_eta': np.array(ak.fill_none(jet.genJets.eta, underflow_value), dtype=np.float32),
+                    name+'_gen_phi': np.array(ak.fill_none(jet.genJets.phi, underflow_value), dtype=np.float32),
+                    name+'_gen_mass': np.array(ak.fill_none(jet.genJets.mass, underflow_value), dtype=np.float32),
+                    name+'_gen_partonFlavour': np.array(ak.fill_none(jet.genJets.partonFlavour, underflow_value), dtype=np.float32),
+                    name+'_gen_hadronFlavour': np.array(ak.fill_none(jet.genJets.hadronFlavour, underflow_value), dtype=np.float32),
+                    name+'_gen_deltaR': np.array(ak.fill_none(jet.delta_r(jet.genJets), underflow_value), dtype=np.float32),
+                }
+                dict.update(gen_dict)
+            if doSF:
+                MC_dict = {
+                    name+"_jet_rescale_par": np.array(ak.fill_none(jet.par_jet_rescale, underflow_value), dtype=np.float32),
+                    name+"_JER_up_par": np.array(ak.fill_none(jet.par_JER_up, underflow_value), dtype=np.float32),
+                    name+"_JER_down_par": np.array(ak.fill_none(jet.par_JER_down, underflow_value), dtype=np.float32),
+                    name+"_JES_up_par": np.array(ak.fill_none(jet.par_JES_up, underflow_value), dtype=np.float32),
+                    name+"_JES_down_par": np.array(ak.fill_none(jet.par_JES_down, underflow_value), dtype=np.float32),
+                }
+                dict.update(MC_dict)
         return dict
 
     def make_ak8_jet_dict(jet, name):
@@ -201,15 +217,27 @@ def update_outfile(EventProcess, outfile):
             name+'_subjet2_pz': np.array(ak.fill_none(jet.subjet2.pz, underflow_value), dtype=np.float32),
             name+'_subjet2_pt': np.array(ak.fill_none(jet.subjet2.pt, underflow_value), dtype=np.float32),
         }
-        if isMC and doSF:
-            MC_dict = {
-                name+"_jet_rescale_par": np.array(ak.fill_none(jet.par_jet_rescale, underflow_value), dtype=np.float32),
-                name+"_JER_up_par": np.array(ak.fill_none(jet.par_JER_up, underflow_value), dtype=np.float32),
-                name+"_JER_down_par": np.array(ak.fill_none(jet.par_JER_down, underflow_value), dtype=np.float32),
-                name+"_JES_up_par": np.array(ak.fill_none(jet.par_JES_up, underflow_value), dtype=np.float32),
-                name+"_JES_down_par": np.array(ak.fill_none(jet.par_JES_down, underflow_value), dtype=np.float32),
-            }
-            dict.update(MC_dict)
+        if isMC:
+            if do_genMatch:
+                gen_dict = {
+                    name+'_genFat_pt': np.array(ak.fill_none(jet.genFatJets.pt, underflow_value), dtype=np.float32),
+                    name+'_genFat_eta': np.array(ak.fill_none(jet.genFatJets.eta, underflow_value), dtype=np.float32),
+                    name+'_genFat_phi': np.array(ak.fill_none(jet.genFatJets.phi, underflow_value), dtype=np.float32),
+                    name+'_genFat_mass': np.array(ak.fill_none(jet.genFatJets.mass, underflow_value), dtype=np.float32),
+                    name+'_genFat_partonFlavour': np.array(ak.fill_none(jet.genFatJets.partonFlavour, underflow_value), dtype=np.float32),
+                    name+'_genFat_hadronFlavour': np.array(ak.fill_none(jet.genFatJets.hadronFlavour, underflow_value), dtype=np.float32),
+                    name+'_genFat_deltaR': np.array(ak.fill_none(jet.delta_r(jet.genFatJets), underflow_value), dtype=np.float32),
+                }
+                dict.update(gen_dict)
+            if doSF:
+                MC_dict = {
+                    name+"_jet_rescale_par": np.array(ak.fill_none(jet.par_jet_rescale, underflow_value), dtype=np.float32),
+                    name+"_JER_up_par": np.array(ak.fill_none(jet.par_JER_up, underflow_value), dtype=np.float32),
+                    name+"_JER_down_par": np.array(ak.fill_none(jet.par_JER_down, underflow_value), dtype=np.float32),
+                    name+"_JES_up_par": np.array(ak.fill_none(jet.par_JES_up, underflow_value), dtype=np.float32),
+                    name+"_JES_down_par": np.array(ak.fill_none(jet.par_JES_down, underflow_value), dtype=np.float32),
+                }
+                dict.update(MC_dict)
         return dict
 
     def make_met_dict(met, name):
@@ -309,6 +337,16 @@ def update_outfile(EventProcess, outfile):
         'XS': np.array(ak.ones_like(events_double.run)*EventProcess.XS, dtype=np.float32),
     }
 
+    def make_highlevelobject_dict(object, name):
+        dict = {
+            name+'_pt': np.array(ak.fill_none(object.pt, underflow_value), dtype=np.float32),
+            name+'_mass': np.array(ak.fill_none(object.mass, underflow_value), dtype=np.float32),
+            name+'_E': np.array(ak.fill_none(object.energy, underflow_value), dtype=np.float32),
+            name+'_px': np.array(ak.fill_none(object.px, underflow_value), dtype=np.float32),
+            name+'_py': np.array(ak.fill_none(object.py, underflow_value), dtype=np.float32),
+            name+'_pz': np.array(ak.fill_none(object.pz, underflow_value), dtype=np.float32),
+        }
+        return dict
 
 
     lep_dict_single = make_lep_dict(lep0_single, 'lep0') | make_lep_dict(lep1_single, 'lep1')
@@ -316,40 +354,143 @@ def update_outfile(EventProcess, outfile):
     ak8_jet_dict_single = make_ak8_jet_dict(ak8_jet0_single, 'ak8_jet0')
     met_dict_single = make_met_dict(met_single, 'met')
 
+    #High Level
+    vecMET_single = ak.zip(
+        {
+            "pt": met_single.pt,
+            "eta": 0,
+            "phi": met_single.phi,
+            "mass": 0,
+        },
+        with_name="PtEtaPhiMLorentzVector",
+        behavior=vector.behavior,
+    )
+    hbb_single = (ak4_jet0_single + ak4_jet1_single)
+    Wlepmet_single = (lep0_single + vecMET_single)
+    Wjetjet_single = (ak4_jet2_single + ak4_jet3_single)
+    hWW_single = (Wlepmet_single + Wjetjet_single)
+    hh_single = (hbb_single + hWW_single)
+
+    hbb_dict_single = make_highlevelobject_dict(hbb_single, 'hbb')
+    Wlepmet_dict_single = make_highlevelobject_dict(Wlepmet_single, 'Wlepmet')
+    Wjetjet_dict_single = make_highlevelobject_dict(Wjetjet_single, 'Wjetjet')
+    hWW_dict_single = make_highlevelobject_dict(hWW_single, 'hWW')
+    hh_dict_single = make_highlevelobject_dict(hh_single, 'hh')
+
+    if isMC and do_genMatch:
+        vecMET_gen_single = ak.zip(
+            {
+                "pt": met_single.genMET.pt,
+                "eta": 0,
+                "phi": met_single.genMET.phi,
+                "mass": 0,
+            },
+            with_name="PtEtaPhiMLorentzVector",
+            behavior=vector.behavior,
+        )
+        hbb_gen_single = (ak4_jet0_single.genJets + ak4_jet1_single.genJets)
+        Wlepmet_gen_single = (lep0_single.genParts + vecMET_gen_single)
+        Wjetjet_gen_single = (ak4_jet2_single.genJets + ak4_jet3_single.genJets)
+        hWW_gen_single = (Wlepmet_gen_single + Wjetjet_gen_single)
+        hh_gen_single = (hbb_gen_single + hWW_gen_single)
+
+        hbb_gen_dict_single = make_highlevelobject_dict(hbb_gen_single, 'hbb_gen')
+        Wlepmet_gen_dict_single = make_highlevelobject_dict(Wlepmet_gen_single, 'Wlepmet_gen')
+        Wjetjet_gen_dict_single = make_highlevelobject_dict(Wjetjet_gen_single, 'Wjetjet_gen')
+        hWW_gen_dict_single = make_highlevelobject_dict(hWW_gen_single, 'hWW_gen')
+        hh_gen_dict_single = make_highlevelobject_dict(hh_gen_single, 'hh_gen')
+
+
+        hbb_dict_single = hbb_dict_single | hbb_gen_dict_single
+        Wlepmet_dict_single = Wlepmet_dict_single | Wlepmet_gen_dict_single
+        Wjetjet_dict_single = Wjetjet_dict_single | Wjetjet_gen_dict_single
+        hWW_dict_single = hWW_dict_single | hWW_gen_dict_single
+        hh_dict_single = hh_dict_single | hh_gen_dict_single
+
+
     lep_dict_double = make_lep_dict(lep0_double, 'lep0') | make_lep_dict(lep1_double, 'lep1')
     ak4_jet_dict_double = make_ak4_jet_dict(ak4_jet0_double, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet1_double, 'ak4_jet1') | make_ak4_jet_dict(ak4_jet2_double, 'ak4_jet2') | make_ak4_jet_dict(ak4_jet3_double, 'ak4_jet3')
     ak8_jet_dict_double = make_ak8_jet_dict(ak8_jet0_double, 'ak8_jet0')
     met_dict_double = make_met_dict(met_double, 'met')
 
 
-    single_dicts = event_dict_single | lep_dict_single | ak4_jet_dict_single | ak8_jet_dict_single | met_dict_single
-    double_dicts = event_dict_double | lep_dict_double | ak4_jet_dict_double | ak8_jet_dict_double | met_dict_double
+    #High Level
+    vecMET_double = ak.zip(
+        {
+            "pt": met_double.pt,
+            "eta": 0,
+            "phi": met_double.phi,
+            "mass": 0,
+        },
+        with_name="PtEtaPhiMLorentzVector",
+        behavior=vector.behavior,
+    )
+    hbb_double = (ak4_jet0_double + ak4_jet1_double)
+    hWW_double = (lep0_double + lep1_double + vecMET_double)
+    hh_double = (hbb_double + hWW_double)
+
+    hbb_dict_double = make_highlevelobject_dict(hbb_double, 'hbb')
+    hWW_dict_double = make_highlevelobject_dict(hWW_double, 'hWW')
+    hh_dict_double = make_highlevelobject_dict(hh_double, 'hh')
+
+    if isMC and do_genMatch:
+        vecMET_gen_double = ak.zip(
+            {
+                "pt": met_double.genMET.pt,
+                "eta": 0,
+                "phi": met_double.genMET.phi,
+                "mass": 0,
+            },
+            with_name="PtEtaPhiMLorentzVector",
+            behavior=vector.behavior,
+        )
+        hbb_gen_double = (ak4_jet0_double.genJets + ak4_jet1_double.genJets)
+        hWW_gen_double = (lep0_double.genParts + lep1_double.genParts + vecMET_double)
+        hh_gen_double = (hbb_gen_double + hWW_gen_double)
+
+
+        hbb_gen_dict_double = make_highlevelobject_dict(hbb_gen_double, 'hbb_gen')
+        hWW_gen_dict_double = make_highlevelobject_dict(hWW_gen_double, 'hWW_gen')
+        hh_gen_dict_double = make_highlevelobject_dict(hh_gen_double, 'hh_gen')
+
+
+        hbb_dict_double = hbb_dict_double | hbb_gen_dict_double
+        hWW_dict_double = hWW_dict_double | hWW_gen_dict_double
+        hh_dict_double = hh_dict_double | hh_gen_dict_double
+
+
+    single_dicts = event_dict_single | lep_dict_single | ak4_jet_dict_single | ak8_jet_dict_single | met_dict_single | hbb_dict_single | Wlepmet_dict_single | Wjetjet_dict_single | hWW_dict_single | hh_dict_single
+    double_dicts = event_dict_double | lep_dict_double | ak4_jet_dict_double | ak8_jet_dict_double | met_dict_double | hbb_dict_double | hWW_dict_double | hh_dict_double
+
+
 
     if isMC and do_genMatch:
         genpart_sgl = EventProcess.genpart_sgl
         genpart_dbl = EventProcess.genpart_dbl
 
-        gen_bFromH_single = genpart_sgl["bFromH"][(events.Single_Signal | events.Single_Fake)]
-        gen_qFromW_single = genpart_sgl["qFromW"][(events.Single_Signal | events.Single_Fake)]
-        gen_lepFromW_single = genpart_sgl["lepFromW"][(events.Single_Signal | events.Single_Fake)]
-        gen_nuFromW_single = genpart_sgl["nuFromW"][(events.Single_Signal | events.Single_Fake)]
+        gen_bFromH_single = ak.pad_none(genpart_sgl["bFromH"][single_mask], 2)
+        gen_qFromW_single = ak.pad_none(genpart_sgl["qFromW"][single_mask], 2)
+        gen_lepFromW_single = ak.pad_none(genpart_sgl["lepFromW"][single_mask], 1)
+        gen_nuFromW_single = ak.pad_none(genpart_sgl["nuFromW"][single_mask], 1)
 
-        gen_bFromH_double = genpart_dbl["bFromH"][(events.Double_Signal | events.Double_Fake)]
-        gen_lepFromW_double = genpart_dbl["lepFromW"][(events.Double_Signal | events.Double_Fake)]
-        gen_nuFromW_double = genpart_dbl["nuFromW"][(events.Double_Signal | events.Double_Fake)]
+        gen_bFromH_double = ak.pad_none(genpart_dbl["bFromH"][double_mask], 2)
+        gen_lepFromW_double = ak.pad_none(genpart_dbl["lepFromW"][double_mask], 2)
+        gen_nuFromW_double = ak.pad_none(genpart_dbl["nuFromW"][double_mask], 2)
 
         def genpart_dict(genpart, name):
             dic = {
-                f"{name}_pt": genpart.pt,
-                f"{name}_eta": genpart.eta,
-                f"{name}_phi": genpart.phi,
-                f"{name}_mass": genpart.mass,
-                f"{name}_pdgId": genpart.pdgId
+                f"{name}_pt": ak.fill_none(genpart.pt, 0),
+                f"{name}_eta": ak.fill_none(genpart.eta, 0),
+                f"{name}_phi": ak.fill_none(genpart.phi, 0),
+                f"{name}_mass": ak.fill_none(genpart.mass, 0),
+                f"{name}_pdgId": ak.fill_none(genpart.pdgId, 0)
             }
             return dic
 
         genpart_dict_single = genpart_dict(gen_bFromH_single[:,0], "gen_bquark1")
         genpart_dict_single.update(genpart_dict(gen_bFromH_single[:,1], "gen_bquark2"))
+        genpart_dict_single.update(genpart_dict(gen_qFromW_single[:,0], "gen_lquark1"))
+        genpart_dict_single.update(genpart_dict(gen_qFromW_single[:,1], "gen_lquark2"))
         genpart_dict_single.update(genpart_dict(gen_lepFromW_single[:,0], "gen_lep"))
         genpart_dict_single.update(genpart_dict(gen_nuFromW_single[:,0], "gen_nu"))
 

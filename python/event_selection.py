@@ -34,6 +34,7 @@ def single_lepton_category(EventProcess):
     isMC = EventProcess.isMC
     debug = EventProcess.debug
 
+    #Prepare leptons
     leptons_preselected = ak.concatenate([electrons.mask[electrons.preselected], muons.mask[muons.preselected]], axis=1)
     leptons_fakeable = ak.concatenate([electrons.mask[electrons.fakeable], muons.mask[muons.fakeable]], axis=1)
     leptons_tight = ak.concatenate([electrons.mask[electrons.tight], muons.mask[muons.tight]], axis=1)
@@ -44,6 +45,7 @@ def single_lepton_category(EventProcess):
 
     leading_leptons = ak.pad_none(leptons_fakeable_sorted, 1)[:,0]
 
+
     #We break the cuts into separate steps for the cutflow
     #Step 1 -- Require at least 1 fakeable (or tight) lepton
     #Step 2 -- Require MET filters
@@ -53,7 +55,7 @@ def single_lepton_category(EventProcess):
     #   If El, pass El trigger
     #   If Mu, pass Mu trigger
     #Step 6 -- MC match for leading lepton
-    #Step 7 -- Require no more than 1 tight lepton
+    #Step 7 -- Require no more than 1 tight lepton (must be leading)
     #Step 8 -- Tau veto
     #Step 9 -- 1 or more btagged ak8_jets or 1 or more btagged ak4_jets
     #Step 10 -- Categories
@@ -153,10 +155,21 @@ def single_lepton_category(EventProcess):
     single_step6_mask = ak.fill_none(leading_MC_match, False)
 
 
-    #No more than 1 tight leptons
+    #No more than 1 tight leptons AND should be the same as leading lepton
     n_tight_leptons = ak.sum(leptons_tight.tight, axis=1)
 
-    single_step7_mask = ak.fill_none(n_tight_leptons <= 1, False)
+    tight_lep_cut = ak.where(
+        (n_tight_leptons == 0),
+            True,
+            ak.where(
+                (n_tight_leptons == 1),
+                leading_leptons.tight,
+                False
+            )
+    )
+
+    #single_step7_mask = ak.fill_none(n_tight_leptons <= 1, False)
+    single_step7_mask = ak.fill_none(tight_lep_cut, False)
 
     #Tau veto: no tau passing pt>20, abs(eta) < 2.3, abs(dxy) <= 1000, abs(dz) <= 0.2, "decayModeFindingNewDMs", decay modes = {0, 1, 2, 10, 11}, and "byMediumDeepTau2017v2VSjet", "byVLooseDeepTau2017v2VSmu", "byVVVLooseDeepTau2017v2VSe". Taus overlapping with fakeable electrons or fakeable muons within dR < 0.3 are not considered for the tau veto
     #False -> Gets Removed : True -> Passes veto
@@ -271,6 +284,7 @@ def single_lepton_category(EventProcess):
     events["Single_Signal"] = ak.fill_none((events.single_lepton) & ((ak.sum(leptons_tight_sorted.tight, axis=1) == 1) & (leading_leptons.tight)), False)
 
     events["Single_Fake"] = ak.fill_none((events.single_lepton) & ((ak.sum(leptons_tight_sorted.tight, axis=1) == 1) & (leading_leptons.tight) == 0), False)
+
 
     if debug:
         print("Single HbbFat_WjjRes_AllReco: ", events.Single_HbbFat_WjjRes_AllReco, ak.sum(events.Single_HbbFat_WjjRes_AllReco))
