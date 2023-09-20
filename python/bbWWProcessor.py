@@ -602,5 +602,11 @@ class EventProcess():
     def recoJet_to_genJet(self):
         return genparticles.recoJet_to_genJet(self)
 
+    def recoLep_to_genLep(self):
+        return genparticles.recoLep_to_genLep(self)
+
+    def recoMET_to_genMET(self):
+        return genparticles.recoMET_to_genMET(self)
+
     def update_outfile(self, outfile):
         return tree_manager.update_outfile(self, outfile)

@@ -72,6 +72,8 @@ for fname in flist:
         eventProcess.single_lepton_genpart()
         eventProcess.double_lepton_genpart()
         eventProcess.recoJet_to_genJet()
+        eventProcess.recoLep_to_genLep()
+        eventProcess.recoMET_to_genMET()
         print('GenParts in seconds: ' + str((time.time() - startTime)))
 
     eventProcess.all_obj_selection()

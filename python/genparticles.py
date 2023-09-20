@@ -96,3 +96,23 @@ def recoJet_to_genJet(EventProcess):
 
     events.Jet = ak.with_field(events.Jet, genjets[ak4_jets_mask.genJetIdx], "genJets")
     events.FatJet = ak.with_field(events.FatJet, genfatjets[ak8_jets_mask.genJetAK8Idx], "genFatJets")
+
+
+
+
+def recoLep_to_genLep(EventProcess):
+    #We want to link recoLeps to genLeps to see if we are accurately picking leptons in our selection
+    events = EventProcess.events
+    muons = events.Muon
+    electrons = events.Electron
+    genparts = events.GenPart
+
+    events.Electron = ak.with_field(events.Electron, genparts[electrons.genPartIdx], "genParts")
+    events.Muon = ak.with_field(events.Muon, genparts[muons.genPartIdx], "genParts")
+
+
+def recoMET_to_genMET(EventProcess):
+    #We want to link recoLeps to genLeps to see if we are accurately picking leptons in our selection
+    events = EventProcess.events
+
+    events.MET = ak.with_field(events.MET, events.GenMET, "genMET")
