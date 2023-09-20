@@ -21,6 +21,9 @@ def update_outfile(EventProcess, outfile):
     ak8_jets = events.FatJet
     ak8_subjets = events.SubJet
     met = events.MET
+    met['z'] = 0
+    met['t'] = 0
+    met['charge'] = 0
 
     double_mask = (events.Double_Signal | events.Double_Fake)
     single_mask = (events.Single_Signal | events.Single_Fake)
@@ -173,6 +176,7 @@ def update_outfile(EventProcess, outfile):
                     name+'_gen_mass': np.array(ak.fill_none(jet.genJets.mass, underflow_value), dtype=np.float32),
                     name+'_gen_partonFlavour': np.array(ak.fill_none(jet.genJets.partonFlavour, underflow_value), dtype=np.float32),
                     name+'_gen_hadronFlavour': np.array(ak.fill_none(jet.genJets.hadronFlavour, underflow_value), dtype=np.float32),
+                    name+'_gen_deltaR': np.array(ak.fill_none(jet.delta_r(jet.genJets), underflow_value), dtype=np.float32),
                 }
                 dict.update(gen_dict)
             if doSF:
@@ -222,6 +226,7 @@ def update_outfile(EventProcess, outfile):
                     name+'_genFat_mass': np.array(ak.fill_none(jet.genFatJets.mass, underflow_value), dtype=np.float32),
                     name+'_genFat_partonFlavour': np.array(ak.fill_none(jet.genFatJets.partonFlavour, underflow_value), dtype=np.float32),
                     name+'_genFat_hadronFlavour': np.array(ak.fill_none(jet.genFatJets.hadronFlavour, underflow_value), dtype=np.float32),
+                    name+'_genFat_deltaR': np.array(ak.fill_none(jet.delta_r(jet.genFatJets), underflow_value), dtype=np.float32),
                 }
                 dict.update(gen_dict)
             if doSF:
@@ -332,6 +337,158 @@ def update_outfile(EventProcess, outfile):
         'XS': np.array(ak.ones_like(events_double.run)*EventProcess.XS, dtype=np.float32),
     }
 
+    def make_hbb_dict(bjet0, bjet1, name):
+        hbb = (bjet0 + bjet1)
+        dict = {
+            name+'_pt': np.array(ak.fill_none(hbb.pt, underflow_value), dtype=np.float32),
+            name+'_mass': np.array(ak.fill_none(hbb.mass, underflow_value), dtype=np.float32),
+            name+'_E': np.array(ak.fill_none(hbb.energy, underflow_value), dtype=np.float32),
+            name+'_px': np.array(ak.fill_none(hbb.px, underflow_value), dtype=np.float32),
+            name+'_py': np.array(ak.fill_none(hbb.py, underflow_value), dtype=np.float32),
+            name+'_pz': np.array(ak.fill_none(hbb.pz, underflow_value), dtype=np.float32),
+        }
+        if isMC:
+            if do_genMatch:
+                hbb_gen = (bjet0.genJets + bjet1.genJets)
+                gen_dict = {
+                    name+'_gen_pt': np.array(ak.fill_none(hbb_gen.pt, underflow_value), dtype=np.float32),
+                    name+'_gen_mass': np.array(ak.fill_none(hbb_gen.mass, underflow_value), dtype=np.float32),
+                    name+'_gen_E': np.array(ak.fill_none(hbb_gen.energy, underflow_value), dtype=np.float32),
+                    name+'_gen_px': np.array(ak.fill_none(hbb_gen.px, underflow_value), dtype=np.float32),
+                    name+'_gen_py': np.array(ak.fill_none(hbb_gen.py, underflow_value), dtype=np.float32),
+                    name+'_gen_pz': np.array(ak.fill_none(hbb_gen.pz, underflow_value), dtype=np.float32),
+                }
+                dict.update(gen_dict)
+        return dict
+
+
+    def make_Wlepmet_single_dict(lep0, met, name):
+        vecMET = ak.zip(
+            {
+                "pt": met.pt,
+                "eta": 0,
+                "phi": met.phi,
+                "mass": 0,
+            },
+            with_name="PtEtaPhiMLorentzVector",
+            behavior=vector.behavior,
+        )
+        Wlepmet = (lep0 + vecMET)
+        dict = {
+            name+'_pt': np.array(ak.fill_none(Wlepmet.pt, underflow_value), dtype=np.float32),
+            name+'_mass': np.array(ak.fill_none(Wlepmet.mass, underflow_value), dtype=np.float32),
+            name+'_E': np.array(ak.fill_none(Wlepmet.energy, underflow_value), dtype=np.float32),
+            name+'_px': np.array(ak.fill_none(Wlepmet.px, underflow_value), dtype=np.float32),
+            name+'_py': np.array(ak.fill_none(Wlepmet.py, underflow_value), dtype=np.float32),
+            name+'_pz': np.array(ak.fill_none(Wlepmet.pz, underflow_value), dtype=np.float32),
+        }
+        if isMC:
+            if do_genMatch:
+                genMET = met.genMET
+                vecGenMET = ak.zip(
+                    {
+                        "pt": genMET.pt,
+                        "eta": 0,
+                        "phi": genMET.phi,
+                        "mass": 0,
+                    },
+                    with_name="PtEtaPhiMLorentzVector",
+                    behavior=vector.behavior,
+                )
+                Wlepmet_gen = (lep0.genParts + vecGenMET)
+                gen_dict = {
+                    name+'_gen_pt': np.array(ak.fill_none(Wlepmet_gen.pt, underflow_value), dtype=np.float32),
+                    name+'_gen_mass': np.array(ak.fill_none(Wlepmet_gen.mass, underflow_value), dtype=np.float32),
+                    name+'_gen_E': np.array(ak.fill_none(Wlepmet_gen.energy, underflow_value), dtype=np.float32),
+                    name+'_gen_px': np.array(ak.fill_none(Wlepmet_gen.px, underflow_value), dtype=np.float32),
+                    name+'_gen_py': np.array(ak.fill_none(Wlepmet_gen.py, underflow_value), dtype=np.float32),
+                    name+'_gen_pz': np.array(ak.fill_none(Wlepmet_gen.pz, underflow_value), dtype=np.float32),
+                }
+                dict.update(gen_dict)
+        return dict
+
+
+    def make_Wjetjet_single_dict(jet0, jet1, name):
+        Wjetjet = (jet0 + jet1)
+        dict = {
+            name+'_pt': np.array(ak.fill_none(Wjetjet.pt, underflow_value), dtype=np.float32),
+            name+'_mass': np.array(ak.fill_none(Wjetjet.mass, underflow_value), dtype=np.float32),
+            name+'_E': np.array(ak.fill_none(Wjetjet.energy, underflow_value), dtype=np.float32),
+            name+'_px': np.array(ak.fill_none(Wjetjet.px, underflow_value), dtype=np.float32),
+            name+'_py': np.array(ak.fill_none(Wjetjet.py, underflow_value), dtype=np.float32),
+            name+'_pz': np.array(ak.fill_none(Wjetjet.pz, underflow_value), dtype=np.float32),
+        }
+        if isMC:
+            if do_genMatch:
+                genMET = met.genMET
+                vecGenMET = ak.zip(
+                    {
+                        "pt": genMET.pt,
+                        "eta": 0,
+                        "phi": genMET.phi,
+                        "mass": 0,
+                    },
+                    with_name="PtEtaPhiMLorentzVector",
+                    behavior=vector.behavior,
+                )
+                Wjetjet_gen = (jet0.genJets + jet1.genJets)
+                gen_dict = {
+                    name+'_gen_pt': np.array(ak.fill_none(Wjetjet_gen.pt, underflow_value), dtype=np.float32),
+                    name+'_gen_mass': np.array(ak.fill_none(Wjetjet_gen.mass, underflow_value), dtype=np.float32),
+                    name+'_gen_E': np.array(ak.fill_none(Wjetjet_gen.energy, underflow_value), dtype=np.float32),
+                    name+'_gen_px': np.array(ak.fill_none(Wjetjet_gen.px, underflow_value), dtype=np.float32),
+                    name+'_gen_py': np.array(ak.fill_none(Wjetjet_gen.py, underflow_value), dtype=np.float32),
+                    name+'_gen_pz': np.array(ak.fill_none(Wjetjet_gen.pz, underflow_value), dtype=np.float32),
+                }
+                dict.update(gen_dict)
+        return dict
+
+
+    def make_hWWleplepmet_double_dict(lep0, lep1, met, name):
+        vecMET = ak.zip(
+            {
+                "pt": met.pt,
+                "eta": 0,
+                "phi": met.phi,
+                "mass": 0,
+            },
+            with_name="PtEtaPhiMLorentzVector",
+            behavior=vector.behavior,
+        )
+        Wlepmet = (lep0 + lep1 + vecMET)
+        dict = {
+            name+'_pt': np.array(ak.fill_none(Wlepmet.pt, underflow_value), dtype=np.float32),
+            name+'_mass': np.array(ak.fill_none(Wlepmet.mass, underflow_value), dtype=np.float32),
+            name+'_E': np.array(ak.fill_none(Wlepmet.energy, underflow_value), dtype=np.float32),
+            name+'_px': np.array(ak.fill_none(Wlepmet.px, underflow_value), dtype=np.float32),
+            name+'_py': np.array(ak.fill_none(Wlepmet.py, underflow_value), dtype=np.float32),
+            name+'_pz': np.array(ak.fill_none(Wlepmet.pz, underflow_value), dtype=np.float32),
+        }
+        if isMC:
+            if do_genMatch:
+                genMET = met.genMET
+                vecGenMET = ak.zip(
+                    {
+                        "pt": genMET.pt,
+                        "eta": 0,
+                        "phi": genMET.phi,
+                        "mass": 0,
+                    },
+                    with_name="PtEtaPhiMLorentzVector",
+                    behavior=vector.behavior,
+                )
+                Wlepmet_gen = (lep0.genParts + lep1.genParts + vecGenMET)
+                gen_dict = {
+                    name+'_gen_pt': np.array(ak.fill_none(Wlepmet_gen.pt, underflow_value), dtype=np.float32),
+                    name+'_gen_mass': np.array(ak.fill_none(Wlepmet_gen.mass, underflow_value), dtype=np.float32),
+                    name+'_gen_E': np.array(ak.fill_none(Wlepmet_gen.energy, underflow_value), dtype=np.float32),
+                    name+'_gen_px': np.array(ak.fill_none(Wlepmet_gen.px, underflow_value), dtype=np.float32),
+                    name+'_gen_py': np.array(ak.fill_none(Wlepmet_gen.py, underflow_value), dtype=np.float32),
+                    name+'_gen_pz': np.array(ak.fill_none(Wlepmet_gen.pz, underflow_value), dtype=np.float32),
+                }
+                dict.update(gen_dict)
+        return dict
+
 
 
     lep_dict_single = make_lep_dict(lep0_single, 'lep0') | make_lep_dict(lep1_single, 'lep1')
@@ -339,14 +496,22 @@ def update_outfile(EventProcess, outfile):
     ak8_jet_dict_single = make_ak8_jet_dict(ak8_jet0_single, 'ak8_jet0')
     met_dict_single = make_met_dict(met_single, 'met')
 
+    hbb_dict_single = make_hbb_dict(ak4_jet0_single, ak4_jet1_single, 'hbb')
+    Wlepmet_dict_single = make_Wlepmet_single_dict(lep0_single, met_single, 'Wlepmet')
+    Wjetjet_dict_single = make_Wjetjet_single_dict(ak4_jet2_single, ak4_jet3_single, 'Wjetjet')
+
+
     lep_dict_double = make_lep_dict(lep0_double, 'lep0') | make_lep_dict(lep1_double, 'lep1')
     ak4_jet_dict_double = make_ak4_jet_dict(ak4_jet0_double, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet1_double, 'ak4_jet1') | make_ak4_jet_dict(ak4_jet2_double, 'ak4_jet2') | make_ak4_jet_dict(ak4_jet3_double, 'ak4_jet3')
     ak8_jet_dict_double = make_ak8_jet_dict(ak8_jet0_double, 'ak8_jet0')
     met_dict_double = make_met_dict(met_double, 'met')
 
+    hbb_dict_double = make_hbb_dict(ak4_jet0_double, ak4_jet1_double, 'hbb')
+    hWWleplepmet_dict_double = make_hWWleplepmet_double_dict(lep0_double, lep1_double, met_double, 'hWW')
 
-    single_dicts = event_dict_single | lep_dict_single | ak4_jet_dict_single | ak8_jet_dict_single | met_dict_single
-    double_dicts = event_dict_double | lep_dict_double | ak4_jet_dict_double | ak8_jet_dict_double | met_dict_double
+
+    single_dicts = event_dict_single | lep_dict_single | ak4_jet_dict_single | ak8_jet_dict_single | met_dict_single | hbb_dict_single | Wlepmet_dict_single | Wjetjet_dict_single
+    double_dicts = event_dict_double | lep_dict_double | ak4_jet_dict_double | ak8_jet_dict_double | met_dict_double | hbb_dict_double | hWWleplepmet_dict_double
 
     if isMC and do_genMatch:
         genpart_sgl = EventProcess.genpart_sgl
