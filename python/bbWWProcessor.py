@@ -13,7 +13,7 @@ import genparticles
 #import jet_corrections
 
 class EventProcess():
-    def __init__(self, inputFile, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug=0):
+    def __init__(self, inputFile, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug=0, DYEstimation=0):
         self.fname = inputFile
         self.isMC  = isMC
         self.doSF = doSF
@@ -22,6 +22,7 @@ class EventProcess():
         self.dnn_truth_value = dnn_truth_value
         self.XS = XS
         self.debug  = debug
+        self.DYEstimation = DYEstimation
         print("Starting NanoAOD processing")
         print("Debug set to ", self.debug)
         self.skip_file = False #Bool to look at if a file is broken

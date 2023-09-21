@@ -46,6 +46,7 @@ isMC = args.isMC
 XS = args.XS
 doSF = args.SF
 do_genMatch = True
+DYEstimation = True
 
 print("Processing: ", flist)
 print("Will save as: ", outname)
@@ -54,7 +55,7 @@ print("Args are = ", args)
 
 for fname in flist:
     print("Starting file: ", fname)
-    eventProcess = EventProcess(fname, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug)
+    eventProcess = EventProcess(fname, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug, DYEstimation)
     if eventProcess.skip_file: continue
 
     if doSF:

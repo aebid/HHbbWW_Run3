@@ -21,9 +21,6 @@ def update_outfile(EventProcess, outfile):
     ak8_jets = events.FatJet
     ak8_subjets = events.SubJet
     met = events.MET
-    met['z'] = 0
-    met['t'] = 0
-    met['charge'] = 0
 
     double_mask = (events.Double_Signal | events.Double_Fake)
     single_mask = (events.Single_Signal | events.Single_Fake)
