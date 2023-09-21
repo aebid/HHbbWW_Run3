@@ -116,6 +116,9 @@ def single_lepton_category(EventProcess):
         behavior=vector.behavior,
     )
 
+    print("If we look at lorentzVecs we have ", (lep1_lorentz_vec + lep2_lorentz_vec).mass)
+    print("If we just add leps we have ", (first_leps + second_leps).mass)
+
 
     Invariant_mass_cut = ak.all(
         (
@@ -327,6 +330,7 @@ def double_lepton_category(EventProcess):
     Runyear = EventProcess.Runyear
     isMC = EventProcess.isMC
     debug = EventProcess.debug
+    DYEstimation = EventProcess.DYEstimation
 
     leptons_preselected = ak.concatenate([electrons.mask[electrons.preselected], muons.mask[muons.preselected]], axis=1)
     leptons_fakeable = ak.concatenate([electrons.mask[electrons.fakeable], muons.mask[muons.fakeable]], axis=1)
@@ -425,6 +429,9 @@ def double_lepton_category(EventProcess):
     ) == 0
 
     double_step4_mask = ak.fill_none(Invariant_mass_cut & Zmass_cut, False)
+    #For DY Estimation we need to turn off Zmass cut and the nBJets cut (ABCD method over M_{ll} and nBJets)
+    if DYEstimation:
+        double_step4_mask = True
 
     #HLT Cuts
     #If MuMu, pass MuMu or Mu trigger
@@ -477,6 +484,9 @@ def double_lepton_category(EventProcess):
     double_res_2b_cut = ak.fill_none((ak.sum(ak4_jets.cleaned_double, axis=1) >= 2) & (ak.sum(ak4_jets.medium_btag_double, axis=1) >= 2), False)
 
     double_step8_mask = ak.fill_none((double_hbbfat_cut) | (double_res_1b_cut) | (double_res_2b_cut), False)
+    #For DY Estimation we need to turn off Zmass cut and the nBJets cut (ABCD method over M_{ll} and nBJets)
+    if DYEstimation:
+        double_step8_mask = True
 
 
     events["double_lepton"] = double_step1_mask
