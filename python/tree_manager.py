@@ -424,10 +424,12 @@ def update_outfile(EventProcess, outfile):
     )
     hbb_double = (ak4_jet0_double + ak4_jet1_double)
     hWW_double = (lep0_double + lep1_double + vecMET_double)
+    ll_double = (lep0_double + lep1_double)
     hh_double = (hbb_double + hWW_double)
 
     hbb_dict_double = make_highlevelobject_dict(hbb_double, 'hbb')
     hWW_dict_double = make_highlevelobject_dict(hWW_double, 'hWW')
+    ll_dict_double = make_highlevelobject_dict(ll_double, 'll')
     hh_dict_double = make_highlevelobject_dict(hh_double, 'hh')
 
     if isMC and do_genMatch:
@@ -443,21 +445,24 @@ def update_outfile(EventProcess, outfile):
         )
         hbb_gen_double = (ak4_jet0_double.genJets + ak4_jet1_double.genJets)
         hWW_gen_double = (lep0_double.genParts + lep1_double.genParts + vecMET_double)
+        ll_gen_double = (lep0_double.genParts + lep1_double.genParts)
         hh_gen_double = (hbb_gen_double + hWW_gen_double)
 
 
         hbb_gen_dict_double = make_highlevelobject_dict(hbb_gen_double, 'hbb_gen')
         hWW_gen_dict_double = make_highlevelobject_dict(hWW_gen_double, 'hWW_gen')
+        ll_gen_dict_double = make_highlevelobject_dict(ll_gen_double, 'll_gen')
         hh_gen_dict_double = make_highlevelobject_dict(hh_gen_double, 'hh_gen')
 
 
         hbb_dict_double = hbb_dict_double | hbb_gen_dict_double
         hWW_dict_double = hWW_dict_double | hWW_gen_dict_double
+        ll_dict_double = ll_dict_double | ll_gen_dict_double
         hh_dict_double = hh_dict_double | hh_gen_dict_double
 
 
     single_dicts = event_dict_single | lep_dict_single | ak4_jet_dict_single | ak8_jet_dict_single | met_dict_single | hbb_dict_single | Wlepmet_dict_single | Wjetjet_dict_single | hWW_dict_single | hh_dict_single
-    double_dicts = event_dict_double | lep_dict_double | ak4_jet_dict_double | ak8_jet_dict_double | met_dict_double | hbb_dict_double | hWW_dict_double | hh_dict_double
+    double_dicts = event_dict_double | lep_dict_double | ak4_jet_dict_double | ak8_jet_dict_double | met_dict_double | hbb_dict_double | hWW_dict_double | ll_dict_double | hh_dict_double
 
 
 
