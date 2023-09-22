@@ -116,9 +116,6 @@ def single_lepton_category(EventProcess):
         behavior=vector.behavior,
     )
 
-    print("If we look at lorentzVecs we have ", (lep1_lorentz_vec + lep2_lorentz_vec).mass)
-    print("If we just add leps we have ", (first_leps + second_leps).mass)
-
 
     Invariant_mass_cut = ak.all(
         (
