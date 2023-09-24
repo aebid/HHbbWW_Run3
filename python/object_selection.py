@@ -311,6 +311,16 @@ def ak8_jet_selection(EventProcess):
     events.FatJet = ak.with_field(events.FatJet, ak8_jet_btag_mask & ak8_jets.cleaned_double, "btag_double")
 
 
+def add_HT(EventProcess):
+    events = EventProcess.events
+    ak4_jets = events.Jet
+    ak4_jets_pre = ak4_jets.mask[ak4_jets.preselected]
+
+    ak4_jets_ptGt50 = ak4_jets_pre.mask[ak4_jets_pre.pt > 50]
+
+    events["HT"] = ak.sum(ak4_jets_ptGt50.pt, axis=1)
+
+
 def all_obj_selection(EventProcess):
     add_conept(EventProcess)
     link_jets(EventProcess)
@@ -318,3 +328,4 @@ def all_obj_selection(EventProcess):
     electron_selection(EventProcess)
     ak4_jet_selection(EventProcess)
     ak8_jet_selection(EventProcess)
+    add_HT(EventProcess)

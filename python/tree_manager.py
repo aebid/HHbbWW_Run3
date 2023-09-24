@@ -282,6 +282,8 @@ def update_outfile(EventProcess, outfile):
         'n_cleaned_ak8_jets': np.array(ak.sum(ak8_jets_single.cleaned_single, axis=1), dtype=np.int32),
         'n_btag_ak8_jets': np.array(ak.sum(ak8_jets_single.btag_single, axis=1), dtype=np.int32),
 
+        'HT': np.array(events_single.HT, dtype=np.float32),
+
         'Single_HbbFat_WjjRes_AllReco': np.array(events_single.Single_HbbFat_WjjRes_AllReco, dtype=np.int32),
         'Single_HbbFat_WjjRes_MissJet': np.array(events_single.Single_HbbFat_WjjRes_MissJet, dtype=np.int32),
         'Single_Res_allReco_2b': np.array(events_single.Single_Res_allReco_2b, dtype=np.int32),
@@ -319,6 +321,8 @@ def update_outfile(EventProcess, outfile):
         'n_presel_ak8_jets': np.array(ak.sum(ak8_jets_double.preselected, axis=1), dtype=np.int32),
         'n_cleaned_ak8_jets': np.array(ak.sum(ak8_jets_double.cleaned_double, axis=1), dtype=np.int32),
         'n_btag_ak8_jets': np.array(ak.sum(ak8_jets_double.btag_double, axis=1), dtype=np.int32),
+
+        'HT': np.array(events_double.HT, dtype=np.float32),
 
         'Double_HbbFat': np.array(events_double.Double_HbbFat, dtype=np.int32),
         'Double_Res_1b': np.array(events_double.Double_Res_1b, dtype=np.int32),

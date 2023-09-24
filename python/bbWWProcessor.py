@@ -503,6 +503,8 @@ class EventProcess():
         return object_selection.ak4_jet_selection(self)
     def ak8_jet_selection(self):
         return object_selection.ak8_jet_selection(self)
+    def add_HT(self):
+        return object_selection.add_HT(self)
     def clean_events(self):
         return object_selection.clean_events(self)
 
