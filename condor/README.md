@@ -53,4 +53,11 @@ python3 resubmit_dataset.py
 ```
 
 
+As you add more information (genParts, SF) you may need more memory, you can edit a held job with
 
+```
+condor_qedit JOB.ID RequestMemory MemAmountInBytes
+condor_release UserName
+```
+
+This would change the memory and release the job to run again

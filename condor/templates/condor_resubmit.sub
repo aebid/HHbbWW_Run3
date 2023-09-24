@@ -11,6 +11,6 @@ when_to_transfer_output = ON_EXIT
 output                  = out/out.$(filename).txt
 error                   = err/err.$(filename).txt
 log                     = log/log.$(filename).txt
-request_memory          = 4000M
+request_memory          = 16GB
 +MaxRuntime             = 288000
 queue filename matching files dummy_job0.sh dummy_job1.sh ...

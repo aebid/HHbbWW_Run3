@@ -12,6 +12,6 @@ output_destination      = root://eosuser.cern.ch//eos/user/d/daebi/
 output                  = out/out.$(filename).txt
 error                   = err/err.$(filename).txt
 log                     = log/log.$(filename).txt
-request_memory          = 8000M
+request_memory          = 16GB
 +MaxRuntime             = 288000
 queue filename matching files job*.sh

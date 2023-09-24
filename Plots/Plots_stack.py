@@ -143,13 +143,7 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
         ]
     lumiplot2016 = '35.9 fb^{-1}'
     lumi2016 = 35900
-    """
-    if "Double" in channel:
-        passedSelection = "Double_Fake | Double_Signal"
-    if "Single" in channel:
-        passedSelection = "Single_Fake | Single_Signal"
-        passedSelection = "Single_HbbFat_WjjRes_AllReco"
-    """
+
     cut = passedSelection
     Variable = {}
     stack = THStack('stack', 'stack')
@@ -228,8 +222,9 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
             singleH_bkg.Add(Variable[histName])
             added_bkg.Add(Variable[histName])
         elif ('WJetsToLNu' in Sample):
-            wjets_bkg.Add(Variable[histName])
-            added_bkg.Add(Variable[histName])
+            if ('Single' in channel): #W+Jets only in the Single Category (Double will have it in 'Fakes'
+                wjets_bkg.Add(Variable[histName])
+                added_bkg.Add(Variable[histName])
         elif ('DY' in Sample):
             DY_bkg.Add(Variable[histName])
             added_bkg.Add(Variable[histName])
@@ -340,7 +335,8 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
     legend = TLegend(.55,.75,.96,.85)
     legend.SetNColumns(2);
     legend.AddEntry(data, 'Data', "ep")
-    legend.AddEntry(wjets_bkg,'W + Jets', "f")
+    if ('Single' in channel): #W+Jets only in the Single Category (Double will have it in 'Fakes'
+        legend.AddEntry(wjets_bkg,'W + Jets', "f")
     legend.AddEntry(ttbar_bkg, 'ttbar + Jets', "f")
     legend.AddEntry(singleT_bkg, 'Single Top', "f")
     legend.AddEntry(singleH_bkg, 'Single H', "f")
@@ -443,37 +439,94 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
         ratio.Draw("ep");
         c1.Modified();
         c1.Update()
-    c1.SaveAs('Histo_' + save + '_' + passedSelection + '.png')
-    c1.SaveAs('Histo_' + save + '_' + passedSelection + '.pdf')
+    #c1.SaveAs('Histo_' + save + '_' + passedSelection + '.png')
+    #c1.SaveAs('Histo_' + save + '_' + passedSelection + '.pdf')
+
+    c1.SaveAs('Histo_' + save + '.pdf')
     del var
     del histName
 
-"""
-make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_HbbFat_WjjRes_AllReco")
-make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_HbbFat_WjjRes_MissJet")
-make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_Res_allReco_2b")
-make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_Res_allReco_1b")
-make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_Res_MissWJet_2b")
-make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_Res_MissWJet_1b")
-
-make_plot('Singlelepton','ak4_jet0_btagDeepFlavB', 10, 0, 1.0, 'B_{Tag}^{j0}', 'Score', True, False, True, "Single_Fake | Single_Signal")
-"""
 
 
+var = 'ak4_jet0_btagDeepFlavB'
+varname = 'ak4 Jet0_{DeepFlavB}'
+varunit = 'Score'
+nBins = 10
+binlow = 0.0
+binhigh = 1.0
+cut = "(Single_Fake || Single_Signal)"
+make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut)
+cut = "(Double_Fake || Double_Signal)"
+make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut)
 
-var = 'lep0_conept'
-varname = 'lep0_{cone-pT}'
+
+var = 'ak4_jet1_btagDeepFlavB'
+varname = 'ak4 Jet1_{DeepFlavB}'
+varunit = 'Score'
+nBins = 10
+binlow = 0.0
+binhigh = 1.0
+cut = "(Single_Fake || Single_Signal)"
+make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut)
+cut = "(Double_Fake || Double_Signal)"
+make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut)
+
+
+var = 'n_presel_ak4_jets'
+varname = '# Preselected Ak4 Jets'
+varunit = 'Number'
+nBins = 4
+binlow = 0.0
+binhigh = 19.0
+cut = "(Single_Fake || Single_Signal)"
+make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut)
+cut = "(Double_Fake || Double_Signal)"
+make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut)
+
+
+var = 'pow((pow(met_px,2) + pow(met_py,2)),(0.5))'
+varname = 'MET Energy'
+varunit = 'GeV'
+nBins = 10
+binlow = 0.0
+binhigh = 1000.0
+cut = "(Single_Fake || Single_Signal)"
+make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut)
+cut = "(Double_Fake || Double_Signal)"
+make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut)
+
+
+var = 'lep0_pt'
+varname = 'lepton0 p_{T}'
+varunit = 'GeV'
 nBins = 20
 binlow = 0.0
 binhigh = 200.0
-#make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_HbbFat_WjjRes_AllReco")
-#make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_HbbFat_WjjRes_MissJet")
-#make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_Res_allReco_2b")
-#make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_Res_allReco_1b")
-#make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_Res_MissWJet_2b")
-#make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_Res_MissWJet_1b")
-
-#make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, 'Score', True, False, True, "Single_Fake | Single_Signal")
+cut = "(Single_Fake || Single_Signal)"
+make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut)
+cut = "(Double_Fake || Double_Signal)"
+make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut)
 
 
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, 'GeV', True, False, True, "Double_Fake || Double_Signal")
+var = 'lep1_pt'
+varname = 'lepton1 p_{T}'
+varunit = 'GeV'
+nBins = 20
+binlow = 0.0
+binhigh = 200.0
+cut = "(Double_Fake || Double_Signal)"
+make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut)
+
+
+var = 'n_medium_btag_ak4_jets'
+varname = '# Medium BTag Ak4 Jets'
+varunit = 'Number'
+nBins = 5
+binlow = 0.0
+binhigh = 10.0
+cut = "(Single_Fake || Single_Signal)"
+make_plot('Singlelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut)
+cut = "(Double_Fake || Double_Signal)"
+make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut)
+
+
