@@ -90,8 +90,8 @@ def recoJet_to_genJet(EventProcess):
     genjets = events.GenJet
     genfatjets = events.GenJetAK8
 
-    ak4_jets_mask = ak4_jets.mask[ak4_jets.genJetIdx < ak.num(genjets)]
-    ak8_jets_mask = ak8_jets.mask[ak8_jets.genJetAK8Idx < ak.num(genfatjets)]
+    ak4_jets_mask = ak4_jets.mask[(ak4_jets.genJetIdx < ak.num(genjets)) & (ak4_jets.genJetIdx != -1)]
+    ak8_jets_mask = ak8_jets.mask[(ak8_jets.genJetAK8Idx < ak.num(genfatjets)) & (ak8_jets.genJetAK8Idx != -1)]
 
 
     events.Jet = ak.with_field(events.Jet, genjets[ak4_jets_mask.genJetIdx], "genJets")
