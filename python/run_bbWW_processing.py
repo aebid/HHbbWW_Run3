@@ -4,6 +4,7 @@ from bbWWProcessor import EventProcess
 import awkward as ak
 import os
 import uproot
+import psutil
 
 import time
 startTime = time.time()
@@ -45,12 +46,13 @@ Runyear = args.Runyear
 isMC = args.isMC
 XS = args.XS
 doSF = args.SF
-do_genMatch = True
+do_genMatch = isMC #Currently lets to genMatch every time we are MC
 DYEstimation = True
 
 print("Processing: ", flist)
 print("Will save as: ", outname)
 print("Args are = ", args)
+print("Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
 
 for fname in flist:
@@ -68,6 +70,8 @@ for fname in flist:
         print("Jet Corrector in seconds: " + str((time.time() - startTime)))
         eventProcess.met_corrector()
         print("MET Corrector in seconds: " + str((time.time() - startTime)))
+        print("Memory usage in MB after SF ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+
 
     if do_genMatch:
         eventProcess.single_lepton_genpart()
@@ -76,19 +80,25 @@ for fname in flist:
         eventProcess.recoLep_to_genLep()
         eventProcess.recoMET_to_genMET()
         print('GenParts in seconds: ' + str((time.time() - startTime)))
+        print("Memory usage in MB after GenMatch ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+
 
     eventProcess.all_obj_selection()
     print('Object Selection in seconds: ' + str((time.time() - startTime)))
+    print("Memory usage in MB after Object ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+
     if debug: eventProcess.print_object_selection()
     eventProcess.single_lepton_category()
     eventProcess.double_lepton_category()
     print('Categories in seconds: ' + str((time.time() - startTime)))
+    print("Memory usage in MB after Event ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
     if debug: eventProcess.print_event_selection()
 
 
     eventProcess.update_outfile(outfile)
 
     print('Updated in seconds: ' + str((time.time() - startTime)))
+    print("Memory usage in MB after Tree ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
     print('Filename = ', outname)
 
 print("Finished processing all files!")

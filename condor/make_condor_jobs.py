@@ -13,13 +13,10 @@ def main():
 
 
     project_folder = "TTBar"
-    file_list = ["/store/mc/Run3Winter22NanoAOD/TTTo2L2Nu_CP5_13p6TeV_powheg-pythia8/NANOAODSIM/122X_mcRun3_2021_realistic_v9-v1/40000/0db470d2-1dfb-471e-b8b0-60fe5cad9ddf.root", "/store/mc/Run3Winter22NanoAOD/TTTo2L2Nu_CP5_13p6TeV_powheg-pythia8/NANOAODSIM/122X_mcRun3_2021_realistic_v9-v1/40000/1e132652-55fb-4732-a077-2e1b013c6fc3.root", "/store/mc/Run3Winter22NanoAOD/TTTo2L2Nu_CP5_13p6TeV_powheg-pythia8/NANOAODSIM/122X_mcRun3_2021_realistic_v9-v1/40000/35c1c54d-4500-4542-9fb4-51baa6d04083.root"]
+    file_list = ["/store/mc/Run3Winter22NanoAOD/TTTo2L2Nu_CP5_13p6TeV_powheg-pythia8/NANOAODSIM/122X_mcRun3_2021_realistic_v9-v1/40000/0db470d2-1dfb-471e-b8b0-60fe5cad9ddf.root", "/store/mc/Run3Winter22NanoAOD/TTTo2L2Nu_CP5_13p6TeV_powheg-pythia8/NANOAODSIM/122X_mcRun3_2021_realistic_v9-v1/40000/1e132652-55fb-4732-a077-2e1b013c6fc3.root"]
 
-    project_folder = "data3"
-    file_list = ["/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/03dbce72-4887-4164-b63a-7b2eea25abbb.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/734b806e-ff93-4d99-b784-0e3164f2dd4e.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/aa5a4b71-fd45-45d9-bf26-ea4f2dc42882.root", "/store/data/Run2022C/DoubleMuon/NANOAOD/PromptNanoAODv10_v1-v1/50000/e3a97f0b-715d-40d3-9763-7a3070a5fe5c.root"]
-
-    nFilesPerJob = 1
-    subdir = "2016_data_fullSF_CF/"
+    nFilesPerJob = 5
+    subdir = "2016_data_nodocker_9oct2023/"
     runyear = "2016"
     storage_folder = "/eos/user/d/daebi/"
     cross_section = 1.0
@@ -113,15 +110,6 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
     #Find what DNN Truth Value to add
     #value list example HH:0 TTbar:1 ST:2 DY:3 H:4 TTbarV(X):5 VV(V):6 Other:7 Data:8
     
-    #HH_list = glob.glob("GluGluToBulkGravitonToHHTo*/") + glob.glob("GluGluToRadionToHHTo*/")
-    #TT = glob.glob("TTTo*/")
-    #ST = glob.glob("ST_*/")
-    #DY = glob.glob("DY*/")
-    #H = glob.glob("GluGluHTo*/")
-    #TTV = glob.glob("TTW*/") + glob.glob("TTZ*/")
-    #VV = glob.glob("WWTo*/") + glob.glob("ZZTo*/")
-    #Data = glob.glob("DoubleEG*/") + glob.glob("DoubleMuon*/") + glob.glob("SingleElectron*/") + glob.glob("SingleMuon*/") + glob.glob("MuonEG*/")
-
     os.system("cp templates/submit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
     
     resub_dataset_template = open("templates/resubmit_dataset.py", 'r')
