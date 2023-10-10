@@ -1,6 +1,8 @@
 # Condor Instructions
 
-To run on condor, the main script is make_condor_jobs.py, while condor.sub, initialize_condor.sh, and job_template.sh do not require changes
+To run on condor, the main script make_condor_jobs.py will create jobs based on your configurations and will pull template files from the templates folder
+
+Base configurations are to use the pickle file dictionary, and will need a user input for what storage folder and subdirectory folder to save files in
 
 After configuring make_condor_jobs.py with the correct work directory and data files, follow these steps
 
