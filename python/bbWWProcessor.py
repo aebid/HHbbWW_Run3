@@ -14,7 +14,7 @@ import genparticles
 #import jet_corrections
 
 class EventProcess():
-    def __init__(self, inputFile, entryStart, entryStop, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug=0, DYEstimation=0):
+    def __init__(self, inputFile, entryStart, entryStop, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug=0, DYEstimation=0, HLT_Cuts=0):
         self.fname = inputFile
         self.isMC  = isMC
         self.doSF = doSF
@@ -24,6 +24,7 @@ class EventProcess():
         self.XS = XS
         self.debug  = debug
         self.DYEstimation = DYEstimation
+        self.HLT_Cuts = HLT_Cuts
         print("Starting NanoAOD processing")
         print("Debug set to ", self.debug)
         self.skip_file = False #Bool to look at if a file is broken
@@ -151,8 +152,7 @@ class EventProcess():
         self.any_HLT_mask = self.electron_trigger_cuts | self.muon_trigger_cuts | self.double_electron_trigger_cuts | self.double_muon_trigger_cuts | self.muon_electron_trigger_cuts
 
         self.events = self.events_pretrigger
-        filter_by_HLT = True
-        if filter_by_HLT:
+        if self.HLT_Cuts:
             print("nEvents before HLT Cuts was ", len(self.events))
             self.events = self.events_pretrigger[self.any_HLT_mask]
             self.electron_trigger_cuts = self.electron_trigger_cuts[self.any_HLT_mask]
