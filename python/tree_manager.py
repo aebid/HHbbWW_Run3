@@ -3,6 +3,8 @@ from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
 import numpy as np
 import uproot
 from coffea.nanoevents.methods import vector
+import os
+import psutil
 
 
 def update_outfile(EventProcess, outfile):
@@ -117,6 +119,10 @@ def update_outfile(EventProcess, outfile):
 
     ak8_jet0_single = ak8_jets_single_cleaned_sorted[:,0]
     ak8_jet0_double = ak8_jets_double_cleaned_sorted[:,0]
+
+
+    print("Loaded all objects. Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+
 
 
 
@@ -260,6 +266,18 @@ def update_outfile(EventProcess, outfile):
             dict.update(MC_dict)
         return dict
 
+    def make_highlevelobject_dict(object, name):
+        dict = {
+            name+'_pt': np.array(ak.fill_none(object.pt, underflow_value), dtype=np.float32),
+            name+'_mass': np.array(ak.fill_none(object.mass, underflow_value), dtype=np.float32),
+            name+'_E': np.array(ak.fill_none(object.energy, underflow_value), dtype=np.float32),
+            name+'_px': np.array(ak.fill_none(object.px, underflow_value), dtype=np.float32),
+            name+'_py': np.array(ak.fill_none(object.py, underflow_value), dtype=np.float32),
+            name+'_pz': np.array(ak.fill_none(object.pz, underflow_value), dtype=np.float32),
+        }
+        return dict
+
+
     event_dict_single = {
         #Event level information
         'event': np.array(events_single.event),
@@ -338,16 +356,8 @@ def update_outfile(EventProcess, outfile):
         'XS': np.array(ak.ones_like(events_double.run)*EventProcess.XS, dtype=np.float32),
     }
 
-    def make_highlevelobject_dict(object, name):
-        dict = {
-            name+'_pt': np.array(ak.fill_none(object.pt, underflow_value), dtype=np.float32),
-            name+'_mass': np.array(ak.fill_none(object.mass, underflow_value), dtype=np.float32),
-            name+'_E': np.array(ak.fill_none(object.energy, underflow_value), dtype=np.float32),
-            name+'_px': np.array(ak.fill_none(object.px, underflow_value), dtype=np.float32),
-            name+'_py': np.array(ak.fill_none(object.py, underflow_value), dtype=np.float32),
-            name+'_pz': np.array(ak.fill_none(object.pz, underflow_value), dtype=np.float32),
-        }
-        return dict
+    print("Made event dicts. Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+
 
 
     lep_dict_single = make_lep_dict(lep0_single, 'lep0') | make_lep_dict(lep1_single, 'lep1')
@@ -408,6 +418,8 @@ def update_outfile(EventProcess, outfile):
         hWW_dict_single = hWW_dict_single | hWW_gen_dict_single
         hh_dict_single = hh_dict_single | hh_gen_dict_single
 
+    print("Made single dicts. Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+
 
     lep_dict_double = make_lep_dict(lep0_double, 'lep0') | make_lep_dict(lep1_double, 'lep1')
     ak4_jet_dict_double = make_ak4_jet_dict(ak4_jet0_double, 'ak4_jet0') | make_ak4_jet_dict(ak4_jet1_double, 'ak4_jet1') | make_ak4_jet_dict(ak4_jet2_double, 'ak4_jet2') | make_ak4_jet_dict(ak4_jet3_double, 'ak4_jet3')
@@ -464,6 +476,8 @@ def update_outfile(EventProcess, outfile):
         ll_dict_double = ll_dict_double | ll_gen_dict_double
         hh_dict_double = hh_dict_double | hh_gen_dict_double
 
+    print("Made double dicts. Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+
 
     single_dicts = event_dict_single | lep_dict_single | ak4_jet_dict_single | ak8_jet_dict_single | met_dict_single | hbb_dict_single | Wlepmet_dict_single | Wjetjet_dict_single | hWW_dict_single | hh_dict_single
     double_dicts = event_dict_double | lep_dict_double | ak4_jet_dict_double | ak8_jet_dict_double | met_dict_double | hbb_dict_double | hWW_dict_double | ll_dict_double | hh_dict_double
@@ -510,6 +524,7 @@ def update_outfile(EventProcess, outfile):
         single_dicts = single_dicts | genpart_dict_single
         double_dicts = double_dicts | genpart_dict_double
 
+    print("Made all dicts. Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
     if debug: import time
     if debug: print("Save the tree in uproot")
