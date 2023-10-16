@@ -72,13 +72,10 @@ for fname in flist:
         continue
     print("There are ", nEvents, " total events")
     #Now lets loop only over the loop size (Save RAM!)
-    for nLoopIter in range(int(nEvents/nEventsLoopSize)):
+    for nLoopIter in range(int(nEvents/nEventsLoopSize)+1):
         print("At loop iter ", nLoopIter)
         entryStart = nEventsLoopSize*(nLoopIter)
         entryStop = nEventsLoopSize*(nLoopIter+1)
-
-        if nLoopIter == (int(nEvents/nEventsLoopSize) - 1):
-            entryStop = -1
 
         #Only load the events in range
         eventProcess = EventProcess(fname, entryStart, entryStop, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug, DYEstimation, HLT_Cuts)

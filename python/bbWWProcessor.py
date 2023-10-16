@@ -150,17 +150,18 @@ class EventProcess():
         #Here we define the used events array passing any of the lepton triggers
         #We cannot slim these lists until AFTER we do the JetMet corrections!!!
         self.any_HLT_mask = self.electron_trigger_cuts | self.muon_trigger_cuts | self.double_electron_trigger_cuts | self.double_muon_trigger_cuts | self.muon_electron_trigger_cuts
+        if not self.HLT_Cuts: self.any_HLT_mask = ak.ones_like(self.any_HLT_mask)
 
         self.events = self.events_pretrigger
-        if self.HLT_Cuts:
-            print("nEvents before HLT Cuts was ", len(self.events))
-            self.events = self.events_pretrigger[self.any_HLT_mask]
-            self.electron_trigger_cuts = self.electron_trigger_cuts[self.any_HLT_mask]
-            self.muon_trigger_cuts = self.muon_trigger_cuts[self.any_HLT_mask]
-            self.double_electron_trigger_cuts = self.double_electron_trigger_cuts[self.any_HLT_mask]
-            self.double_muon_trigger_cuts = self.double_muon_trigger_cuts[self.any_HLT_mask]
-            self.muon_electron_trigger_cuts = self.muon_electron_trigger_cuts[self.any_HLT_mask]
-            print("nEvents after HLT Cuts was ", len(self.events))
+        #if self.HLT_Cuts:
+        print("nEvents before HLT Cuts was ", len(self.events))
+        self.events = self.events_pretrigger[self.any_HLT_mask]
+        self.electron_trigger_cuts = self.electron_trigger_cuts[self.any_HLT_mask]
+        self.muon_trigger_cuts = self.muon_trigger_cuts[self.any_HLT_mask]
+        self.double_electron_trigger_cuts = self.double_electron_trigger_cuts[self.any_HLT_mask]
+        self.double_muon_trigger_cuts = self.double_muon_trigger_cuts[self.any_HLT_mask]
+        self.muon_electron_trigger_cuts = self.muon_electron_trigger_cuts[self.any_HLT_mask]
+        print("nEvents after HLT Cuts was ", len(self.events))
         #We also have to cut the cuts arrays because they must be the same shape as the events
         self.events["dnn_truth_value"] = dnn_truth_value
 
