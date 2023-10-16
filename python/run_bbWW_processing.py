@@ -5,6 +5,8 @@ import awkward as ak
 import os
 import uproot
 import psutil
+from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
+
 
 import time
 startTime = time.time()
@@ -57,48 +59,66 @@ print("Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / f
 
 for fname in flist:
     print("Starting file: ", fname)
-    eventProcess = EventProcess(fname, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug, DYEstimation)
-    if eventProcess.skip_file: continue
+    nEventsLoopSize = 100000
+    #Check how many events are in the file
+    uproot_file = uproot.open(fname)
+    events = NanoEventsFactory.from_root(uproot_file, schemaclass=NanoAODSchema.v7).events()
+    nEvents = len(events)
+    if nEvents == 0:
+        print("Zero events! This will fail ):")
+        continue
+    print("There are ", nEvents, " total events")
+    #Now lets loop only over the loop size (Save RAM!)
+    for nLoopIter in range(int(nEvents/nEventsLoopSize)):
+        print("At loop iter ", nLoopIter)
+        entryStart = nEventsLoopSize*(nLoopIter)
+        entryStop = nEventsLoopSize*(nLoopIter+1)
 
-    if doSF:
-        if isMC:
-            eventProcess.add_scale_factors()
-            print("Scale Factors in seconds: " + str((time.time() - startTime)))
-            eventProcess.btag_SF()
-            print("BTag SF in seconds: " + str((time.time() - startTime)))
-        eventProcess.jet_corrector()
-        print("Jet Corrector in seconds: " + str((time.time() - startTime)))
-        eventProcess.met_corrector()
-        print("MET Corrector in seconds: " + str((time.time() - startTime)))
-        print("Memory usage in MB after SF ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+        #Only load the events in range
+        eventProcess = EventProcess(fname, entryStart, entryStop, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug, DYEstimation)
+        if eventProcess.skip_file: continue
 
-
-    if do_genMatch:
-        eventProcess.single_lepton_genpart()
-        eventProcess.double_lepton_genpart()
-        eventProcess.recoJet_to_genJet()
-        eventProcess.recoLep_to_genLep()
-        eventProcess.recoMET_to_genMET()
-        print('GenParts in seconds: ' + str((time.time() - startTime)))
-        print("Memory usage in MB after GenMatch ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
-
-
-    eventProcess.all_obj_selection()
-    print('Object Selection in seconds: ' + str((time.time() - startTime)))
-    print("Memory usage in MB after Object ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
-
-    if debug: eventProcess.print_object_selection()
-    eventProcess.single_lepton_category()
-    eventProcess.double_lepton_category()
-    print('Categories in seconds: ' + str((time.time() - startTime)))
-    print("Memory usage in MB after Event ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
-    if debug: eventProcess.print_event_selection()
+        if doSF:
+            if isMC:
+                eventProcess.add_scale_factors()
+                print("Scale Factors in seconds: " + str((time.time() - startTime)))
+                eventProcess.btag_SF()
+                print("BTag SF in seconds: " + str((time.time() - startTime)))
+            eventProcess.jet_corrector()
+            print("Jet Corrector in seconds: " + str((time.time() - startTime)))
+            eventProcess.met_corrector()
+            print("MET Corrector in seconds: " + str((time.time() - startTime)))
+            print("Memory usage in MB after SF ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
 
-    eventProcess.update_outfile(outfile)
+        if do_genMatch:
+            eventProcess.single_lepton_genpart()
+            eventProcess.double_lepton_genpart()
+            eventProcess.recoJet_to_genJet()
+            eventProcess.recoLep_to_genLep()
+            eventProcess.recoMET_to_genMET()
+            print('GenParts in seconds: ' + str((time.time() - startTime)))
+            print("Memory usage in MB after GenMatch ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
-    print('Updated in seconds: ' + str((time.time() - startTime)))
-    print("Memory usage in MB after Tree ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
-    print('Filename = ', outname)
+
+        eventProcess.all_obj_selection()
+        print('Object Selection in seconds: ' + str((time.time() - startTime)))
+        print("Memory usage in MB after Object ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+
+        if debug: eventProcess.print_object_selection()
+        eventProcess.single_lepton_category()
+        eventProcess.double_lepton_category()
+        print('Categories in seconds: ' + str((time.time() - startTime)))
+        print("Memory usage in MB after Event ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+        if debug: eventProcess.print_event_selection()
+
+
+        eventProcess.update_outfile(outfile)
+
+        print('Updated in seconds: ' + str((time.time() - startTime)))
+        print("Memory usage in MB after Tree ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+        print('Filename = ', outname)
+
+    print("Finished processing all events!")
 
 print("Finished processing all files!")

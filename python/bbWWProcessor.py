@@ -14,7 +14,7 @@ import genparticles
 #import jet_corrections
 
 class EventProcess():
-    def __init__(self, inputFile, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug=0, DYEstimation=0):
+    def __init__(self, inputFile, entryStart, entryStop, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug=0, DYEstimation=0):
         self.fname = inputFile
         self.isMC  = isMC
         self.doSF = doSF
@@ -29,7 +29,7 @@ class EventProcess():
         self.skip_file = False #Bool to look at if a file is broken
 
         uproot_file = uproot.open(self.fname)
-        events = NanoEventsFactory.from_root(uproot_file, schemaclass=NanoAODSchema.v7).events()
+        events = NanoEventsFactory.from_root(uproot_file, entry_start = entryStart, entry_stop = entryStop, schemaclass=NanoAODSchema.v7).events()
         self.nEvents = len(events)
         if self.nEvents == 0:
             print("Zero events! This will fail ):")
