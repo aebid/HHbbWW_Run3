@@ -48,7 +48,7 @@ def datasetParser():
     with open(opt.DATASETS, "r") as datasetfile:
         for line in datasetfile:
 
-            if (line.startswith('#')): continue
+            if (line.startswith('#') or line.startswith('\n')): continue
 
             if ( not (opt.SUBSTRING=="")):
                 if (not (opt.SUBSTRING in line)): continue
