@@ -150,7 +150,7 @@ class EventProcess():
         #Here we define the used events array passing any of the lepton triggers
         #We cannot slim these lists until AFTER we do the JetMet corrections!!!
         self.any_HLT_mask = self.electron_trigger_cuts | self.muon_trigger_cuts | self.double_electron_trigger_cuts | self.double_muon_trigger_cuts | self.muon_electron_trigger_cuts
-        if not self.HLT_Cuts: self.any_HLT_mask = ak.ones_like(self.any_HLT_mask)
+        if not self.HLT_Cuts and self.isMC: self.any_HLT_mask = ak.ones_like(self.any_HLT_mask)
 
         self.events = self.events_pretrigger
         #if self.HLT_Cuts:
