@@ -283,6 +283,8 @@ class EventProcess():
                     },
                 },
             },
+            "2022": {
+            },
         }
 
 
@@ -417,6 +419,8 @@ class EventProcess():
                         },
                     },
                 },
+            },
+            "2022": {
             },
         }
 
