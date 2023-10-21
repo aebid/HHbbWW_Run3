@@ -4,6 +4,10 @@ import subprocess
 import time
 import ROOT
 
+resub = False
+if not resub:
+    print("RESUB IS FALSE, THIS IS ONLY CHECKING JOBS!")
+
 base_storage_folder = '/eos/user/d/daebi/2016_data_fullSF_CF/'
 
 def check_jobs():
@@ -36,6 +40,11 @@ def check_jobs():
                 with open(tmp_storage+"/out/out."+job+".txt") as f:
                     if "Finished processing all files!\n" in f.readlines():
                         finished_joblist.append(job)
+                    elif not resub:
+                        with open(tmp_storage+"/err/err."+job+".txt") as f2:
+                            if "OSError: XRootD error: [ERROR] Operation expired\n" in f2.readlines(): print("XRD Timeout, resub "+tmp_storage+"/err/err."+job+".txt")
+                            else: print("Check this error file " + tmp_storage+"/err/err."+job+".txt")
+
 
 
             job_pass_rate = len(finished_joblist)/len(joblist)
@@ -95,7 +104,8 @@ def check_jobs():
 
 cwd = os.getcwd()
 
-resub = True
+if not resub:
+    check_jobs()
 
 finished_list = []
 while resub:
@@ -116,6 +126,3 @@ while resub:
     not_finished = [x for x in os.listdir(".") if ((x not in finished_list) and (not os.path.isdir(x)))]
     print("NOT finished jobs are ", not_finished)
     time.sleep(5)
-
-
-

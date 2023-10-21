@@ -39,11 +39,15 @@ def single_lepton_category(EventProcess):
     leptons_fakeable = ak.concatenate([electrons.mask[electrons.fakeable], muons.mask[muons.fakeable]], axis=1)
     leptons_tight = ak.concatenate([electrons.mask[electrons.tight], muons.mask[muons.tight]], axis=1)
 
-    leptons_preselected_sorted = leptons_preselected[ak.argsort(leptons_preselected.conept, axis=1, ascending=False)]
-    leptons_fakeable_sorted = leptons_fakeable[ak.argsort(leptons_fakeable.conept, axis=1, ascending=False)]
-    leptons_tight_sorted = leptons_tight[ak.argsort(leptons_tight.conept, axis=1, ascending=False)]
+    if not ak.all(ak.all(ak.is_none(leptons_preselected, axis=1), axis=1)):
+        leptons_preselected = leptons_preselected[ak.argsort(leptons_preselected.conept, axis=1, ascending=False)]
+    if not ak.all(ak.all(ak.is_none(leptons_fakeable, axis=1), axis=1)):
+        leptons_fakeable = leptons_fakeable[ak.argsort(leptons_fakeable.conept, axis=1, ascending=False)]
+    if not ak.all(ak.all(ak.is_none(leptons_tight, axis=1), axis=1)):
+        leptons_tight = leptons_tight[ak.argsort(leptons_tight.conept, axis=1, ascending=False)]
 
-    leading_leptons = ak.pad_none(leptons_fakeable_sorted, 1)[:,0]
+
+    leading_leptons = ak.pad_none(leptons_fakeable, 1)[:,0]
 
 
     #We break the cuts into separate steps for the cutflow
@@ -68,7 +72,7 @@ def single_lepton_category(EventProcess):
     events["is_m"] = (abs(leading_leptons.pdgId) == 13)
 
     #Require at least 1 fakeable (or tight) lepton
-    one_fakeable_lepton = ak.sum(leptons_fakeable_sorted.fakeable, axis=1) >= 1
+    one_fakeable_lepton = ak.sum(leptons_fakeable.fakeable, axis=1) >= 1
     single_step1_mask = ak.fill_none(one_fakeable_lepton, False)
 
     #Require MET filters
@@ -173,7 +177,7 @@ def single_lepton_category(EventProcess):
 
     #Tau veto: no tau passing pt>20, abs(eta) < 2.3, abs(dxy) <= 1000, abs(dz) <= 0.2, "decayModeFindingNewDMs", decay modes = {0, 1, 2, 10, 11}, and "byMediumDeepTau2017v2VSjet", "byVLooseDeepTau2017v2VSmu", "byVVVLooseDeepTau2017v2VSe". Taus overlapping with fakeable electrons or fakeable muons within dR < 0.3 are not considered for the tau veto
     #False -> Gets Removed : True -> Passes veto
-    tau_veto_pairs = ak.cartesian([taus, leptons_fakeable_sorted], nested=True)
+    tau_veto_pairs = ak.cartesian([taus, leptons_fakeable], nested=True)
     taus_for_veto, leps_for_veto = ak.unzip(tau_veto_pairs)
 
     tau_veto_cleaning = ak.min(abs(taus_for_veto.delta_r(leps_for_veto)), axis=2) >= 0.3
@@ -281,9 +285,9 @@ def single_lepton_category(EventProcess):
 
     events["Single_Res_MissWJet_1b"] = ak.fill_none((events.single_lepton) & (ak.sum(ak8_jets.btag_single, axis=1) == 0) & (ak.sum(ak4_jets.cleaned_single, axis=1) < 4) & (ak.sum(ak4_jets.medium_btag_single, axis=1) == 1), False)
 
-    events["Single_Signal"] = ak.fill_none((events.single_lepton) & ((ak.sum(leptons_tight_sorted.tight, axis=1) == 1) & (leading_leptons.tight)), False)
+    events["Single_Signal"] = ak.fill_none((events.single_lepton) & ((ak.sum(leptons_tight.tight, axis=1) == 1) & (leading_leptons.tight)), False)
 
-    events["Single_Fake"] = ak.fill_none((events.single_lepton) & ((ak.sum(leptons_tight_sorted.tight, axis=1) == 1) & (leading_leptons.tight) == 0), False)
+    events["Single_Fake"] = ak.fill_none((events.single_lepton) & ((ak.sum(leptons_tight.tight, axis=1) == 1) & (leading_leptons.tight) == 0), False)
 
 
     if debug:
@@ -333,12 +337,16 @@ def double_lepton_category(EventProcess):
     leptons_fakeable = ak.concatenate([electrons.mask[electrons.fakeable], muons.mask[muons.fakeable]], axis=1)
     leptons_tight = ak.concatenate([electrons.mask[electrons.tight], muons.mask[muons.tight]], axis=1)
 
-    leptons_preselected_sorted = leptons_preselected[ak.argsort(leptons_preselected.conept, axis=1, ascending=False)]
-    leptons_fakeable_sorted = leptons_fakeable[ak.argsort(leptons_fakeable.conept, axis=1, ascending=False)]
-    leptons_tight_sorted = leptons_tight[ak.argsort(leptons_tight.conept, axis=1, ascending=False)]
 
-    leading_leptons = ak.pad_none(leptons_fakeable_sorted, 2)[:,0]
-    subleading_leptons = ak.pad_none(leptons_fakeable_sorted, 2)[:,1]
+    if not ak.all(ak.all(ak.is_none(leptons_preselected, axis=1), axis=1)):
+        leptons_preselected = leptons_preselected[ak.argsort(leptons_preselected.conept, axis=1, ascending=False)]
+    if not ak.all(ak.all(ak.is_none(leptons_fakeable, axis=1), axis=1)):
+        leptons_fakeable = leptons_fakeable[ak.argsort(leptons_fakeable.conept, axis=1, ascending=False)]
+    if not ak.all(ak.all(ak.is_none(leptons_tight, axis=1), axis=1)):
+        leptons_tight = leptons_tight[ak.argsort(leptons_tight.conept, axis=1, ascending=False)]
+
+    leading_leptons = ak.pad_none(leptons_fakeable, 2)[:,0]
+    subleading_leptons = ak.pad_none(leptons_fakeable, 2)[:,1]
 
     #We break the cuts into separate steps for the cutflow
     #Step 1 -- Require at least 2 fakeable (or tight) leptons
@@ -368,7 +376,7 @@ def double_lepton_category(EventProcess):
     events["is_em"] = ((abs(leading_leptons.pdgId) == 11) & (abs(subleading_leptons.pdgId) == 13)) | ((abs(leading_leptons.pdgId) == 13) & (abs(subleading_leptons.pdgId) == 11))
 
     #Require at least 2 fakeable (or tight) leptons
-    two_fakeable_lepton = ak.sum(leptons_fakeable_sorted.fakeable, axis=1) >= 2
+    two_fakeable_lepton = ak.sum(leptons_fakeable.fakeable, axis=1) >= 2
     double_step1_mask = ak.fill_none(two_fakeable_lepton, False)
 
     #Require MET filters

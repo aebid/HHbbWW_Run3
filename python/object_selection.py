@@ -218,7 +218,10 @@ def ak4_jet_selection(EventProcess):
     ak4_jets = events.Jet
 
     leptons_fakeable = ak.concatenate([electrons.mask[electrons.fakeable], muons.mask[muons.fakeable]], axis=1)
-    leptons_fakeable = leptons_fakeable[ak.argsort(leptons_fakeable.conept, ascending=False)]
+    #argsort fails if all values are none, fix by a all none check
+    #Check if variables are none, then if all in the nested list are none, then if all in the unnested list are none
+    if not ak.all(ak.all(ak.is_none(leptons_fakeable, axis=1), axis=1)):
+        leptons_fakeable = leptons_fakeable[ak.argsort(leptons_fakeable.conept, ascending=False)]
     leptons_fakeable = ak.pad_none(leptons_fakeable, 1)
 
     ak4_jet_lep_pair_for_cleaning = ak.cartesian([ak4_jets.mask[ak4_jets.preselected], leptons_fakeable], nested=True)
@@ -286,7 +289,10 @@ def ak8_jet_selection(EventProcess):
     ak8_jets = events.FatJet
 
     leptons_fakeable = ak.concatenate([electrons.mask[electrons.fakeable], muons.mask[muons.fakeable]], axis=1)
-    leptons_fakeable = leptons_fakeable[ak.argsort(leptons_fakeable.conept, ascending=False)]
+    #argsort fails if all values are none, fix by a all none check
+    #Check if variables are none, then if all in the nested list are none, then if all in the unnested list are none
+    if not ak.all(ak.all(ak.is_none(leptons_fakeable, axis=1), axis=1)):
+        leptons_fakeable = leptons_fakeable[ak.argsort(leptons_fakeable.conept, ascending=False)]
     leptons_fakeable = ak.pad_none(leptons_fakeable, 1)
 
     ak8_jet_lep_pair_for_cleaning = ak.cartesian([ak8_jets.mask[ak8_jets.preselected], leptons_fakeable], nested=True)

@@ -8,18 +8,20 @@ import glob
 def main():
 
     #If use dict, will run over the pickle file, otherwise will use the project_folder
+    #YOU MUST CHANGE THESE VARIABLES YOURSELF
     use_dict = True
     pickle_file = "../dataset/dataset_names/2016/2016_Datasets.pkl"
-
-
-    project_folder = "TTBar"
-    file_list = ["/store/mc/Run3Winter22NanoAOD/TTTo2L2Nu_CP5_13p6TeV_powheg-pythia8/NANOAODSIM/122X_mcRun3_2021_realistic_v9-v1/40000/0db470d2-1dfb-471e-b8b0-60fe5cad9ddf.root", "/store/mc/Run3Winter22NanoAOD/TTTo2L2Nu_CP5_13p6TeV_powheg-pythia8/NANOAODSIM/122X_mcRun3_2021_realistic_v9-v1/40000/1e132652-55fb-4732-a077-2e1b013c6fc3.root"]
-
     nFilesPerJob = 5
-    subdir = "2016_data_nodocker_9oct2023/"
+    subdir = "2016_data_noHLT_allData_DYEst/"
     runyear = "2016"
     storage_folder = "/eos/user/d/daebi/"
     cross_section = 1.0
+
+    #Option to only create condor jobs for single files
+    project_folder = "TTBar"
+    file_list = ["/store/mc/Run3Winter22NanoAOD/TTTo2L2Nu_CP5_13p6TeV_powheg-pythia8/NANOAODSIM/122X_mcRun3_2021_realistic_v9-v1/40000/0db470d2-1dfb-471e-b8b0-60fe5cad9ddf.root", "/store/mc/Run3Winter22NanoAOD/TTTo2L2Nu_CP5_13p6TeV_powheg-pythia8/NANOAODSIM/122X_mcRun3_2021_realistic_v9-v1/40000/1e132652-55fb-4732-a077-2e1b013c6fc3.root"]
+
+
 
     if use_dict:
         dataset_dict = pickle.load(open(pickle_file, 'rb'))
@@ -41,7 +43,8 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
     print("Making "+subdir+project_folder)
     print("There are ", len(file_list), "total files")
     SF = 1
-    print("Setting SF to ", SF)
+    DYEst = 1
+    HLTCut = 0
 
     nJobs = math.ceil(len(file_list)/nFilesPerJob)
     remaining_files = file_list
@@ -109,9 +112,9 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
 
     #Find what DNN Truth Value to add
     #value list example HH:0 TTbar:1 ST:2 DY:3 H:4 TTbarV(X):5 VV(V):6 Other:7 Data:8
-    
+
     os.system("cp templates/submit_dataset.py "+project_folder_names[0]+"/"+project_folder_names[1]+"/.")
-    
+
     resub_dataset_template = open("templates/resubmit_dataset.py", 'r')
     resub_dataset_file = open(project_folder_names[0]+"/"+project_folder_names[1]+"/resubmit_dataset.py", 'w')
     for line in resub_dataset_template:
@@ -147,8 +150,56 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
                 job_file.write('DNN=("{}")\n'.format(DNN_Truth))
             elif "SF=" in line:
                 job_file.write('SF=("{}")\n'.format(SF))
+            elif "DYEst=" in line:
+                job_file.write('DYEst=("{}")\n'.format(DYEst))
+            elif "HLTCut=" in line:
+                job_file.write('HLTCut=("{}")\n'.format(HLTCut))
             else:
                 job_file.write(line)
+
+
+    #Also create a "submit_by_hand" folder
+    os.makedirs(project_folder+"/submit_by_hand/")
+    #Need to start remaining files over again
+    remaining_files_by_hand = file_list
+    for job_count in range(nJobs):
+        job_template = open("templates/job_template_by_hand.sh")
+        job_file = open(project_folder+"/submit_by_hand/job{}.sh".format(job_count), 'w')
+        for line in job_template:
+            if "list_of_files=" in line:
+                files_for_this_job = remaining_files_by_hand[:nFilesPerJob]
+                remaining_files_by_hand = remaining_files_by_hand[nFilesPerJob:]
+                string_to_write = 'list_of_files=("'
+                for fname in files_for_this_job:
+                    string_to_write = string_to_write + 'root://cms-xrd-global.cern.ch//{} '.format(fname)
+                string_to_write = string_to_write[:-1] + '")\n'
+                job_file.write(string_to_write)
+            elif "filename=" in line:
+                filename = "job{}.sh".format(job_count)
+                job_file.write('filename=("{}")\n'.format(filename))
+            elif "runyear=" in line:
+                job_file.write('runyear=("{}")\n'.format(runyear))
+            elif "isMC=" in line:
+                job_file.write('isMC=("{}")\n'.format(isMC))
+            elif "XS=" in line:
+                job_file.write('XS=("{}")\n'.format(cross_section))
+            elif "DNN=" in line:
+                job_file.write('DNN=("{}")\n'.format(DNN_Truth))
+            elif "SF=" in line:
+                job_file.write('SF=("{}")\n'.format(SF))
+            elif "DYEst=" in line:
+                job_file.write('DYEst=("{}")\n'.format(DYEst))
+            elif "HLTCut=" in line:
+                job_file.write('HLTCut=("{}")\n'.format(HLTCut))
+            elif "PYTHON_FOLDER=" in line:
+                cwd = os.getcwd()
+                pwd_to_python = cwd[:-6] + "python"
+                string_to_write = 'PYTHON_FOLDER=("{}")\n'.format(pwd_to_python)
+                job_file.write(string_to_write)
+            else:
+                job_file.write(line)
+
+
 
     voms_proxy_file = [str(name) for name in re.split(r' |\\n|/', [str(name) for name in subprocess.Popen('voms-proxy-info', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True).communicate() if (name != None and "x509" in str(name))][0]) if "x509" in str(name)][0]
 

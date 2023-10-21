@@ -2,6 +2,7 @@ import awkward as ak
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
 import numpy as np
 import uproot
+import os
 from coffea.nanoevents.methods import vector
 
 
@@ -13,7 +14,7 @@ import genparticles
 #import jet_corrections
 
 class EventProcess():
-    def __init__(self, inputFile, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug=0, DYEstimation=0):
+    def __init__(self, inputFile, entryStart, entryStop, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug=0, DYEstimation=0, HLT_Cuts=0):
         self.fname = inputFile
         self.isMC  = isMC
         self.doSF = doSF
@@ -23,12 +24,13 @@ class EventProcess():
         self.XS = XS
         self.debug  = debug
         self.DYEstimation = DYEstimation
+        self.HLT_Cuts = HLT_Cuts
         print("Starting NanoAOD processing")
         print("Debug set to ", self.debug)
         self.skip_file = False #Bool to look at if a file is broken
 
         uproot_file = uproot.open(self.fname)
-        events = NanoEventsFactory.from_root(uproot_file, schemaclass=NanoAODSchema.v7).events()
+        events = NanoEventsFactory.from_root(uproot_file, entry_start = entryStart, entry_stop = entryStop, schemaclass=NanoAODSchema.v7).events()
         self.nEvents = len(events)
         if self.nEvents == 0:
             print("Zero events! This will fail ):")
@@ -148,25 +150,26 @@ class EventProcess():
         #Here we define the used events array passing any of the lepton triggers
         #We cannot slim these lists until AFTER we do the JetMet corrections!!!
         self.any_HLT_mask = self.electron_trigger_cuts | self.muon_trigger_cuts | self.double_electron_trigger_cuts | self.double_muon_trigger_cuts | self.muon_electron_trigger_cuts
+        if not self.HLT_Cuts and self.isMC: self.any_HLT_mask = ak.ones_like(self.any_HLT_mask)
 
         self.events = self.events_pretrigger
-        filter_by_HLT = True
-        if filter_by_HLT:
-            print("nEvents before HLT Cuts was ", len(self.events))
-            self.events = self.events_pretrigger[self.any_HLT_mask]
-            self.electron_trigger_cuts = self.electron_trigger_cuts[self.any_HLT_mask]
-            self.muon_trigger_cuts = self.muon_trigger_cuts[self.any_HLT_mask]
-            self.double_electron_trigger_cuts = self.double_electron_trigger_cuts[self.any_HLT_mask]
-            self.double_muon_trigger_cuts = self.double_muon_trigger_cuts[self.any_HLT_mask]
-            self.muon_electron_trigger_cuts = self.muon_electron_trigger_cuts[self.any_HLT_mask]
-            print("nEvents after HLT Cuts was ", len(self.events))
+        #if self.HLT_Cuts:
+        print("nEvents before HLT Cuts was ", len(self.events))
+        self.events = self.events_pretrigger[self.any_HLT_mask]
+        self.electron_trigger_cuts = self.electron_trigger_cuts[self.any_HLT_mask]
+        self.muon_trigger_cuts = self.muon_trigger_cuts[self.any_HLT_mask]
+        self.double_electron_trigger_cuts = self.double_electron_trigger_cuts[self.any_HLT_mask]
+        self.double_muon_trigger_cuts = self.double_muon_trigger_cuts[self.any_HLT_mask]
+        self.muon_electron_trigger_cuts = self.muon_electron_trigger_cuts[self.any_HLT_mask]
+        print("nEvents after HLT Cuts was ", len(self.events))
         #We also have to cut the cuts arrays because they must be the same shape as the events
         self.events["dnn_truth_value"] = dnn_truth_value
 
 
         #Start of the corrections files -- When 2022 files are available we must update these
         self.do_systematics = False
-        corrections_dir = "correction_files/2016/"
+        python_folder_base = "/".join((os.path.realpath(__file__)).split('/')[:-1])
+        corrections_dir = python_folder_base+"/correction_files/2016/"
         jetmet_dir = corrections_dir+"jetmet/"
         btag_dir = corrections_dir+"btag_SF/"
         lepton_ID_SF_dir = corrections_dir+"lepton_ID_SF/"
@@ -279,6 +282,8 @@ class EventProcess():
                         },
                     },
                 },
+            },
+            "2022": {
             },
         }
 
@@ -414,6 +419,8 @@ class EventProcess():
                         },
                     },
                 },
+            },
+            "2022": {
             },
         }
 
