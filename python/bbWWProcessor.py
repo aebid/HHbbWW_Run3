@@ -176,6 +176,8 @@ class EventProcess():
         lepton_tight_TTH_SF_dir = corrections_dir+"tight_tth_SF/"
         lepton_relaxed_TTH_SF_dir = corrections_dir+"relaxed_tth_SF/"
         single_lepton_trigger_SF_dir = corrections_dir+"single_lepton_trigger_SF/"
+        single_lepton_fakerate_dir = corrections_dir+"fakerate/SL/"
+        double_lepton_fakerate_dir = corrections_dir+"fakerate/DL/"
 
         jetmet_files_dict = {
             "2016": {
@@ -475,11 +477,124 @@ class EventProcess():
         }
 
 
+
+
+
+
+        single_lepton_fakerate_dict = {
+            "2016": {
+                "branch_name": "single_lepton_fakerate",
+                "electron": {
+                    "single_lepton_fakerate": {
+                        "ext_list": [
+                            "single_ele_FR FR_mva030_el_data_comb "+single_lepton_fakerate_dir+"FR_lep_mva_hh_bbWW_wFullSyst_2016_KBFI_2021Feb3_wCERNUncs2_FRErrTheshold_0p01.root",
+                            "single_ele_FR_up FR_mva030_el_data_comb_up "+single_lepton_fakerate_dir+"FR_lep_mva_hh_bbWW_wFullSyst_2016_KBFI_2021Feb3_wCERNUncs2_FRErrTheshold_0p01.root",
+                            "single_ele_FR_down FR_mva030_el_data_comb_down "+single_lepton_fakerate_dir+"FR_lep_mva_hh_bbWW_wFullSyst_2016_KBFI_2021Feb3_wCERNUncs2_FRErrTheshold_0p01.root",
+                        ],
+                        "nominal": {
+                            "ext_strings": ["single_ele_FR"],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["single_ele_FR_up"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["single_ele_FR_down"],
+                            "pt_bins": [0],
+                        },
+                    },
+                },
+                "muon": {
+                    "single_lepton_fakerate": {
+                        "ext_list": [
+                            "single_mu_FR FR_mva050_mu_data_comb "+single_lepton_fakerate_dir+"FR_lep_mva_hh_bbWW_wFullSyst_2016_KBFI_2021Feb3_wCERNUncs2_FRErrTheshold_0p01.root",
+                            "single_mu_FR_up FR_mva050_mu_data_comb_up "+single_lepton_fakerate_dir+"FR_lep_mva_hh_bbWW_wFullSyst_2016_KBFI_2021Feb3_wCERNUncs2_FRErrTheshold_0p01.root",
+                            "single_mu_FR_down FR_mva050_mu_data_comb_down "+single_lepton_fakerate_dir+"FR_lep_mva_hh_bbWW_wFullSyst_2016_KBFI_2021Feb3_wCERNUncs2_FRErrTheshold_0p01.root",
+                        ],
+                        "nominal": {
+                            "ext_strings": ["single_mu_FR"],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["single_mu_FR_up"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["single_mu_FR_down"],
+                            "pt_bins": [0],
+                        },
+                    },
+                },
+            },
+            "2022":{
+
+            },
+        }
+
+
+
+
+        double_lepton_fakerate_dict = {
+            "2016": {
+                "branch_name": "double_lepton_fakerate",
+                "electron": {
+                    "double_lepton_fakerate": {
+                        "ext_list": [
+                            "double_ele_FR FR_mva030_el_data_comb "+double_lepton_fakerate_dir+"FR_lep_mva_hh_multilepton_wFullSyst_2016_KBFI_2020Dec21_wCERNUncs2_FRErrTheshold_0p01.root",
+                            "double_ele_FR_up FR_mva030_el_data_comb_up "+double_lepton_fakerate_dir+"FR_lep_mva_hh_multilepton_wFullSyst_2016_KBFI_2020Dec21_wCERNUncs2_FRErrTheshold_0p01.root",
+                            "double_ele_FR_down FR_mva030_el_data_comb_down "+double_lepton_fakerate_dir+"FR_lep_mva_hh_multilepton_wFullSyst_2016_KBFI_2020Dec21_wCERNUncs2_FRErrTheshold_0p01.root",
+                        ],
+                        "nominal": {
+                            "ext_strings": ["double_ele_FR"],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["double_ele_FR_up"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["double_ele_FR_down"],
+                            "pt_bins": [0],
+                        },
+                    },
+                },
+                "muon": {
+                    "double_lepton_fakerate": {
+                        "ext_list": [
+                            "double_mu_FR FR_mva050_mu_data_comb "+double_lepton_fakerate_dir+"FR_lep_mva_hh_multilepton_wFullSyst_2016_KBFI_2020Dec21_wCERNUncs2_FRErrTheshold_0p01.root",
+                            "double_mu_FR_up FR_mva050_mu_data_comb_up "+double_lepton_fakerate_dir+"FR_lep_mva_hh_multilepton_wFullSyst_2016_KBFI_2020Dec21_wCERNUncs2_FRErrTheshold_0p01.root",
+                            "double_mu_FR_down FR_mva050_mu_data_comb_down "+double_lepton_fakerate_dir+"FR_lep_mva_hh_multilepton_wFullSyst_2016_KBFI_2020Dec21_wCERNUncs2_FRErrTheshold_0p01.root",
+                        ],
+                        "nominal": {
+                            "ext_strings": ["double_mu_FR"],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["double_mu_FR_up"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["double_mu_FR_down"],
+                            "pt_bins": [0],
+                        },
+                    },
+                },
+            },
+            "2022":{
+
+            },
+        }
+
+
+
         self.lepton_ID_SF_dict = lepton_ID_SF_dict[str(self.Runyear)]
         self.lepton_tight_TTH_SF_dict = lepton_tight_TTH_SF_dict[str(self.Runyear)]
         self.lepton_relaxed_TTH_SF_dict = lepton_relaxed_TTH_SF_dict[str(self.Runyear)]
         self.single_lepton_trigger_SF_dict = single_lepton_trigger_SF_dict[str(self.Runyear)]
-        self.SF_dict_list = [self.lepton_ID_SF_dict, self.lepton_tight_TTH_SF_dict, self.lepton_relaxed_TTH_SF_dict, self.single_lepton_trigger_SF_dict]
+        self.single_lepton_fakerate_dict = single_lepton_fakerate_dict[str(self.Runyear)]
+        self.double_lepton_fakerate_dict = double_lepton_fakerate_dict[str(self.Runyear)]
+        self.corrections_dict_list = [self.lepton_ID_SF_dict, self.lepton_tight_TTH_SF_dict, self.lepton_relaxed_TTH_SF_dict, self.single_lepton_trigger_SF_dict, self.single_lepton_fakerate_dict, self.double_lepton_fakerate_dict]
 
         self.jetmet_files = jetmet_files_dict[str(self.Runyear)]
         self.btag_SF_file = btag_SF_file_dict[str(self.Runyear)]
@@ -555,6 +670,8 @@ class EventProcess():
         return corrections.make_evaluator(self)
     def add_scale_factors(self):
         return corrections.add_scale_factors(self)
+    def do_lepton_fakerate(self):
+        return corrections.do_lepton_fakerate(self)
 
     def print_object_selection(self):
 
