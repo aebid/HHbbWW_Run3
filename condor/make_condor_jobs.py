@@ -7,15 +7,29 @@ import glob
 
 def main():
 
+    year = 2016
     #If use dict, will run over the pickle file, otherwise will use the project_folder
     #YOU MUST CHANGE THESE VARIABLES YOURSELF
+    #2016 Run2 Block
     use_dict = True
     pickle_file = "../dataset/dataset_names/2016/2016_Datasets.pkl"
-    nFilesPerJob = 5
-    subdir = "2016_data_noHLT_allData_DYEst/"
+    nFilesPerJob = 1
+    subdir = "2016_data_DYEst/"
     runyear = "2016"
     storage_folder = "/eos/user/d/daebi/"
     cross_section = 1.0
+
+
+    #2022 Run3 Block
+    if (year == 2022):
+      use_dict = True
+      pickle_file = "../dataset/dataset_names/2022/2022_Datasets.pkl"
+      nFilesPerJob = 5
+      subdir = "2022_data/"
+      runyear = "2022"
+      storage_folder = "/eos/user/d/daebi/"
+      cross_section = 1.0
+
 
     #Option to only create condor jobs for single files
     project_folder = "TTBar"
@@ -42,9 +56,9 @@ def main():
 def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, nFilesPerJob, runyear):
     print("Making "+subdir+project_folder)
     print("There are ", len(file_list), "total files")
-    SF = 1
-    DYEst = 1
-    HLTCut = 0
+    SF = 0
+    DYEst = 0
+    HLTCut = 1
 
     nJobs = math.ceil(len(file_list)/nFilesPerJob)
     remaining_files = file_list
@@ -88,7 +102,7 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
     isMC = 1
     DNN_Truth = -1
     dataset_name = project_folder_names[1]
-    trigger_lists = ["EGamma", "SingleElectron", "SingleMuon", "DoubleEG", "DoubleMuon", "MuonEG"]
+    trigger_lists = ["EGamma", "SingleElectron", "SingleMuon", "DoubleEG", "DoubleMuon", "MuonEG", "Muon"]
     print("Name? = ", project_folder_names[1])
     if dataset_name in trigger_lists:
         isMC = 0
