@@ -80,6 +80,7 @@ for fname in flist:
         #Only load the events in range
         eventProcess = EventProcess(fname, entryStart, entryStop, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug, DYEstimation, HLT_Cuts)
         if eventProcess.skip_file: continue
+        eventProcess.make_evaluator()
 
         if doSF:
             if isMC:
