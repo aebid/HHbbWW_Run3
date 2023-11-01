@@ -287,7 +287,7 @@ def single_lepton_category(EventProcess):
 
     events["Single_Signal"] = ak.fill_none((events.single_lepton) & ((ak.sum(leptons_tight.tight, axis=1) == 1) & (leading_leptons.tight)), False)
 
-    events["Single_Fake"] = ak.fill_none((events.single_lepton) & ((ak.sum(leptons_tight.tight, axis=1) == 1) & (leading_leptons.tight) == 0), False)
+    events["Single_Fake"] = ak.fill_none((events.single_lepton) & ((leading_leptons.tight) == 0), False)
 
 
     if debug:
@@ -537,7 +537,7 @@ def double_lepton_category(EventProcess):
 
     events["Double_Signal"] = ak.fill_none((events.double_lepton) & ((leading_leptons.tight) & (subleading_leptons.tight)), False)
 
-    events["Double_Fake"] = ak.fill_none((events.double_lepton) & ((leading_leptons.tight) & (subleading_leptons.tight) == 0), False)
+    events["Double_Fake"] = ak.fill_none((events.double_lepton) & (((leading_leptons.tight) == 0) | ((subleading_leptons.tight) == 0)), False)
 
 
     if debug:
