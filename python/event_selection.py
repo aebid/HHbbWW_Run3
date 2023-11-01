@@ -490,8 +490,9 @@ def double_lepton_category(EventProcess):
 
     double_step8_mask = ak.fill_none((double_hbbfat_cut) | (double_res_1b_cut) | (double_res_2b_cut), False)
     #For DY Estimation we need to turn off Zmass cut and the nBJets cut (ABCD method over M_{ll} and nBJets)
+    #We still want to require the base jets (1 ak8 or 2 ak4)
     if DYEstimation:
-        double_step8_mask = True
+        double_step8_mask = ak.fill_none((ak.sum(ak8_jets.cleaned_double, axis=1) >= 1) | (ak.sum(ak4_jets.cleaned_double, axis=1) >= 2), False)
 
 
     events["double_lepton"] = double_step1_mask
