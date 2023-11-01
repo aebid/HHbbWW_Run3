@@ -560,9 +560,8 @@ def double_lepton_fakerate(EventProcess):
             events.Muon = ak.with_field(events.Muon, down_value, branch_name+"_down")
 
 
-
 def add_scale_factors(EventProcess):
-    make_evaluator(EventProcess)
+    #make_evaluator(EventProcess)
     lepton_ID_SF(EventProcess)
     lepton_tight_TTH_SF(EventProcess)
     lepton_relaxed_TTH_SF(EventProcess)

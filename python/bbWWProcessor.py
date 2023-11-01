@@ -668,6 +668,7 @@ class EventProcess():
         return corrections.lepton_relaxed_TTH_SF(self)
     def make_evaluator(self):
         return corrections.make_evaluator(self)
+    make_evaluator() #Must be called!
     def add_scale_factors(self):
         return corrections.add_scale_factors(self)
     def do_lepton_fakerate(self):
