@@ -39,11 +39,11 @@ def single_lepton_category(EventProcess):
     leptons_fakeable = ak.concatenate([electrons.mask[electrons.fakeable], muons.mask[muons.fakeable]], axis=1)
     leptons_tight = ak.concatenate([electrons.mask[electrons.tight], muons.mask[muons.tight]], axis=1)
 
-    if not ak.all(ak.all(ak.is_none(leptons_preselected, axis=1), axis=1)):
+    if ak.any(leptons_preselected): #Required in case no leptons available, can happen with data
         leptons_preselected = leptons_preselected[ak.argsort(leptons_preselected.conept, axis=1, ascending=False)]
-    if not ak.all(ak.all(ak.is_none(leptons_fakeable, axis=1), axis=1)):
+    if ak.any(leptons_fakeable):
         leptons_fakeable = leptons_fakeable[ak.argsort(leptons_fakeable.conept, axis=1, ascending=False)]
-    if not ak.all(ak.all(ak.is_none(leptons_tight, axis=1), axis=1)):
+    if ak.any(leptons_tight):
         leptons_tight = leptons_tight[ak.argsort(leptons_tight.conept, axis=1, ascending=False)]
 
 
@@ -141,15 +141,7 @@ def single_lepton_category(EventProcess):
     #HLT Cuts
     #   If Mu, pass Mu trigger
     #   If El, pass El trigger
-    HLT_cut = ak.where(
-        events.is_m,
-            EventProcess.muon_trigger_cuts,
-            ak.where(
-                events.is_e,
-                    EventProcess.electron_trigger_cuts,
-                    False
-            )
-    )
+    HLT_cut = ((events.is_m & EventProcess.muon_trigger_cuts) | (events.is_e & EventProcess.electron_trigger_cuts))
 
     single_step5_mask = ak.fill_none(HLT_cut, False)
 
@@ -162,15 +154,7 @@ def single_lepton_category(EventProcess):
     #No more than 1 tight leptons AND should be the same as leading lepton
     n_tight_leptons = ak.sum(leptons_tight.tight, axis=1)
 
-    tight_lep_cut = ak.where(
-        (n_tight_leptons == 0),
-            True,
-            ak.where(
-                (n_tight_leptons == 1),
-                leading_leptons.tight,
-                False
-            )
-    )
+    tight_lep_cut = ((n_tight_leptons == 0) | ((n_tight_leptons == 1) & (leading_leptons.tight)))
 
     #single_step7_mask = ak.fill_none(n_tight_leptons <= 1, False)
     single_step7_mask = ak.fill_none(tight_lep_cut, False)
@@ -220,8 +204,9 @@ def single_lepton_category(EventProcess):
 
     clean_ak4_for_veto, btag_ak8_for_veto = ak.unzip(clean_ak4_jets_btagged_ak8_jets)
 
-    ak4_jets.jets_that_not_bb = abs(clean_ak4_for_veto.delta_r(btag_ak8_for_veto)) > 1.2
-    n_jets_that_not_bb = (ak.sum(ak4_jets.jets_that_not_bb, axis=1))[:,0]
+    ak4_jets.jets_that_not_bb = ak.any(abs(clean_ak4_for_veto.delta_r(btag_ak8_for_veto)) < 1.2, axis=2)
+    n_jets_that_not_bb = ak.sum(ak4_jets.jets_that_not_bb, axis=1)
+
 
     jet_btag_veto = (
         ( (n_jets_that_not_bb >= 1) & (ak.sum(ak8_jets.btag_single, axis=1) >= 1) )
