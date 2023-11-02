@@ -293,6 +293,7 @@ def make_evaluator(EventProcess):
     ext = extractor()
     for dict in dict_list:
         for lep in ["electron", "muon"]:
+            if lep not in dict.keys(): continue
             for process in dict[lep]:
                 if process == "branch_name": continue
                 for ext_string in dict[lep][process]["ext_list"]:

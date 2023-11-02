@@ -139,17 +139,20 @@ def update_outfile(EventProcess, outfile):
             name+'_py': np.array(ak.fill_none(lep.py, underflow_value), dtype=np.float32),
             name+'_pz': np.array(ak.fill_none(lep.pz, underflow_value), dtype=np.float32),
             name+'_MC_Match': np.array(ak.fill_none(lep.MC_Match, underflow_value), dtype=np.float32),
-
-            name+'_singlelepton_fakerate': np.array(ak.fill_none(lep.single_lepton_fakerate, underflow_value), dtype=np.float32),
-            name+'_singlelepton_fakerate_up': np.array(ak.fill_none(lep.single_lepton_fakerate_up, underflow_value), dtype=np.float32),
-            name+'_singlelepton_fakerate_down': np.array(ak.fill_none(lep.single_lepton_fakerate_down, underflow_value), dtype=np.float32),
-
-            name+'_doublelepton_fakerate': np.array(ak.fill_none(lep.double_lepton_fakerate, underflow_value), dtype=np.float32),
-            name+'_doublelepton_fakerate_up': np.array(ak.fill_none(lep.double_lepton_fakerate_up, underflow_value), dtype=np.float32),
-            name+'_doublelepton_fakerate_down': np.array(ak.fill_none(lep.double_lepton_fakerate_down, underflow_value), dtype=np.float32),
-
-
         }
+
+        if EventProcess.Runyear != 2022:
+            FR_dict = {
+                name+'_singlelepton_fakerate': np.array(ak.fill_none(lep.single_lepton_fakerate, underflow_value), dtype=np.float32),
+                name+'_singlelepton_fakerate_up': np.array(ak.fill_none(lep.single_lepton_fakerate_up, underflow_value), dtype=np.float32),
+                name+'_singlelepton_fakerate_down': np.array(ak.fill_none(lep.single_lepton_fakerate_down, underflow_value), dtype=np.float32),
+
+                name+'_doublelepton_fakerate': np.array(ak.fill_none(lep.double_lepton_fakerate, underflow_value), dtype=np.float32),
+                name+'_doublelepton_fakerate_up': np.array(ak.fill_none(lep.double_lepton_fakerate_up, underflow_value), dtype=np.float32),
+                name+'_doublelepton_fakerate_down': np.array(ak.fill_none(lep.double_lepton_fakerate_down, underflow_value), dtype=np.float32),
+            }
+            dict.update(FR_dict)
+
         if isMC and doSF:
             MC_dict = {
                 name+'_lepton_ID_SF': np.array(ak.fill_none(lep.lepton_ID_SF, underflow_value), dtype=np.float32),

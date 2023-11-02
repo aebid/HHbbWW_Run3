@@ -105,10 +105,10 @@ for fname in flist:
             print('GenParts in seconds: ' + str((time.time() - startTime)))
             print("Memory usage in MB after GenMatch ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
-
-        eventProcess.do_lepton_fakerate()
-        print("Fake Rate addition in seconds: " + str((time.time() - startTime)))
-        print("Memory usage in MB after FR ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+        if Runyear != 2022:
+            eventProcess.do_lepton_fakerate()
+            print("Fake Rate addition in seconds: " + str((time.time() - startTime)))
+            print("Memory usage in MB after FR ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
         eventProcess.all_obj_selection()
         print('Object Selection in seconds: ' + str((time.time() - startTime)))
