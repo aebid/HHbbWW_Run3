@@ -245,7 +245,6 @@ def makeStackPlots(spin, mass, era, datasetlist, isSignalNode, plotname):
       signal.Add(signal_ggf_hbbhtt)
   
   
-  
       for binnum in range(1, TT.GetNbinsX()+1):
           binned_binnum = binnum + last_bin
           TT_binned.SetBinContent(binned_binnum, TT.GetBinContent(binnum))
@@ -679,7 +678,7 @@ def getYieldTable(spin, mass, year):
   yields_dict["Inclusive"][sigprocess]  = "$%.2f\pm%.2f$"%(signal_incl.GetBinContent(1), signal_incl.GetBinError(1))
       
   sortedProcess = ["ttbar", "Drell-Yan", "Single Top", "Rares", "Fakes", "VV(V)", "SM H", "W+jets", "Total BKG", sigprocess, "Data"]
-  print("  \multicolumn{8}{|c|}{Event yields for the %d data-taking year, Integrated Luminosity %.1f} \\\\ [1ex] \hline"%(year, lumi))
+  print("  \multicolumn{8}{|c|}{Event yields for the %d data-taking year, integrated luminosity of the dataset %.1f \\fb} \\\\ [1ex] \hline"%(year, lumi))
   print("Process\t & Resolved 1b GGF\t & Resolved 2b GGF\t & Boosted GGF\t & Inclusive DY+VV(V)\t & Resolved Other\t & Boosted Other\t & Inclusive \\\\[0.8ex]\hline ")
   
   for p in sortedProcess:
@@ -691,7 +690,8 @@ def getYieldTable(spin, mass, year):
           pstr += yields_dict[cat][p] + "\t & "
       pstr += yields_dict["Inclusive"][p] +"\\\\ [0.8ex]"
       print(pstr)
-  print("\hline")
+  print("\hline \hline")
+  return yields_dict["Inclusive"]
 
 
 def getPlots(spin, mass, year):
@@ -733,15 +733,70 @@ def getPlots(spin, mass, year):
 
 masslist = [250, 260, 270, 300, 320, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 900]
 #getAllSignalAcceptance(masslist)
-getYieldTable(2, 400, 2016)
-getYieldTable(2, 400, 2017)
-getYieldTable(2, 400, 2018)
-getYieldTable(2, 800, 2016)
-getYieldTable(2, 800, 2017)
-getYieldTable(2, 800, 2018)
-getYieldTable(0, 400, 2016)
-getYieldTable(0, 400, 2017)
-getYieldTable(0, 400, 2018)
-getYieldTable(0, 800, 2016)
-getYieldTable(0, 800, 2017)
-getYieldTable(0, 800, 2018)
+
+def inclusiveYield():
+  inclusive_spin2_400_2016 = getYieldTable(2, 400, 2016)
+  inclusive_spin2_400_2017 = getYieldTable(2, 400, 2017)
+  inclusive_spin2_400_2018 = getYieldTable(2, 400, 2018)
+  inclusive_spin2_800_2016 = getYieldTable(2, 800, 2016)
+  inclusive_spin2_800_2017 = getYieldTable(2, 800, 2017)
+  inclusive_spin2_800_2018 = getYieldTable(2, 800, 2018)
+  inclusive_spin0_400_2016 = getYieldTable(0, 400, 2016)
+  inclusive_spin0_400_2017 = getYieldTable(0, 400, 2017)
+  inclusive_spin0_400_2018 = getYieldTable(0, 400, 2018)
+  inclusive_spin0_800_2016 = getYieldTable(0, 800, 2016)
+  inclusive_spin0_800_2017 = getYieldTable(0, 800, 2017)
+  inclusive_spin0_800_2018 = getYieldTable(0, 800, 2018)
+  
+  inclusive_dict = {
+          2016 : inclusive_spin0_400_2016,
+          2017 : inclusive_spin0_400_2017,
+          2018 : inclusive_spin0_400_2018
+          }
+  inclusive_spin0_800_dict = {
+          2016 : inclusive_spin0_800_2016,
+          2017 : inclusive_spin0_800_2017,
+          2018 : inclusive_spin0_800_2018
+          }
+  inclusive_spin2_400_dict = {
+          2016 : inclusive_spin2_400_2016,
+          2017 : inclusive_spin2_400_2017,
+          2018 : inclusive_spin2_400_2018
+          }
+  inclusive_spin2_800_dict = {
+          2016 : inclusive_spin2_800_2016,
+          2017 : inclusive_spin2_800_2017,
+          2018 : inclusive_spin2_800_2018
+          }
+  
+  
+  def sigYield(thisdict, signame):
+    pstr = signame+"(1 pb) & "
+    for year in [2016, 2017, 2018]:
+        pstr += thisdict[year][signame] + "\t "
+        if year != 2018: pstr += "& "
+    pstr += "\\\\ [0.5ex]"
+    return pstr
+  sigprocess = "Spin-%d, %dGeV"%(0, 400)
+  sortedProcess = ["ttbar", "Drell-Yan", "Single Top", "Rares", "Fakes", "VV(V)", "SM H", "W+jets", "Total BKG", sigprocess, "Data"]
+  print("Process\t & 2016 \t & 2017 \t & 2018 \\\\ \hline ")
+  for p in sortedProcess:
+      if p == "Total BKG": print("\hline")
+      pstr = p+"\t & "
+      if "Spin" in p:
+          pstr = p+"(1 pb) & "
+      for year in [2016, 2017, 2018]:
+          pstr += inclusive_dict[year][p] + "\t "
+          if year != 2018: pstr += "& "
+      pstr += "\\\\ [0.5ex]"
+      print(pstr)
+      if "Spin" in p:
+          sig_spin0_M800 = "Spin-%d, %dGeV"%(0, 800) 
+          sig_spin2_M400 = "Spin-%d, %dGeV"%(2, 400) 
+          sig_spin2_M800 = "Spin-%d, %dGeV"%(2, 800) 
+          print(sigYield(inclusive_spin0_800_dict, sig_spin0_M800))
+          print(sigYield(inclusive_spin2_400_dict, sig_spin2_M400))
+          print(sigYield(inclusive_spin2_800_dict, sig_spin2_M800))
+  print("\hline")
+
+#inclusiveYield()
