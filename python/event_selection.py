@@ -204,7 +204,7 @@ def single_lepton_category(EventProcess):
 
     clean_ak4_for_veto, btag_ak8_for_veto = ak.unzip(clean_ak4_jets_btagged_ak8_jets)
 
-    ak4_jets.jets_that_not_bb = ak.any(abs(clean_ak4_for_veto.delta_r(btag_ak8_for_veto)) < 1.2, axis=2)
+    ak4_jets.jets_that_not_bb = ak.any(abs(clean_ak4_for_veto.delta_r(btag_ak8_for_veto)) > 1.2, axis=2)
     n_jets_that_not_bb = ak.sum(ak4_jets.jets_that_not_bb, axis=1)
 
 
