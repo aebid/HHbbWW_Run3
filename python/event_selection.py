@@ -419,6 +419,7 @@ def double_lepton_category(EventProcess):
     ) == 0
 
     double_step4_mask = ak.fill_none(Invariant_mass_cut & Zmass_cut, False)
+    ZvetoAndnBJets_mask = double_step4_mask #Required extra event level bool in case of DY Estimation
     #For DY Estimation we need to turn off Zmass cut and the nBJets cut (ABCD method over M_{ll} and nBJets)
     if DYEstimation:
         double_step4_mask = True
@@ -474,6 +475,7 @@ def double_lepton_category(EventProcess):
     double_res_2b_cut = ak.fill_none((ak.sum(ak4_jets.cleaned_double, axis=1) >= 2) & (ak.sum(ak4_jets.medium_btag_double, axis=1) >= 2), False)
 
     double_step8_mask = ak.fill_none((double_hbbfat_cut) | (double_res_1b_cut) | (double_res_2b_cut), False)
+    ZvetoAndnBJets_mask = ZvetoAndnBJets_mask & double_step8_mask #Required extra event level bool in case of DY Estimation
     #For DY Estimation we need to turn off Zmass cut and the nBJets cut (ABCD method over M_{ll} and nBJets)
     #We still want to require the base jets (1 ak8 or 2 ak4)
     if DYEstimation:
@@ -524,6 +526,7 @@ def double_lepton_category(EventProcess):
 
     events["Double_Fake"] = ak.fill_none((events.double_lepton) & (((leading_leptons.tight) == 0) | ((subleading_leptons.tight) == 0)), False)
 
+    events["ZvetoAndnBJets"] = ak.fill_none(ZvetoAndnBJets_mask, False)
 
     if debug:
         print("Double HbbFat: ", events.Double_HbbFat, ak.sum(events.Double_HbbFat))

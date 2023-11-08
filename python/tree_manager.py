@@ -478,6 +478,8 @@ def update_outfile(EventProcess, outfile):
             'double_is_mm': np.array(ak.fill_none(events_double.is_mm, False), dtype=np.int32),
             'double_is_em': np.array(ak.fill_none(events_double.is_em, False), dtype=np.int32),
 
+            'ZvetoAndnBJets': np.array(ak.fill_none(events_double.ZvetoAndnBJets, False), dtype=np.int32),
+
             'dnn_truth_value': np.array(events_double.dnn_truth_value, dtype=np.int32),
             'XS': np.array(ak.ones_like(events_double.run)*EventProcess.XS, dtype=np.float32),
         }
