@@ -12,8 +12,8 @@ def update_outfile(EventProcess, outfile):
     doSF = EventProcess.doSF
     debug = EventProcess.debug
     print("Creating save dicts")
-    underflow_value = -999999.0
     underflow_value = 0.0
+    SF_underflow_value = 1.0
 
     events = EventProcess.events
     muons = events.Muon
@@ -152,26 +152,26 @@ def update_outfile(EventProcess, outfile):
             name+'_pz':         fill_value(lep, 'pz', underflow_value, np.float32),
             name+'_MC_Match':   fill_value(lep, 'MC_Match', underflow_value, np.float32),
 
-            name+'_singlelepton_fakerate':          fill_value(lep, 'single_lepton_fakerate', underflow_value, np.float32),
-            name+'_singlelepton_fakerate_up':       fill_value(lep, 'single_lepton_fakerate_up', underflow_value, np.float32),
-            name+'_singlelepton_fakerate_down':     fill_value(lep, 'single_lepton_fakerate_down', underflow_value, np.float32),
+            name+'_singlelepton_fakerate':          fill_value(lep, 'single_lepton_fakerate', SF_underflow_value, np.float32),
+            name+'_singlelepton_fakerate_up':       fill_value(lep, 'single_lepton_fakerate_up', SF_underflow_value, np.float32),
+            name+'_singlelepton_fakerate_down':     fill_value(lep, 'single_lepton_fakerate_down', SF_underflow_value, np.float32),
 
-            name+'_doublelepton_fakerate':          fill_value(lep, 'double_lepton_fakerate', underflow_value, np.float32),
-            name+'_doublelepton_fakerate_up':       fill_value(lep, 'double_lepton_fakerate_up', underflow_value, np.float32),
-            name+'_doublelepton_fakerate_down':     fill_value(lep, 'double_lepton_fakerate_down', underflow_value, np.float32),
+            name+'_doublelepton_fakerate':          fill_value(lep, 'double_lepton_fakerate', SF_underflow_value, np.float32),
+            name+'_doublelepton_fakerate_up':       fill_value(lep, 'double_lepton_fakerate_up', SF_underflow_value, np.float32),
+            name+'_doublelepton_fakerate_down':     fill_value(lep, 'double_lepton_fakerate_down', SF_underflow_value, np.float32),
 
-            name+'_lepton_ID_SF':                   fill_value(lep, 'lepton_ID_SF', underflow_value, np.float32),
-            name+'_lepton_ID_SF_up':                fill_value(lep, 'lepton_ID_SF_up', underflow_value, np.float32),
-            name+'_lepton_ID_SF_down':              fill_value(lep, 'lepton_ID_SF_down', underflow_value, np.float32),
-            name+'_lepton_tight_TTH_SF':            fill_value(lep, 'lepton_tight_TTH_SF', underflow_value, np.float32),
-            name+'_lepton_tight_TTH_SF_up':         fill_value(lep, 'lepton_tight_TTH_SF_up', underflow_value, np.float32),
-            name+'_lepton_tight_TTH_SF_down':       fill_value(lep, 'lepton_tight_TTH_SF_down', underflow_value, np.float32),
-            name+'_lepton_relaxed_TTH_SF':          fill_value(lep, 'lepton_relaxed_TTH_SF', underflow_value, np.float32),
-            name+'_lepton_relaxed_TTH_SF_up':       fill_value(lep, 'lepton_relaxed_TTH_SF_up', underflow_value, np.float32),
-            name+'_lepton_relaxed_TTH_SF_down':     fill_value(lep, 'lepton_relaxed_TTH_SF_down', underflow_value, np.float32),
-            #name+'_single_lepton_trigger_SF':      fill_value(lep, 'single_lepton_trigger_SF', underflow_value, np.float32),
-            #name+'_single_lepton_trigger_SF_up':   fill_value(lep, 'single_lepton_trigger_SF_up', underflow_value, np.float32),
-            #name+'_single_lepton_trigger_SF_down': fill_value(lep, 'single_lepton_trigger_SF_down', underflow_value, np.float32),
+            name+'_lepton_ID_SF':                   fill_value(lep, 'lepton_ID_SF', SF_underflow_value, np.float32),
+            name+'_lepton_ID_SF_up':                fill_value(lep, 'lepton_ID_SF_up', SF_underflow_value, np.float32),
+            name+'_lepton_ID_SF_down':              fill_value(lep, 'lepton_ID_SF_down', SF_underflow_value, np.float32),
+            name+'_lepton_tight_TTH_SF':            fill_value(lep, 'lepton_tight_TTH_SF', SF_underflow_value, np.float32),
+            name+'_lepton_tight_TTH_SF_up':         fill_value(lep, 'lepton_tight_TTH_SF_up', SF_underflow_value, np.float32),
+            name+'_lepton_tight_TTH_SF_down':       fill_value(lep, 'lepton_tight_TTH_SF_down', SF_underflow_value, np.float32),
+            name+'_lepton_relaxed_TTH_SF':          fill_value(lep, 'lepton_relaxed_TTH_SF', SF_underflow_value, np.float32),
+            name+'_lepton_relaxed_TTH_SF_up':       fill_value(lep, 'lepton_relaxed_TTH_SF_up', SF_underflow_value, np.float32),
+            name+'_lepton_relaxed_TTH_SF_down':     fill_value(lep, 'lepton_relaxed_TTH_SF_down', SF_underflow_value, np.float32),
+            #name+'_single_lepton_trigger_SF':      fill_value(lep, 'single_lepton_trigger_SF', SF_underflow_value, np.float32),
+            #name+'_single_lepton_trigger_SF_up':   fill_value(lep, 'single_lepton_trigger_SF_up', SF_underflow_value, np.float32),
+            #name+'_single_lepton_trigger_SF_down': fill_value(lep, 'single_lepton_trigger_SF_down', SF_underflow_value, np.float32),
 
         }
         return dict
@@ -193,7 +193,7 @@ def update_outfile(EventProcess, outfile):
             name+"_JES_up_par":         fill_value(jet, 'par_JES_up', underflow_value, np.float32),
             name+"_JES_down_par":       fill_value(jet, 'par_JES_down', underflow_value, np.float32),
 
-            name+"_btag_SF":            fill_value(jet, 'btag_SF', underflow_value, np.float32),
+            name+"_btag_SF":            fill_value(jet, 'btag_SF', SF_underflow_value, np.float32),
 
             name+'_gen_pt':             fill_gen_value(jet, 'genJets', 'pt', underflow_value, np.float32),
             name+'_gen_eta':            fill_gen_value(jet, 'genJets', 'eta', underflow_value, np.float32),
