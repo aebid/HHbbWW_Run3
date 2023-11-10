@@ -484,8 +484,6 @@ def update_outfile(EventProcess, outfile):
 
 
         #High Level
-        print(met_double.pt)
-        print(met_double.phi)
         vecMET_double = ak.zip(
             {
                 "pt": met_double.pt,

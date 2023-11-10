@@ -556,21 +556,21 @@ def double_lepton_fakerate(EventProcess):
 
 def jet_met_corrector(EventProcess):
     jet_corrector(EventProcess)
-    print("Jet Corrector Done")
+    if EventProcess.debug: print("Jet Corrector Done")
     met_corrector(EventProcess)
-    print("MET Corrector Done")
+    if EventProcess.debug: print("MET Corrector Done")
 
 def add_scale_factors(EventProcess):
     lepton_ID_SF(EventProcess)
-    print("Lepton ID SF Done")
+    if EventProcess.debug: print("Lepton ID SF Done")
     lepton_tight_TTH_SF(EventProcess)
-    print("Lepton tight TTH SF Done")
+    if EventProcess.debug: print("Lepton tight TTH SF Done")
     lepton_relaxed_TTH_SF(EventProcess)
-    print("Lepton relaxed TTH SF Done")
+    if EventProcess.debug: print("Lepton relaxed TTH SF Done")
     #single_lepton_trigger_SF(EventProcess)
     #print("Single Lepton Trigger SF Done")
     btag_SF(EventProcess)
-    print("Btag SF Done")
+    if EventProcess.debug: print("Btag SF Done")
 
 def do_lepton_fakerate(EventProcess):
     single_lepton_fakerate(EventProcess)
