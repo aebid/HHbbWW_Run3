@@ -10,7 +10,6 @@ import psutil
 def update_outfile(EventProcess, outfile):
     isMC = EventProcess.isMC
     doSF = EventProcess.doSF
-    do_genMatch = EventProcess.do_genMatch
     debug = EventProcess.debug
     print("Creating save dicts")
     underflow_value = -999999.0
@@ -124,159 +123,150 @@ def update_outfile(EventProcess, outfile):
     print("Loaded all objects. Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
 
+    def fill_value(object, branch, underflow_value, datatype):
+        if branch in object.fields:
+            return np.array(ak.fill_none(object[branch], underflow_value), dtype=datatype)
+        else:
+            if debug: print("Careful, this branch doesn't exist ", object, branch)
+            return np.full(len(object), underflow_value, dtype=datatype)
+
+    def fill_gen_value(object, genbranch, branch, underflow_value, datatype):
+        if (genbranch in object.fields) and (branch in object[genbranch].fields):
+            return np.array(ak.fill_none(object[genbranch][branch], underflow_value), dtype=datatype)
+        else:
+            if debug: print("Careful, this branch doesn't exist ", object, branch)
+            return np.full(len(object), underflow_value, dtype=datatype)
 
 
     def make_lep_dict(lep, name):
         dict = {
-            name+'_pdgId': np.array(ak.fill_none(lep.pdgId, underflow_value), dtype=np.int32),
-            name+'_charge': np.array(ak.fill_none(lep.charge, underflow_value), dtype=np.int32),
-            name+'_pt': np.array(ak.fill_none(lep.pt, underflow_value), dtype=np.float32),
-            name+'_conept': np.array(ak.fill_none(lep.conept, underflow_value), dtype=np.float32),
-            name+'_eta': np.array(ak.fill_none(lep.eta, underflow_value), dtype=np.float32),
-            name+'_phi': np.array(ak.fill_none(lep.phi, underflow_value), dtype=np.float32),
-            name+'_E': np.array(ak.fill_none(lep.energy, underflow_value), dtype=np.float32),
-            name+'_px': np.array(ak.fill_none(lep.px, underflow_value), dtype=np.float32),
-            name+'_py': np.array(ak.fill_none(lep.py, underflow_value), dtype=np.float32),
-            name+'_pz': np.array(ak.fill_none(lep.pz, underflow_value), dtype=np.float32),
-            name+'_MC_Match': np.array(ak.fill_none(lep.MC_Match, underflow_value), dtype=np.float32),
+            name+'_pdgId':       fill_value(lep, 'pdgId', underflow_value, np.int32),
+            name+'_charge':     fill_value(lep, 'charge', underflow_value, np.int32),
+            name+'_pt':         fill_value(lep, 'pt', underflow_value, np.float32),
+            name+'_conept':     fill_value(lep, 'conept', underflow_value, np.float32),
+            name+'_eta':        fill_value(lep, 'eta', underflow_value, np.float32),
+            name+'_phi':        fill_value(lep, 'phi', underflow_value, np.float32),
+            name+'_E':          fill_value(lep, 'energy', underflow_value, np.float32),
+            name+'_px':         fill_value(lep, 'px', underflow_value, np.float32),
+            name+'_py':         fill_value(lep, 'py', underflow_value, np.float32),
+            name+'_pz':         fill_value(lep, 'pz', underflow_value, np.float32),
+            name+'_MC_Match':   fill_value(lep, 'MC_Match', underflow_value, np.float32),
+
+            name+'_singlelepton_fakerate':          fill_value(lep, 'single_lepton_fakerate', underflow_value, np.float32),
+            name+'_singlelepton_fakerate_up':       fill_value(lep, 'single_lepton_fakerate_up', underflow_value, np.float32),
+            name+'_singlelepton_fakerate_down':     fill_value(lep, 'single_lepton_fakerate_down', underflow_value, np.float32),
+
+            name+'_doublelepton_fakerate':          fill_value(lep, 'double_lepton_fakerate', underflow_value, np.float32),
+            name+'_doublelepton_fakerate_up':       fill_value(lep, 'double_lepton_fakerate_up', underflow_value, np.float32),
+            name+'_doublelepton_fakerate_down':     fill_value(lep, 'double_lepton_fakerate_down', underflow_value, np.float32),
+
+            name+'_lepton_ID_SF':                   fill_value(lep, 'lepton_ID_SF', underflow_value, np.float32),
+            name+'_lepton_ID_SF_up':                fill_value(lep, 'lepton_ID_SF_up', underflow_value, np.float32),
+            name+'_lepton_ID_SF_down':              fill_value(lep, 'lepton_ID_SF_down', underflow_value, np.float32),
+            name+'_lepton_tight_TTH_SF':            fill_value(lep, 'lepton_tight_TTH_SF', underflow_value, np.float32),
+            name+'_lepton_tight_TTH_SF_up':         fill_value(lep, 'lepton_tight_TTH_SF_up', underflow_value, np.float32),
+            name+'_lepton_tight_TTH_SF_down':       fill_value(lep, 'lepton_tight_TTH_SF_down', underflow_value, np.float32),
+            name+'_lepton_relaxed_TTH_SF':          fill_value(lep, 'lepton_relaxed_TTH_SF', underflow_value, np.float32),
+            name+'_lepton_relaxed_TTH_SF_up':       fill_value(lep, 'lepton_relaxed_TTH_SF_up', underflow_value, np.float32),
+            name+'_lepton_relaxed_TTH_SF_down':     fill_value(lep, 'lepton_relaxed_TTH_SF_down', underflow_value, np.float32),
+            #name+'_single_lepton_trigger_SF':      fill_value(lep, 'single_lepton_trigger_SF', underflow_value, np.float32),
+            #name+'_single_lepton_trigger_SF_up':   fill_value(lep, 'single_lepton_trigger_SF_up', underflow_value, np.float32),
+            #name+'_single_lepton_trigger_SF_down': fill_value(lep, 'single_lepton_trigger_SF_down', underflow_value, np.float32),
+
         }
-
-        if EventProcess.Runyear != 2022:
-            FR_dict = {
-                name+'_singlelepton_fakerate': np.array(ak.fill_none(lep.single_lepton_fakerate, underflow_value), dtype=np.float32),
-                name+'_singlelepton_fakerate_up': np.array(ak.fill_none(lep.single_lepton_fakerate_up, underflow_value), dtype=np.float32),
-                name+'_singlelepton_fakerate_down': np.array(ak.fill_none(lep.single_lepton_fakerate_down, underflow_value), dtype=np.float32),
-
-                name+'_doublelepton_fakerate': np.array(ak.fill_none(lep.double_lepton_fakerate, underflow_value), dtype=np.float32),
-                name+'_doublelepton_fakerate_up': np.array(ak.fill_none(lep.double_lepton_fakerate_up, underflow_value), dtype=np.float32),
-                name+'_doublelepton_fakerate_down': np.array(ak.fill_none(lep.double_lepton_fakerate_down, underflow_value), dtype=np.float32),
-            }
-            dict.update(FR_dict)
-
-        if isMC and doSF:
-            MC_dict = {
-                name+'_lepton_ID_SF': np.array(ak.fill_none(lep.lepton_ID_SF, underflow_value), dtype=np.float32),
-                name+'_lepton_ID_SF_up': np.array(ak.fill_none(lep.lepton_ID_SF_up, underflow_value), dtype=np.float32),
-                name+'_lepton_ID_SF_down': np.array(ak.fill_none(lep.lepton_ID_SF_down, underflow_value), dtype=np.float32),
-                name+'_lepton_tight_TTH_SF': np.array(ak.fill_none(lep.lepton_tight_TTH_SF, underflow_value), dtype=np.float32),
-                name+'_lepton_tight_TTH_SF_up': np.array(ak.fill_none(lep.lepton_tight_TTH_SF_up, underflow_value), dtype=np.float32),
-                name+'_lepton_tight_TTH_SF_down': np.array(ak.fill_none(lep.lepton_tight_TTH_SF_down, underflow_value), dtype=np.float32),
-                name+'_lepton_relaxed_TTH_SF': np.array(ak.fill_none(lep.lepton_relaxed_TTH_SF, underflow_value), dtype=np.float32),
-                name+'_lepton_relaxed_TTH_SF_up': np.array(ak.fill_none(lep.lepton_relaxed_TTH_SF_up, underflow_value), dtype=np.float32),
-                name+'_lepton_relaxed_TTH_SF_down': np.array(ak.fill_none(lep.lepton_relaxed_TTH_SF_down, underflow_value), dtype=np.float32),
-                #name+'_single_lepton_trigger_SF': np.array(ak.fill_none(lep.single_lepton_trigger_SF, underflow_value), dtype=np.float32),
-                #name+'_single_lepton_trigger_SF_up': np.array(ak.fill_none(lep.single_lepton_trigger_SF_up, underflow_value), dtype=np.float32),
-                #name+'_single_lepton_trigger_SF_down': np.array(ak.fill_none(lep.single_lepton_trigger_SF_down, underflow_value), dtype=np.float32),
-
-            }
-            dict.update(MC_dict)
         return dict
 
     def make_ak4_jet_dict(jet, name):
         dict = {
-            name+'_pt': np.array(ak.fill_none(jet.pt, underflow_value), dtype=np.float32),
-            name+'_eta': np.array(ak.fill_none(jet.eta, underflow_value), dtype=np.float32),
-            name+'_phi': np.array(ak.fill_none(jet.phi, underflow_value), dtype=np.float32),
-            name+'_E': np.array(ak.fill_none(jet.energy, underflow_value), dtype=np.float32),
-            name+'_px': np.array(ak.fill_none(jet.px, underflow_value), dtype=np.float32),
-            name+'_py': np.array(ak.fill_none(jet.py, underflow_value), dtype=np.float32),
-            name+'_pz': np.array(ak.fill_none(jet.pz, underflow_value), dtype=np.float32),
-            name+'_btagDeepFlavB': np.array(ak.fill_none(jet.btagDeepFlavB, underflow_value), dtype=np.float32),
+            name+'_pt':             fill_value(jet, 'pt', underflow_value, np.float32),
+            name+'_eta':            fill_value(jet, 'eta', underflow_value, np.float32),
+            name+'_phi':            fill_value(jet, 'phi', underflow_value, np.float32),
+            name+'_E':              fill_value(jet, 'energy', underflow_value, np.float32),
+            name+'_px':             fill_value(jet, 'px', underflow_value, np.float32),
+            name+'_py':             fill_value(jet, 'py', underflow_value, np.float32),
+            name+'_pz':             fill_value(jet, 'pz', underflow_value, np.float32),
+            name+'_btagDeepFlavB':  fill_value(jet, 'btagDeepFlavB', underflow_value, np.float32),
+
+            name+"_jet_rescale_par":    fill_value(jet, 'par_jet_rescale', underflow_value, np.float32),
+            name+"_JER_up_par":         fill_value(jet, 'par_JER_up', underflow_value, np.float32),
+            name+"_JER_down_par":       fill_value(jet, 'par_JER_down', underflow_value, np.float32),
+            name+"_JES_up_par":         fill_value(jet, 'par_JES_up', underflow_value, np.float32),
+            name+"_JES_down_par":       fill_value(jet, 'par_JES_down', underflow_value, np.float32),
+
+            name+"_btag_SF":            fill_value(jet, 'btag_SF', underflow_value, np.float32),
+
+            name+'_gen_pt':             fill_gen_value(jet, 'genJets', 'pt', underflow_value, np.float32),
+            name+'_gen_eta':            fill_gen_value(jet, 'genJets', 'eta', underflow_value, np.float32),
+            name+'_gen_phi':            fill_gen_value(jet, 'genJets', 'phi', underflow_value, np.float32),
+            name+'_gen_mass':           fill_gen_value(jet, 'genJets', 'mass', underflow_value, np.float32),
+            name+'_gen_partonFlavour':  fill_gen_value(jet, 'genJets', 'partonFlavour', underflow_value, np.float32),
+            name+'_gen_hadronFlavour':  fill_gen_value(jet, 'genJets', 'hadronFlavour', underflow_value, np.float32),
+            name+'_gen_deltaR':         fill_value(jet, 'genJet_deltaR', underflow_value, np.float32),
         }
-        if isMC:
-            if do_genMatch:
-                gen_dict = {
-                    name+'_gen_pt': np.array(ak.fill_none(jet.genJets.pt, underflow_value), dtype=np.float32),
-                    name+'_gen_eta': np.array(ak.fill_none(jet.genJets.eta, underflow_value), dtype=np.float32),
-                    name+'_gen_phi': np.array(ak.fill_none(jet.genJets.phi, underflow_value), dtype=np.float32),
-                    name+'_gen_mass': np.array(ak.fill_none(jet.genJets.mass, underflow_value), dtype=np.float32),
-                    name+'_gen_partonFlavour': np.array(ak.fill_none(jet.genJets.partonFlavour, underflow_value), dtype=np.float32),
-                    name+'_gen_hadronFlavour': np.array(ak.fill_none(jet.genJets.hadronFlavour, underflow_value), dtype=np.float32),
-                    name+'_gen_deltaR': np.array(ak.fill_none(jet.delta_r(jet.genJets), underflow_value), dtype=np.float32),
-                }
-                dict.update(gen_dict)
-            if doSF:
-                MC_dict = {
-                    name+"_jet_rescale_par": np.array(ak.fill_none(jet.par_jet_rescale, underflow_value), dtype=np.float32),
-                    name+"_JER_up_par": np.array(ak.fill_none(jet.par_JER_up, underflow_value), dtype=np.float32),
-                    name+"_JER_down_par": np.array(ak.fill_none(jet.par_JER_down, underflow_value), dtype=np.float32),
-                    name+"_JES_up_par": np.array(ak.fill_none(jet.par_JES_up, underflow_value), dtype=np.float32),
-                    name+"_JES_down_par": np.array(ak.fill_none(jet.par_JES_down, underflow_value), dtype=np.float32),
-                }
-                dict.update(MC_dict)
         return dict
+
 
     def make_ak8_jet_dict(jet, name):
         dict = {
-            name+'_pt': np.array(ak.fill_none(jet.pt, underflow_value), dtype=np.float32),
-            name+'_eta': np.array(ak.fill_none(jet.eta, underflow_value), dtype=np.float32),
-            name+'_phi': np.array(ak.fill_none(jet.phi, underflow_value), dtype=np.float32),
-            name+'_E': np.array(ak.fill_none(jet.energy, underflow_value), dtype=np.float32),
-            name+'_px': np.array(ak.fill_none(jet.px, underflow_value), dtype=np.float32),
-            name+'_py': np.array(ak.fill_none(jet.py, underflow_value), dtype=np.float32),
-            name+'_pz': np.array(ak.fill_none(jet.pz, underflow_value), dtype=np.float32),
-            name+'_tau1': np.array(ak.fill_none(jet.tau1, underflow_value), dtype=np.float32),
-            name+'_tau2': np.array(ak.fill_none(jet.tau2, underflow_value), dtype=np.float32),
-            name+'_tau3': np.array(ak.fill_none(jet.tau3, underflow_value), dtype=np.float32),
-            name+'_tau4': np.array(ak.fill_none(jet.tau4, underflow_value), dtype=np.float32),
-            name+'_msoftdrop': np.array(ak.fill_none(jet.msoftdrop, underflow_value), dtype=np.float32),
+            name+'_pt':         fill_value(jet, 'pt', underflow_value, np.float32),
+            name+'_eta':        fill_value(jet, 'eta', underflow_value, np.float32),
+            name+'_phi':        fill_value(jet, 'phi', underflow_value, np.float32),
+            name+'_E':          fill_value(jet, 'energy', underflow_value, np.float32),
+            name+'_px':         fill_value(jet, 'px', underflow_value, np.float32),
+            name+'_py':         fill_value(jet, 'py', underflow_value, np.float32),
+            name+'_pz':         fill_value(jet, 'pz', underflow_value, np.float32),
+            name+'_tau1':       fill_value(jet, 'tau1', underflow_value, np.float32),
+            name+'_tau2':       fill_value(jet, 'tau2', underflow_value, np.float32),
+            name+'_tau3':       fill_value(jet, 'tau3', underflow_value, np.float32),
+            name+'_tau4':       fill_value(jet, 'tau4', underflow_value, np.float32),
+            name+'_msoftdrop':  fill_value(jet, 'msoftdrop', underflow_value, np.float32),
 
-            name+'_subjet1_E': np.array(ak.fill_none(jet.subjet1.energy, underflow_value), dtype=np.float32),
-            name+'_subjet1_px': np.array(ak.fill_none(jet.subjet1.px, underflow_value), dtype=np.float32),
-            name+'_subjet1_py': np.array(ak.fill_none(jet.subjet1.py, underflow_value), dtype=np.float32),
-            name+'_subjet1_pz': np.array(ak.fill_none(jet.subjet1.pz, underflow_value), dtype=np.float32),
-            name+'_subjet1_pt': np.array(ak.fill_none(jet.subjet1.pt, underflow_value), dtype=np.float32),
+            name+'_subjet1_E':  fill_value(jet.subjet1, 'energy', underflow_value, np.float32),
+            name+'_subjet1_px': fill_value(jet.subjet1, 'px', underflow_value, np.float32),
+            name+'_subjet1_py': fill_value(jet.subjet1, 'py', underflow_value, np.float32),
+            name+'_subjet1_pz': fill_value(jet.subjet1, 'pz', underflow_value, np.float32),
+            name+'_subjet1_pt': fill_value(jet.subjet1, 'pt', underflow_value, np.float32),
 
-            name+'_subjet2_E': np.array(ak.fill_none(jet.subjet2.energy, underflow_value), dtype=np.float32),
-            name+'_subjet2_px': np.array(ak.fill_none(jet.subjet2.px, underflow_value), dtype=np.float32),
-            name+'_subjet2_py': np.array(ak.fill_none(jet.subjet2.py, underflow_value), dtype=np.float32),
-            name+'_subjet2_pz': np.array(ak.fill_none(jet.subjet2.pz, underflow_value), dtype=np.float32),
-            name+'_subjet2_pt': np.array(ak.fill_none(jet.subjet2.pt, underflow_value), dtype=np.float32),
+            name+'_subjet2_E':  fill_value(jet.subjet2, 'energy', underflow_value, np.float32),
+            name+'_subjet2_px': fill_value(jet.subjet2, 'px', underflow_value, np.float32),
+            name+'_subjet2_py': fill_value(jet.subjet2, 'py', underflow_value, np.float32),
+            name+'_subjet2_pz': fill_value(jet.subjet2, 'pz', underflow_value, np.float32),
+            name+'_subjet2_pt': fill_value(jet.subjet2, 'pt', underflow_value, np.float32),
+
+            name+"_jet_rescale_par":    fill_value(jet, 'par_jet_rescale', underflow_value, np.float32),
+            name+"_JER_up_par":         fill_value(jet, 'par_JER_up', underflow_value, np.float32),
+            name+"_JER_down_par":       fill_value(jet, 'par_JER_down', underflow_value, np.float32),
+            name+"_JES_up_par":         fill_value(jet, 'par_JES_up', underflow_value, np.float32),
+            name+"_JES_down_par":       fill_value(jet, 'par_JES_down', underflow_value, np.float32),
+
+            name+'_genFat_pt':              fill_gen_value(jet, 'genFatJets', 'pt', underflow_value, np.float32),
+            name+'_genFat_eta':             fill_gen_value(jet, 'genFatJets', 'eta', underflow_value, np.float32),
+            name+'_genFat_phi':             fill_gen_value(jet, 'genFatJets', 'phi', underflow_value, np.float32),
+            name+'_genFat_mass':            fill_gen_value(jet, 'genFatJets', 'mass', underflow_value, np.float32),
+            name+'_genFat_partonFlavour':   fill_gen_value(jet, 'genFatJets', 'partonFlavour', underflow_value, np.float32),
+            name+'_genFat_hadronFlavour':   fill_gen_value(jet, 'genFatJets', 'hadronFlavour', underflow_value, np.float32),
+            name+'_genFat_deltaR':          fill_value(jet, 'genFatJet_deltaR', underflow_value, np.float32),
         }
-        if isMC:
-            if do_genMatch:
-                gen_dict = {
-                    name+'_genFat_pt': np.array(ak.fill_none(jet.genFatJets.pt, underflow_value), dtype=np.float32),
-                    name+'_genFat_eta': np.array(ak.fill_none(jet.genFatJets.eta, underflow_value), dtype=np.float32),
-                    name+'_genFat_phi': np.array(ak.fill_none(jet.genFatJets.phi, underflow_value), dtype=np.float32),
-                    name+'_genFat_mass': np.array(ak.fill_none(jet.genFatJets.mass, underflow_value), dtype=np.float32),
-                    name+'_genFat_partonFlavour': np.array(ak.fill_none(jet.genFatJets.partonFlavour, underflow_value), dtype=np.float32),
-                    name+'_genFat_hadronFlavour': np.array(ak.fill_none(jet.genFatJets.hadronFlavour, underflow_value), dtype=np.float32),
-                    name+'_genFat_deltaR': np.array(ak.fill_none(jet.delta_r(jet.genFatJets), underflow_value), dtype=np.float32),
-                }
-                dict.update(gen_dict)
-            if doSF:
-                MC_dict = {
-                    name+"_jet_rescale_par": np.array(ak.fill_none(jet.par_jet_rescale, underflow_value), dtype=np.float32),
-                    name+"_JER_up_par": np.array(ak.fill_none(jet.par_JER_up, underflow_value), dtype=np.float32),
-                    name+"_JER_down_par": np.array(ak.fill_none(jet.par_JER_down, underflow_value), dtype=np.float32),
-                    name+"_JES_up_par": np.array(ak.fill_none(jet.par_JES_up, underflow_value), dtype=np.float32),
-                    name+"_JES_down_par": np.array(ak.fill_none(jet.par_JES_down, underflow_value), dtype=np.float32),
-                }
-                dict.update(MC_dict)
         return dict
 
     def make_met_dict(met, name):
         dict = {
-            name+'_E': np.array(ak.fill_none(met.px*0.0, underflow_value), dtype=np.float32), #Set to 0, but I want to keep the 'none' values
-            name+'_px': np.array(ak.fill_none(met.px, underflow_value), dtype=np.float32),
-            name+'_py': np.array(ak.fill_none(met.py, underflow_value), dtype=np.float32),
-            name+'_pz': np.array(ak.fill_none(met.px*0.0, underflow_value), dtype=np.float32), #Set to 0, but I want to keep the 'none' values
-            name+'_unclust_energy_up_x': np.array(ak.fill_none(met.MetUnclustEnUpDeltaX, underflow_value), dtype=np.float32),
-            name+'_unclust_energy_up_y': np.array(ak.fill_none(met.MetUnclustEnUpDeltaY, underflow_value), dtype=np.float32),
-            name+'_covXX': np.array(ak.fill_none(met.covXX, underflow_value), dtype=np.float32),
-            name+'_covXY': np.array(ak.fill_none(met.covXY, underflow_value), dtype=np.float32),
-            name+'_covYY': np.array(ak.fill_none(met.covYY, underflow_value), dtype=np.float32),
+            name+'_E':                      fill_value(met, 'px', underflow_value, np.float32)*0.0, #Set to 0, but I want to keep the 'none' values
+            name+'_px':                     fill_value(met, 'px', underflow_value, np.float32),
+            name+'_py':                     fill_value(met, 'py', underflow_value, np.float32),
+            name+'_pz':                     fill_value(met, 'px', underflow_value, np.float32)*0.0, #Set to 0, but I want to keep the 'none' values
+            name+'_unclust_energy_up_x':    fill_value(met, 'MetUnclustEnUpDeltaX', underflow_value, np.float32),
+            name+'_unclust_energy_up_y':    fill_value(met, 'MetUnclustEnUpDeltaY', underflow_value, np.float32),
+            name+'_covXX':                  fill_value(met, 'covXX', underflow_value, np.float32),
+            name+'_covXY':                  fill_value(met, 'covXY', underflow_value, np.float32),
+            name+'_covYY':                  fill_value(met, 'covYY', underflow_value, np.float32),
+
+            name+"_jet_rescale_par":    fill_value(met, 'par_jet_rescale', underflow_value, np.float32),
+            name+"_JER_up_par":         fill_value(met, 'par_JER_up', underflow_value, np.float32),
+            name+"_JER_down_par":       fill_value(met, 'par_JER_down', underflow_value, np.float32),
+            name+"_JES_up_par":         fill_value(met, 'par_JES_up', underflow_value, np.float32),
+            name+"_JES_down_par":       fill_value(met, 'par_JES_down', underflow_value, np.float32),
         }
-        if isMC and doSF:
-            MC_dict = {
-                name+"_jet_rescale_par": np.array(ak.fill_none(met.par_jet_rescale, underflow_value), dtype=np.float32),
-                name+"_JER_up_par": np.array(ak.fill_none(met.par_JER_up, underflow_value), dtype=np.float32),
-                name+"_JER_down_par": np.array(ak.fill_none(met.par_JER_down, underflow_value), dtype=np.float32),
-                name+"_JES_up_par": np.array(ak.fill_none(met.par_JES_up, underflow_value), dtype=np.float32),
-                name+"_JES_down_par": np.array(ak.fill_none(met.par_JES_down, underflow_value), dtype=np.float32),
-            }
-            dict.update(MC_dict)
         return dict
 
     def make_highlevelobject_dict(object, name):
@@ -365,7 +355,7 @@ def update_outfile(EventProcess, outfile):
         hWW_dict_single = make_highlevelobject_dict(hWW_single, 'hWW')
         hh_dict_single = make_highlevelobject_dict(hh_single, 'hh')
 
-        if isMC and do_genMatch:
+        if isMC:
             vecMET_gen_single = ak.zip(
                 {
                     "pt": met_single.genMET.pt,
@@ -400,7 +390,7 @@ def update_outfile(EventProcess, outfile):
         single_dicts = event_dict_single | lep_dict_single | ak4_jet_dict_single | ak8_jet_dict_single | met_dict_single | hbb_dict_single | Wlepmet_dict_single | Wjetjet_dict_single | hWW_dict_single | hh_dict_single
 
 
-        if isMC and do_genMatch:
+        if isMC:
             genpart_sgl = EventProcess.genpart_sgl
 
             gen_bFromH_single = ak.pad_none(genpart_sgl["bFromH"][single_mask], 2)
@@ -516,7 +506,7 @@ def update_outfile(EventProcess, outfile):
         ll_dict_double = make_highlevelobject_dict(ll_double, 'll')
         hh_dict_double = make_highlevelobject_dict(hh_double, 'hh')
 
-        if isMC and do_genMatch:
+        if isMC:
             vecMET_gen_double = ak.zip(
                 {
                     "pt": met_double.genMET.pt,
@@ -549,7 +539,7 @@ def update_outfile(EventProcess, outfile):
 
         double_dicts = event_dict_double | lep_dict_double | ak4_jet_dict_double | ak8_jet_dict_double | met_dict_double | hbb_dict_double | hWW_dict_double | ll_dict_double | hh_dict_double
 
-        if isMC and do_genMatch:
+        if isMC:
             genpart_dbl = EventProcess.genpart_dbl
 
             gen_bFromH_double = ak.pad_none(genpart_dbl["bFromH"][double_mask], 2)

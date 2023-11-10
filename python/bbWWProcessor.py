@@ -14,11 +14,10 @@ import genparticles
 #import jet_corrections
 
 class EventProcess():
-    def __init__(self, inputFile, entryStart, entryStop, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug=0, DYEstimation=0, HLT_Cuts=0):
+    def __init__(self, inputFile, entryStart, entryStop, isMC, doSF, Runyear, dnn_truth_value, XS, debug=0, DYEstimation=0, HLT_Cuts=0):
         self.fname = inputFile
         self.isMC  = isMC
         self.doSF = doSF
-        self.do_genMatch = do_genMatch
         self.Runyear = Runyear
         self.dnn_truth_value = dnn_truth_value
         self.XS = XS
@@ -612,6 +611,7 @@ class EventProcess():
 
         events["dnn_truth_value"] = dnn_truth_value
 
+    #Prepare Objects
     def add_conept(self):
         return object_selection.add_conept(self)
     def link_jets(self):
@@ -628,49 +628,57 @@ class EventProcess():
         return object_selection.add_HT(self)
     def clean_events(self):
         return object_selection.clean_events(self)
-
     def all_obj_selection(self):
         return object_selection.all_obj_selection(self)
+
+    #Event Topology
     def single_lepton_category(self):
         return event_selection.single_lepton_category(self)
     def double_lepton_category(self):
         return event_selection.double_lepton_category(self)
 
-    #def ak4_jet_corrector(self):
-    #    return jet_corrections.ak4_jet_corrector(self)
-    #def ak8_jet_corrector(self):
-    #    return jet_corrections.ak8_jet_corrector(self)
-    #def sub_jet_corrector(self):
-    #    return jet_corrections.sub_jet_corrector(self)
-    #def met_corrector(self):
-    #    return jet_corrections.met_corrector(self)
+    #Jet Energy Corrections
     def jet_corrector(self):
         return corrections.jet_corrector(self)
     def met_corrector(self):
         return corrections.met_corrector(self)
-    def btag_SF(self):
-        return corrections.btag_SF(self)
-    """
-    def trigger_selection(self):
-        self.events = self.events[self.any_HLT_mask]
-        self.electron_trigger_cuts = self.electron_trigger_cuts[self.any_HLT_mask]
-        self.muon_trigger_cuts = self.muon_trigger_cuts[self.any_HLT_mask]
-        self.double_electron_trigger_cuts = self.double_electron_trigger_cuts[self.any_HLT_mask]
-        self.double_muon_trigger_cuts = self.double_muon_trigger_cuts[self.any_HLT_mask]
-        self.muon_electron_trigger_cuts = self.muon_electron_trigger_cuts[self.any_HLT_mask]
-    """
+    def jet_met_corrector(self):
+        return corrections.jet_met_corrector(self)
+
+    #Scale Factors and Corrections
     def lepton_ID_SF(self):
         return corrections.lepton_ID_SF(self)
     def lepton_tight_TTH_SF(self):
         return corrections.lepton_tight_TTH_SF(self)
     def lepton_relaxed_TTH_SF(self):
         return corrections.lepton_relaxed_TTH_SF(self)
+    def btag_SF(self):
+        return corrections.btag_SF(self)
     def make_evaluator(self):
         return corrections.make_evaluator(self)
     def add_scale_factors(self):
         return corrections.add_scale_factors(self)
     def do_lepton_fakerate(self):
         return corrections.do_lepton_fakerate(self)
+
+    #Gen Particle Matchers
+    def single_lepton_genpart(self):
+        self.genpart_sgl = genparticles.single_lepton_genpart(self)
+    def double_lepton_genpart(self):
+        self.genpart_dbl = genparticles.double_lepton_genpart(self)
+    def recoJet_to_genJet(self):
+        return genparticles.recoJet_to_genJet(self)
+    def recoLep_to_genLep(self):
+        return genparticles.recoLep_to_genLep(self)
+    def recoMET_to_genMET(self):
+        return genparticles.recoMET_to_genMET(self)
+    def match_genparts(self):
+        return genparticles.match_genparts(self)
+
+    #Output tree
+    def update_outfile(self, outfile):
+        return tree_manager.update_outfile(self, outfile)
+
 
     def print_object_selection(self):
 
@@ -720,21 +728,3 @@ class EventProcess():
         print("N Double Signal:         ", ak.sum(self.events.Double_Signal))
         print("N Double Fake:           ", ak.sum(self.events.Double_Fake))
         print("Double Category Cutflow: ", self.events.double_cutflow)
-
-    def single_lepton_genpart(self):
-        self.genpart_sgl = genparticles.single_lepton_genpart(self)
-
-    def double_lepton_genpart(self):
-        self.genpart_dbl = genparticles.double_lepton_genpart(self)
-
-    def recoJet_to_genJet(self):
-        return genparticles.recoJet_to_genJet(self)
-
-    def recoLep_to_genLep(self):
-        return genparticles.recoLep_to_genLep(self)
-
-    def recoMET_to_genMET(self):
-        return genparticles.recoMET_to_genMET(self)
-
-    def update_outfile(self, outfile):
-        return tree_manager.update_outfile(self, outfile)

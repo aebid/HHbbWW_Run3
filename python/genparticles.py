@@ -95,7 +95,9 @@ def recoJet_to_genJet(EventProcess):
 
 
     events.Jet = ak.with_field(events.Jet, genjets[ak4_jets_mask.genJetIdx], "genJets")
+    events.Jet = ak.with_field(events.Jet, (events.Jet).delta_r(events.Jet.genJets), "genJet_deltaR")
     events.FatJet = ak.with_field(events.FatJet, genfatjets[ak8_jets_mask.genJetAK8Idx], "genFatJets")
+    events.FatJet = ak.with_field(events.FatJet, (events.FatJet).delta_r(events.FatJet.genFatJets), "genFatJet_deltaR")
 
 
 
@@ -116,3 +118,11 @@ def recoMET_to_genMET(EventProcess):
     events = EventProcess.events
 
     events.MET = ak.with_field(events.MET, events.GenMET, "genMET")
+
+
+def match_genparts(EventProcess):
+    EventProcess.genpart_sgl = single_lepton_genpart(EventProcess)
+    EventProcess.genpart_dbl = double_lepton_genpart(EventProcess)
+    recoJet_to_genJet(EventProcess)
+    recoLep_to_genLep(EventProcess)
+    recoMET_to_genMET(EventProcess)

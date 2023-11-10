@@ -50,7 +50,6 @@ Runyear = args.Runyear
 isMC = args.isMC
 XS = args.XS
 doSF = args.SF
-do_genMatch = isMC #Currently lets to genMatch every time we are MC
 DYEstimation = args.DYEstimation
 HLT_Cuts = args.HLTCut
 
@@ -78,49 +77,42 @@ for fname in flist:
         entryStop = nEventsLoopSize*(nLoopIter+1)
 
         #Only load the events in range
-        eventProcess = EventProcess(fname, entryStart, entryStop, isMC, doSF, do_genMatch, Runyear, dnn_truth_value, XS, debug, DYEstimation, HLT_Cuts)
+        eventProcess = EventProcess(fname, entryStart, entryStop, isMC, doSF, Runyear, dnn_truth_value, XS, debug, DYEstimation, HLT_Cuts)
         if eventProcess.skip_file: continue
         eventProcess.make_evaluator()
 
         if doSF:
+            #Jet Corrections are for both MC and Data
+            eventProcess.jet_met_corrector()
+            print("JetMET Corrector in seconds: " + str((time.time() - startTime)))
+            #Scale Factors are only for MC
             if isMC:
                 eventProcess.add_scale_factors()
                 print("Scale Factors in seconds: " + str((time.time() - startTime)))
-                eventProcess.btag_SF()
-                print("BTag SF in seconds: " + str((time.time() - startTime)))
-            eventProcess.jet_corrector()
-            print("Jet Corrector in seconds: " + str((time.time() - startTime)))
-            eventProcess.met_corrector()
-            print("MET Corrector in seconds: " + str((time.time() - startTime)))
-            print("Memory usage in MB after SF ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
-
-
-
-        if do_genMatch:
-            eventProcess.single_lepton_genpart()
-            eventProcess.double_lepton_genpart()
-            eventProcess.recoJet_to_genJet()
-            eventProcess.recoLep_to_genLep()
-            eventProcess.recoMET_to_genMET()
-            print('GenParts in seconds: ' + str((time.time() - startTime)))
-            print("Memory usage in MB after GenMatch ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
-
-        if Runyear != 2022:
+                print("Memory usage in MB after SF ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+            #Lepton Fakerates are only for Data ? Maybe?
             eventProcess.do_lepton_fakerate()
             print("Fake Rate addition in seconds: " + str((time.time() - startTime)))
             print("Memory usage in MB after FR ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+
+        if isMC:
+            eventProcess.match_genparts()
+            print('GenParts in seconds: ' + str((time.time() - startTime)))
+            print("Memory usage in MB after GenMatch ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+
 
         eventProcess.all_obj_selection()
         print('Object Selection in seconds: ' + str((time.time() - startTime)))
         print("Memory usage in MB after Object ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
         if debug: eventProcess.print_object_selection()
+
         eventProcess.single_lepton_category()
         eventProcess.double_lepton_category()
         print('Categories in seconds: ' + str((time.time() - startTime)))
         print("Memory usage in MB after Event ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
-        if debug: eventProcess.print_event_selection()
 
+        if debug: eventProcess.print_event_selection()
 
         eventProcess.update_outfile(outfile)
 

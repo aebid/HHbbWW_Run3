@@ -240,8 +240,7 @@ def met_corrector(EventProcess):
 
 def btag_SF(EventProcess):
     events = EventProcess.events
-    events_pretrigger = EventProcess.events_pretrigger
-    jets = events_pretrigger.Jet
+    jets = events.Jet
     do_systematics = EventProcess.do_systematics
     btag_SF_file =  EventProcess.btag_SF_file
     debug = EventProcess.debug
@@ -252,7 +251,8 @@ def btag_SF(EventProcess):
         return
 
     btag_sf = BTagScaleFactor(btag_SF_file, "reshape", methods="iterativefit,iterativefit,iterativefit")
-    events_pretrigger.Jet = ak.with_field(events_pretrigger.Jet, btag_sf.eval("central", jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB), "btag_SF_central")
+    events.Jet = ak.with_field(events.Jet, btag_sf.eval("central", jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB), "btag_SF")
+
     btag_systematics = ["jes", "lf", "hf", "hfstats1", "hfstats2", "lfstats1", "lfstats2", "cferr1", "cferr2"]
 
 
@@ -263,26 +263,25 @@ def btag_SF(EventProcess):
                 jets["btag_SF_up_"+syst] = ak.where(
                     jets.hadronFlavour == 4,
                         btag_sf.eval("up_"+syst, jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB, ignore_missing=True),
-                        jets.btag_SF_central
+                        jets.btag_SF
                 )
                 jets["btag_SF_down_"+syst] = ak.where(
                     jets.hadronFlavour == 4,
                         btag_sf.eval("down_"+syst, jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB, ignore_missing=True),
-                        jets.btag_SF_central
+                        jets.btag_SF
                 )
             else:
                 jets["btag_SF_up_"+syst] = ak.where(
                     jets.hadronFlavour == 4,
-                        jets.btag_SF_central,
+                        jets.btag_SF,
                         btag_sf.eval("up_"+syst, jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB, ignore_missing=True)
                 )
                 jets["btag_SF_down_"+syst] = ak.where(
                     jets.hadronFlavour == 4,
-                        jets.btag_SF_central,
+                        jets.btag_SF,
                         btag_sf.eval("down_"+syst, jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB, ignore_missing=True)
                 )
 
-    events.Jet = jets[EventProcess.any_HLT_mask]
 
 
 
@@ -435,7 +434,6 @@ def lepton_relaxed_TTH_SF(EventProcess):
             events.Muon = ak.with_field(events.Muon, up_value, branch_name+"_up")
             events.Muon = ak.with_field(events.Muon, down_value, branch_name+"_down")
 
-
 def single_lepton_trigger_SF(EventProcess):
     eval = EventProcess.corrections_Evaluator
     events = EventProcess.events
@@ -475,10 +473,6 @@ def single_lepton_trigger_SF(EventProcess):
             events.Muon = ak.with_field(events.Muon, nom_value, branch_name)
             events.Muon = ak.with_field(events.Muon, up_value, branch_name+"_up")
             events.Muon = ak.with_field(events.Muon, down_value, branch_name+"_down")
-
-
-
-
 
 def single_lepton_fakerate(EventProcess):
     eval = EventProcess.corrections_Evaluator
@@ -560,13 +554,23 @@ def double_lepton_fakerate(EventProcess):
             events.Muon = ak.with_field(events.Muon, up_value, branch_name+"_up")
             events.Muon = ak.with_field(events.Muon, down_value, branch_name+"_down")
 
+def jet_met_corrector(EventProcess):
+    jet_corrector(EventProcess)
+    print("Jet Corrector Done")
+    met_corrector(EventProcess)
+    print("MET Corrector Done")
 
 def add_scale_factors(EventProcess):
-    #make_evaluator(EventProcess)
     lepton_ID_SF(EventProcess)
+    print("Lepton ID SF Done")
     lepton_tight_TTH_SF(EventProcess)
+    print("Lepton tight TTH SF Done")
     lepton_relaxed_TTH_SF(EventProcess)
+    print("Lepton relaxed TTH SF Done")
     #single_lepton_trigger_SF(EventProcess)
+    #print("Single Lepton Trigger SF Done")
+    btag_SF(EventProcess)
+    print("Btag SF Done")
 
 def do_lepton_fakerate(EventProcess):
     single_lepton_fakerate(EventProcess)
