@@ -239,9 +239,10 @@ def met_corrector(EventProcess):
     events.MET = events_pretrigger.MET[EventProcess.any_HLT_mask]
 
 def btag_SF(EventProcess):
+    #Using BTagScaleFactor class from Coffea https://coffeateam.github.io/coffea/api/coffea.btag_tools.BTagScaleFactor.html
+    #SF File obtained from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation
     events = EventProcess.events
     jets = events.Jet
-    do_systematics = EventProcess.do_systematics
     btag_SF_file =  EventProcess.btag_SF_file
     debug = EventProcess.debug
     if debug: print("Starting btag SF")
@@ -250,37 +251,10 @@ def btag_SF(EventProcess):
         print("No btag SF files for Runyear ", EventProcess.Runyear)
         return
 
-    btag_sf = BTagScaleFactor(btag_SF_file, "reshape", methods="iterativefit,iterativefit,iterativefit")
+    btag_sf = BTagScaleFactor(btag_SF_file, "MEDIUM", methods="comb,comb,incl")
     events.Jet = ak.with_field(events.Jet, btag_sf.eval("central", jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB), "btag_SF")
-
-    btag_systematics = ["jes", "lf", "hf", "hfstats1", "hfstats2", "lfstats1", "lfstats2", "cferr1", "cferr2"]
-
-
-    if do_systematics:
-        for syst in btag_systematics:
-            if debug: print("Doing BTag sys " + syst)
-            if "cferr" in syst:
-                jets["btag_SF_up_"+syst] = ak.where(
-                    jets.hadronFlavour == 4,
-                        btag_sf.eval("up_"+syst, jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB, ignore_missing=True),
-                        jets.btag_SF
-                )
-                jets["btag_SF_down_"+syst] = ak.where(
-                    jets.hadronFlavour == 4,
-                        btag_sf.eval("down_"+syst, jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB, ignore_missing=True),
-                        jets.btag_SF
-                )
-            else:
-                jets["btag_SF_up_"+syst] = ak.where(
-                    jets.hadronFlavour == 4,
-                        jets.btag_SF,
-                        btag_sf.eval("up_"+syst, jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB, ignore_missing=True)
-                )
-                jets["btag_SF_down_"+syst] = ak.where(
-                    jets.hadronFlavour == 4,
-                        jets.btag_SF,
-                        btag_sf.eval("down_"+syst, jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB, ignore_missing=True)
-                )
+    events.Jet = ak.with_field(events.Jet, btag_sf.eval("up", jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB), "btag_SF_up")
+    events.Jet = ak.with_field(events.Jet, btag_sf.eval("down", jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB), "btag_SF_down")
 
 
 

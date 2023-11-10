@@ -124,15 +124,17 @@ def update_outfile(EventProcess, outfile):
 
 
     def fill_value(object, branch, underflow_value, datatype):
-        if branch in object.fields:
-            return np.array(ak.fill_none(object[branch], underflow_value), dtype=datatype)
+        #if branch in object.fields:
+        if ak.any(getattr(object, branch, np.full(len(object), False))):
+            return np.array(ak.fill_none(getattr(object, branch), underflow_value), dtype=datatype)
         else:
             if debug: print("Careful, this branch doesn't exist ", object, branch)
             return np.full(len(object), underflow_value, dtype=datatype)
 
     def fill_gen_value(object, genbranch, branch, underflow_value, datatype):
-        if (genbranch in object.fields) and (branch in object[genbranch].fields):
-            return np.array(ak.fill_none(object[genbranch][branch], underflow_value), dtype=datatype)
+        #if (genbranch in object.fields) and (branch in object[genbranch].fields):
+        if ak.any(getattr(object, genbranch, np.full(len(object), False))) and ak.any(getattr(object[genbranch], branch, np.full(len(object), False))):
+            return np.array(ak.fill_none(getattr(getattr(object, genbranch), branch), underflow_value), dtype=datatype)
         else:
             if debug: print("Careful, this branch doesn't exist ", object, branch)
             return np.full(len(object), underflow_value, dtype=datatype)
@@ -194,6 +196,8 @@ def update_outfile(EventProcess, outfile):
             name+"_JES_down_par":       fill_value(jet, 'par_JES_down', underflow_value, np.float32),
 
             name+"_btag_SF":            fill_value(jet, 'btag_SF', SF_underflow_value, np.float32),
+            name+"_btag_SF_up":         fill_value(jet, 'btag_SF_up', SF_underflow_value, np.float32),
+            name+"_btag_SF_down":       fill_value(jet, 'btag_SF_down', SF_underflow_value, np.float32),
 
             name+'_gen_pt':             fill_gen_value(jet, 'genJets', 'pt', underflow_value, np.float32),
             name+'_gen_eta':            fill_gen_value(jet, 'genJets', 'eta', underflow_value, np.float32),

@@ -166,7 +166,6 @@ class EventProcess():
 
 
         #Start of the corrections files -- When 2022 files are available we must update these
-        self.do_systematics = False
         python_folder_base = "/".join((os.path.realpath(__file__)).split('/')[:-1])
         corrections_dir = python_folder_base+"/correction_files/2016/"
         jetmet_dir = corrections_dir+"jetmet/"
