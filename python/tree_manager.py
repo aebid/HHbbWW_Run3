@@ -473,7 +473,8 @@ def update_outfile(EventProcess, outfile):
             'double_is_em': np.array(ak.fill_none(events_double.is_em, False), dtype=np.int32),
 
             'Zveto': np.array(ak.fill_none(events_double.Zveto, False), dtype=np.int32),
-
+            'nBjets_pass': np.array(ak.fill_none(events_double.nBjets_pass, False), dtype=np.int32),
+            'tt_reweight': fill_value(events_double, 'tt_reweight', 1.0, np.float32),
             'dnn_truth_value': np.array(events_double.dnn_truth_value, dtype=np.int32),
             'XS': np.array(ak.ones_like(events_double.run)*EventProcess.XS, dtype=np.float32),
         }

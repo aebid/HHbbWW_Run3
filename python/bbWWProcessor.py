@@ -660,6 +660,9 @@ class EventProcess():
     def do_lepton_fakerate(self):
         return corrections.do_lepton_fakerate(self)
 
+    def top_pt_reweight(self):
+        return corrections.top_pt_reweight(self)
+
     #Gen Particle Matchers
     def single_lepton_genpart(self):
         self.genpart_sgl = genparticles.single_lepton_genpart(self)
@@ -673,6 +676,7 @@ class EventProcess():
         return genparticles.recoMET_to_genMET(self)
     def match_genparts(self):
         return genparticles.match_genparts(self)
+
 
     #Output tree
     def update_outfile(self, outfile):

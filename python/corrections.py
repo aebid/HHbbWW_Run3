@@ -3,6 +3,8 @@ from coffea.lookup_tools import extractor
 from coffea.btag_tools import BTagScaleFactor
 from coffea.jetmet_tools import FactorizedJetCorrector, JetCorrectionUncertainty, JECStack, CorrectedJetsFactory, JetResolution, JetResolutionScaleFactor, CorrectedMETFactory
 import numpy as np
+import math
+
 
 def jet_corrector(EventProcess):
     events = EventProcess.events
@@ -549,3 +551,19 @@ def add_scale_factors(EventProcess):
 def do_lepton_fakerate(EventProcess):
     single_lepton_fakerate(EventProcess)
     double_lepton_fakerate(EventProcess)
+
+
+
+def top_pt_reweight(EventProcess):
+    events = EventProcess.events
+    genParts = events.GenPart
+    genTops = genParts[abs(genParts.pdgId) == 6]
+
+    genTop1 = genTops[:,0]
+    genTop2 = genTops[:,1]
+
+    top1_weight = math.exp(1)**(0.088 - (0.00087*genTop1.pt) + 0.000000927*(genTop1.pt**2))
+    top2_weight = math.exp(1)**(0.088 - (0.00087*genTop2.pt) + 0.000000927*(genTop2.pt**2))
+    top_reweight = (top1_weight * top2_weight)**(0.5)
+
+    events["tt_reweight"] = top_reweight

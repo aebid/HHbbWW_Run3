@@ -95,6 +95,11 @@ for fname in flist:
             print("Fake Rate addition in seconds: " + str((time.time() - startTime)))
             print("Memory usage in MB after FR ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
+            if dnn_truth_value == 1:
+                #TTBar sample, do TTBar reweights
+                eventProcess.top_pt_reweight()
+                print("TTBar reweight done")
+
         if isMC:
             eventProcess.match_genparts()
             print('GenParts in seconds: ' + str((time.time() - startTime)))
