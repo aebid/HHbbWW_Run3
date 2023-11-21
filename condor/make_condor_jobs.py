@@ -164,8 +164,8 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
                 job_file.write('DNN=("{}")\n'.format(DNN_Truth))
             elif "SF=" in line:
                 job_file.write('SF=("{}")\n'.format(SF))
-            elif "DYEst=" in line:
-                job_file.write('DYEst=("{}")\n'.format(DYEst))
+            #elif "DYEst=" in line: #No longer supported
+            #    job_file.write('DYEst=("{}")\n'.format(DYEst))
             elif "HLTCut=" in line:
                 job_file.write('HLTCut=("{}")\n'.format(HLTCut))
             else:

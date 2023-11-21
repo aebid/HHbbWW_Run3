@@ -14,7 +14,7 @@ import genparticles
 #import jet_corrections
 
 class EventProcess():
-    def __init__(self, inputFile, entryStart, entryStop, isMC, doSF, Runyear, dnn_truth_value, XS, debug=0, DYEstimation=0, HLT_Cuts=0):
+    def __init__(self, inputFile, entryStart, entryStop, isMC, doSF, Runyear, dnn_truth_value, XS, debug=0, HLT_Cuts=0):
         self.fname = inputFile
         self.isMC  = isMC
         self.doSF = doSF
@@ -22,7 +22,6 @@ class EventProcess():
         self.dnn_truth_value = dnn_truth_value
         self.XS = XS
         self.debug  = debug
-        self.DYEstimation = DYEstimation
         self.HLT_Cuts = HLT_Cuts
         print("Starting NanoAOD processing")
         print("Debug set to ", self.debug)
@@ -425,7 +424,7 @@ class EventProcess():
         }
 
 
-        single_lepton_trigger_SF_dict = {
+        single_lepton_trigger_SF_dict_OLD = {
             "2016": {
                 "branch_name": "single_lepton_trigger_SF",
                 "electron": {
@@ -474,6 +473,55 @@ class EventProcess():
             },
         }
 
+
+        single_lepton_trigger_SF_dict = {
+            "2016": {
+                "branch_name": "single_lepton_trigger_SF",
+                "electron": {
+                    "single_lepton_trigger": {
+                        "ext_list": [
+                            "ele_single_trigger ele_SF "+single_lepton_trigger_SF_dir+"ele_and_mu_SF_2016.root",
+                            "ele_single_trigger_error ele_SF_error "+single_lepton_trigger_SF_dir+"ele_and_mu_SF_2016.root",
+                        ],
+                        "nominal": {
+                            "ext_strings": ["ele_single_trigger"],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["ele_single_trigger_error"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["ele_single_trigger_error"],
+                            "pt_bins": [0],
+                        },
+                    },
+                },
+                "muon": {
+                    "single_lepton_trigger": {
+                        "ext_list": [
+                            "mu_single_trigger mu_SF "+single_lepton_trigger_SF_dir+"ele_and_mu_SF_2016.root",
+                            "mu_single_trigger_error mu_SF_error "+single_lepton_trigger_SF_dir+"ele_and_mu_SF_2016.root",
+                        ],
+                        "nominal": {
+                            "ext_strings": ["mu_single_trigger"],
+                            "pt_bins": [0],
+                        },
+                        "up": {
+                            "ext_strings": ["mu_single_trigger_error"],
+                            "pt_bins": [0],
+                        },
+                        "down": {
+                            "ext_strings": ["mu_single_trigger_error"],
+                            "pt_bins": [0],
+                        },
+                    },
+                },
+            },
+            "2022":{
+
+            },
+        }
 
 
 
@@ -659,7 +707,8 @@ class EventProcess():
         return corrections.add_scale_factors(self)
     def do_lepton_fakerate(self):
         return corrections.do_lepton_fakerate(self)
-
+    def single_lepton_trigger_SF(self):
+        return corrections.single_lepton_trigger_SF(self)
     def top_pt_reweight(self):
         return corrections.top_pt_reweight(self)
 

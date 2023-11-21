@@ -327,6 +327,7 @@ def update_outfile(EventProcess, outfile):
 
             'dnn_truth_value': np.array(events_single.dnn_truth_value, dtype=np.int32),
             'XS': np.array(ak.ones_like(events_single.run)*EventProcess.XS, dtype=np.float32),
+            'genWeight': np.array(events_single.genWeight),
         }
 
         print("Made single event dicts. Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
@@ -463,6 +464,7 @@ def update_outfile(EventProcess, outfile):
             'HT': np.array(events_double.HT, dtype=np.float32),
 
             'Double_HbbFat': np.array(events_double.Double_HbbFat, dtype=np.int32),
+            'Double_Res_0b': np.array(events_double.Double_Res_0b, dtype=np.int32),
             'Double_Res_1b': np.array(events_double.Double_Res_1b, dtype=np.int32),
             'Double_Res_2b': np.array(events_double.Double_Res_2b, dtype=np.int32),
             'Double_Signal': np.array(events_double.Double_Signal, dtype=np.int32),
@@ -477,6 +479,7 @@ def update_outfile(EventProcess, outfile):
             'tt_reweight': fill_value(events_double, 'tt_reweight', 1.0, np.float32),
             'dnn_truth_value': np.array(events_double.dnn_truth_value, dtype=np.int32),
             'XS': np.array(ak.ones_like(events_double.run)*EventProcess.XS, dtype=np.float32),
+            'genWeight': np.array(events_double.genWeight),
         }
 
         print("Made double event dicts. Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))

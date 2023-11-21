@@ -22,7 +22,6 @@ parser.add_argument("-t", "--truth", dest="dnn_truth_value", type=int, default="
 parser.add_argument("-d", "--debug", dest="debug", type=int, default="0", help="Debug. [Default: 0 (False)]")
 parser.add_argument("-XS", dest="XS", type=float, default=1.0, help="Cross Section. [Default: 1.0]")
 parser.add_argument("-SF", dest="SF", type=int, default=0, help="Add Scale Factors. [Default: 0 (False)]")
-parser.add_argument("-DYEst", dest="DYEstimation", type=int, default=0, help="Do DY Estimation (Remove ZMassCut). [Default: 0 (False)]")
 parser.add_argument("-HLTCut", dest="HLTCut", type=int, default=1, help="Filter out MC events that do not pass HLT. [Default: 1 (True)]")
 args, unknown = parser.parse_known_args()
 
@@ -50,7 +49,6 @@ Runyear = args.Runyear
 isMC = args.isMC
 XS = args.XS
 doSF = args.SF
-DYEstimation = args.DYEstimation
 HLT_Cuts = args.HLTCut
 
 print("Processing: ", flist)
@@ -77,7 +75,7 @@ for fname in flist:
         entryStop = nEventsLoopSize*(nLoopIter+1)
 
         #Only load the events in range
-        eventProcess = EventProcess(fname, entryStart, entryStop, isMC, doSF, Runyear, dnn_truth_value, XS, debug, DYEstimation, HLT_Cuts)
+        eventProcess = EventProcess(fname, entryStart, entryStop, isMC, doSF, Runyear, dnn_truth_value, XS, debug, HLT_Cuts)
         if eventProcess.skip_file: continue
         eventProcess.make_evaluator()
 
