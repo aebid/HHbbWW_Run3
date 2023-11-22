@@ -11,6 +11,7 @@ import event_selection
 import tree_manager
 import corrections
 import genparticles
+import weights
 #import jet_corrections
 
 class EventProcess():
@@ -175,6 +176,7 @@ class EventProcess():
         single_lepton_trigger_SF_dir = corrections_dir+"single_lepton_trigger_SF/"
         single_lepton_fakerate_dir = corrections_dir+"fakerate/SL/"
         double_lepton_fakerate_dir = corrections_dir+"fakerate/DL/"
+        pu_reweight_SF_dir = corrections_dir+"pu_reweight/"
 
         jetmet_files_dict = {
             "2016": {
@@ -633,6 +635,18 @@ class EventProcess():
         }
 
 
+        pu_reweight_dict = {
+            "2016": {
+                "branch_name": "pu_reweight",
+                "json_file": pu_reweight_SF_dir+"puWeights.json",
+                "json_corrname": "Collisions16_UltraLegacy_goldenJSON",
+            },
+            "2022": {
+
+            },
+        }
+
+
 
         self.lepton_ID_SF_dict = lepton_ID_SF_dict[str(self.Runyear)]
         self.lepton_tight_TTH_SF_dict = lepton_tight_TTH_SF_dict[str(self.Runyear)]
@@ -644,6 +658,7 @@ class EventProcess():
 
         self.jetmet_files = jetmet_files_dict[str(self.Runyear)]
         self.btag_SF_file = btag_SF_file_dict[str(self.Runyear)]
+        self.pu_reweight_dict = pu_reweight_dict[str(self.Runyear)]
 
         if self.debug > 0:
             print("Muons: ",       self.events.Muon)
@@ -711,6 +726,8 @@ class EventProcess():
         return corrections.single_lepton_trigger_SF(self)
     def top_pt_reweight(self):
         return corrections.top_pt_reweight(self)
+    def pu_reweight(self):
+        return corrections.pu_reweight(self)
 
     #Gen Particle Matchers
     def single_lepton_genpart(self):
@@ -725,6 +742,9 @@ class EventProcess():
         return genparticles.recoMET_to_genMET(self)
     def match_genparts(self):
         return genparticles.match_genparts(self)
+
+    def add_event_weight(self):
+        return weights.add_event_weight(self)
 
 
     #Output tree

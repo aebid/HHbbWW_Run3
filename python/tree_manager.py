@@ -325,9 +325,12 @@ def update_outfile(EventProcess, outfile):
             'single_is_e': np.array(ak.fill_none(events_single.is_e, False), dtype=np.int32),
             'single_is_m': np.array(ak.fill_none(events_single.is_m, False), dtype=np.int32),
 
+            'tt_reweight': fill_value(events_single, 'tt_reweight', 1.0, np.float32),
+            'pu_reweight': fill_value(events_single, 'pu_reweight', 1.0, np.float32),
             'dnn_truth_value': np.array(events_single.dnn_truth_value, dtype=np.int32),
             'XS': np.array(ak.ones_like(events_single.run)*EventProcess.XS, dtype=np.float32),
             'genWeight': np.array(events_single.genWeight),
+            'single_event_weight': fill_value(events_single, 'single_event_weight', 1.0, np.float32),
         }
 
         print("Made single event dicts. Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
@@ -477,9 +480,11 @@ def update_outfile(EventProcess, outfile):
             'Zveto': np.array(ak.fill_none(events_double.Zveto, False), dtype=np.int32),
             'nBjets_pass': np.array(ak.fill_none(events_double.nBjets_pass, False), dtype=np.int32),
             'tt_reweight': fill_value(events_double, 'tt_reweight', 1.0, np.float32),
+            'pu_reweight': fill_value(events_double, 'pu_reweight', 1.0, np.float32),
             'dnn_truth_value': np.array(events_double.dnn_truth_value, dtype=np.int32),
             'XS': np.array(ak.ones_like(events_double.run)*EventProcess.XS, dtype=np.float32),
             'genWeight': np.array(events_double.genWeight),
+            'double_event_weight': fill_value(events_double, 'double_event_weight', 1.0, np.float32),
         }
 
         print("Made double event dicts. Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))

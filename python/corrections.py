@@ -2,6 +2,7 @@ import awkward as ak
 from coffea.lookup_tools import extractor
 from coffea.btag_tools import BTagScaleFactor
 from coffea.jetmet_tools import FactorizedJetCorrector, JetCorrectionUncertainty, JECStack, CorrectedJetsFactory, JetResolution, JetResolutionScaleFactor, CorrectedMETFactory
+import correctionlib
 import numpy as np
 import math
 
@@ -258,9 +259,6 @@ def btag_SF(EventProcess):
     events.Jet = ak.with_field(events.Jet, btag_sf.eval("up", jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB), "btag_SF_up")
     events.Jet = ak.with_field(events.Jet, btag_sf.eval("down", jets.hadronFlavour, abs(jets.eta), jets.pt, discr=jets.btagDeepFlavB), "btag_SF_down")
 
-
-
-
 def make_evaluator(EventProcess):
     dict_list = EventProcess.corrections_dict_list
     debug = EventProcess.debug
@@ -277,7 +275,6 @@ def make_evaluator(EventProcess):
     EventProcess.corrections_Evaluator = ext.make_evaluator()
     if debug: print("Made evaluator! Keys are ", EventProcess.corrections_Evaluator.keys())
 
-
 def get_SF_from_dict(dict, leptons, eval, LUTx_var, LUTy_var):
     tmp_value = 1.0
     for cut_num, pt_cut in enumerate(dict["pt_bins"]):
@@ -287,7 +284,6 @@ def get_SF_from_dict(dict, leptons, eval, LUTx_var, LUTy_var):
                 tmp_value
         )
     return tmp_value
-
 
 def lepton_ID_SF(EventProcess):
     eval = EventProcess.corrections_Evaluator
@@ -543,16 +539,16 @@ def add_scale_factors(EventProcess):
     if EventProcess.debug: print("Lepton tight TTH SF Done")
     lepton_relaxed_TTH_SF(EventProcess)
     if EventProcess.debug: print("Lepton relaxed TTH SF Done")
-    #single_lepton_trigger_SF(EventProcess)
-    #print("Single Lepton Trigger SF Done")
+    single_lepton_trigger_SF(EventProcess)
+    if EventProcess.debug: print("Single Lepton Trigger SF Done")
     btag_SF(EventProcess)
     if EventProcess.debug: print("Btag SF Done")
+    pu_reweight(EventProcess)
+    if EventProcess.debug: print("PU SF Done")
 
 def do_lepton_fakerate(EventProcess):
     single_lepton_fakerate(EventProcess)
     double_lepton_fakerate(EventProcess)
-
-
 
 def top_pt_reweight(EventProcess):
     events = EventProcess.events
@@ -567,3 +563,28 @@ def top_pt_reweight(EventProcess):
     top_reweight = (top1_weight * top2_weight)**(0.5)
 
     events["tt_reweight"] = top_reweight
+
+def pu_reweight(EventProcess):
+    events = EventProcess.events
+
+    pu_reweight_dict = EventProcess.pu_reweight_dict
+    pu_reweight_filename = pu_reweight_dict["json_file"]
+    pu_reweight_corrname = pu_reweight_dict["json_corrname"]
+    branch_name = pu_reweight_dict["branch_name"]
+
+    #python_folder_base = "/".join((os.path.realpath(__file__)).split('/')[:-1])
+    #corrections_dir = python_folder_base+"/correction_files/2016/"
+    #pu_reweight_SF_dir = corrections_dir+"pu_reweight/"
+    #pu_reweight_filename = pu_reweight_SF_dir + "puWeights.json"
+    #pu_reweight_corrname = "Collisions16_UltraLegacy_goldenJSON"
+
+
+    pu_reweight_corrlib = correctionlib.CorrectionSet.from_file(pu_reweight_filename)
+
+    pu_reweight_values = pu_reweight_corrlib[pu_reweight_corrname].evaluate(events.Pileup.nTrueInt, "nominal")
+    pu_reweight_values_up = pu_reweight_corrlib[pu_reweight_corrname].evaluate(events.Pileup.nTrueInt, "up")
+    pu_reweight_values_down = pu_reweight_corrlib[pu_reweight_corrname].evaluate(events.Pileup.nTrueInt, "down")
+
+    events[branch_name] = pu_reweight_values
+    events[branch_name+"_up"] = pu_reweight_values_up
+    events[branch_name+"_down"] = pu_reweight_values_down
