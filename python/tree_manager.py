@@ -329,7 +329,7 @@ def update_outfile(EventProcess, outfile):
             'pu_reweight': fill_value(events_single, 'pu_reweight', 1.0, np.float32),
             'dnn_truth_value': np.array(events_single.dnn_truth_value, dtype=np.int32),
             'XS': np.array(ak.ones_like(events_single.run)*EventProcess.XS, dtype=np.float32),
-            'genWeight': np.array(events_single.genWeight),
+            'genWeight': fill_value(events_single, 'genWeight', 1.0, np.float32),
             'single_event_weight': fill_value(events_single, 'single_event_weight', 1.0, np.float32),
         }
 
@@ -483,7 +483,7 @@ def update_outfile(EventProcess, outfile):
             'pu_reweight': fill_value(events_double, 'pu_reweight', 1.0, np.float32),
             'dnn_truth_value': np.array(events_double.dnn_truth_value, dtype=np.int32),
             'XS': np.array(ak.ones_like(events_double.run)*EventProcess.XS, dtype=np.float32),
-            'genWeight': np.array(events_double.genWeight),
+            'genWeight': fill_value(events_double, 'genWeight', 1.0, np.float32),
             'double_event_weight': fill_value(events_double, 'double_event_weight', 1.0, np.float32),
         }
 
