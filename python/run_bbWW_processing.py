@@ -115,9 +115,10 @@ for fname in flist:
         print('Categories in seconds: ' + str((time.time() - startTime)))
         print("Memory usage in MB after Event ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
-        eventProcess.add_event_weight()
-        print('Added weights in seconds: ' + str((time.time() - startTime)))
-        print("Memory usage in MB after Event ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+        if isMC and doSF:
+            eventProcess.add_event_weight()
+            print('Added weights in seconds: ' + str((time.time() - startTime)))
+            print("Memory usage in MB after Event ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
         if debug: eventProcess.print_event_selection()
 
