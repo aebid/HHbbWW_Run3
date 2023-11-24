@@ -579,11 +579,22 @@ def pu_reweight(EventProcess):
     #pu_reweight_corrname = "Collisions16_UltraLegacy_goldenJSON"
 
 
-    pu_reweight_corrlib = correctionlib.CorrectionSet.from_file(pu_reweight_filename)
+    pu_reweight_corrlib = correctionlib.CorrectionSet.from_file(pu_reweight_filename)[pu_reweight_corrname]
 
-    pu_reweight_values = pu_reweight_corrlib[pu_reweight_corrname].evaluate(events.Pileup.nTrueInt, "nominal")
-    pu_reweight_values_up = pu_reweight_corrlib[pu_reweight_corrname].evaluate(events.Pileup.nTrueInt, "up")
-    pu_reweight_values_down = pu_reweight_corrlib[pu_reweight_corrname].evaluate(events.Pileup.nTrueInt, "down")
+    """ #Lxplus won't let me use evaluate on a list for some reason? Maybe this will work in the future
+    pu_reweight_values = pu_reweight_corrlib.evaluate(events.Pileup.nTrueInt, "nominal")
+    pu_reweight_values_up = pu_reweight_corrlib.evaluate(events.Pileup.nTrueInt, "up")
+    pu_reweight_values_down = pu_reweight_corrlib.evaluate(events.Pileup.nTrueInt, "down")
+    """
+    pu_reweight_values = []
+    pu_reweight_values_up = []
+    pu_reweight_values_down = []
+    for val in events.Pileup.nTrueInt:
+        pu_reweight_values.append(pu_reweight_corrlib.evaluate(val, "nominal"))
+        pu_reweight_values_up.append(pu_reweight_corrlib.evaluate(val, "up"))
+        pu_reweight_values_down.append(pu_reweight_corrlib.evaluate(val, "down"))
+
+
 
     events[branch_name] = pu_reweight_values
     events[branch_name+"_up"] = pu_reweight_values_up
