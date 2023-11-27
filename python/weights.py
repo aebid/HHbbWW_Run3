@@ -71,9 +71,10 @@ def add_event_weight(EventProcess):
     )
     double_event_weight = double_event_weight * double_lepton_trigger_SF
 
-    #Add ttbar reweighting
-    single_event_weight = single_event_weight * events.tt_reweight
-    double_event_weight = double_event_weight * events.tt_reweight
+    if EventProcess.dnn_truth_value == 1:
+        #Add ttbar reweighting
+        single_event_weight = single_event_weight * events.tt_reweight
+        double_event_weight = double_event_weight * events.tt_reweight
 
     #PU Reweight
     single_event_weight = single_event_weight * events.pu_reweight
