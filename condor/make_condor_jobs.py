@@ -14,7 +14,7 @@ def main():
     use_dict = True
     pickle_file = "../dataset/dataset_names/2016/2016_Datasets.pkl"
     nFilesPerJob = 1
-    subdir = "2016_data_DYEst/"
+    subdir = "2016_data_27Nov23_usexroot0/"
     runyear = "2016"
     storage_folder = "/eos/user/d/daebi/"
     cross_section = 1.0
@@ -56,9 +56,9 @@ def main():
 def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, nFilesPerJob, runyear):
     print("Making "+subdir+project_folder)
     print("There are ", len(file_list), "total files")
-    SF = 0
-    DYEst = 0
+    SF = 1
     HLTCut = 1
+    useXrootD = 0
 
     nJobs = math.ceil(len(file_list)/nFilesPerJob)
     remaining_files = file_list
@@ -168,6 +168,8 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
             #    job_file.write('DYEst=("{}")\n'.format(DYEst))
             elif "HLTCut=" in line:
                 job_file.write('HLTCut=("{}")\n'.format(HLTCut))
+            elif "useXrootD=" in line:
+                job_file.write('useXrootD=("{}")\n'.format(useXrootD))
             else:
                 job_file.write(line)
 
@@ -201,10 +203,12 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
                 job_file.write('DNN=("{}")\n'.format(DNN_Truth))
             elif "SF=" in line:
                 job_file.write('SF=("{}")\n'.format(SF))
-            elif "DYEst=" in line:
-                job_file.write('DYEst=("{}")\n'.format(DYEst))
+            #elif "DYEst=" in line: #No longer supported
+            #    job_file.write('DYEst=("{}")\n'.format(DYEst))
             elif "HLTCut=" in line:
                 job_file.write('HLTCut=("{}")\n'.format(HLTCut))
+            elif "useXrootD=" in line:
+                job_file.write('useXrootD=("{}")\n'.format(useXrootD))
             elif "PYTHON_FOLDER=" in line:
                 cwd = os.getcwd()
                 pwd_to_python = cwd[:-6] + "python"
