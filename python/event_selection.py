@@ -417,9 +417,81 @@ def double_lepton_category(EventProcess):
         ), axis = 1
     ) == 0
 
+
+    lep_pairs_for_Zmass_fakeable = ak.combinations(leptons_fakeable, 2)
+    first_leps_fakeable, second_leps_fakeable = ak.unzip(lep_pairs_for_Zmass_fakeable)
+
+    lep1_lorentz_vec_fakeable = ak.zip(
+        {
+            "pt": ak.fill_none(first_leps_fakeable.pt, 0.0),
+            "eta": ak.fill_none(first_leps_fakeable.eta, 0.0),
+            "phi": ak.fill_none(first_leps_fakeable.phi, 0.0),
+            "mass": ak.fill_none(first_leps_fakeable.mass, 0.0),
+        },
+        with_name="PtEtaPhiMLorentzVector",
+        behavior=vector.behavior,
+    )
+
+    lep2_lorentz_vec_fakeable = ak.zip(
+        {
+            "pt": ak.fill_none(second_leps_fakeable.pt, 0.0),
+            "eta": ak.fill_none(second_leps_fakeable.eta, 0.0),
+            "phi": ak.fill_none(second_leps_fakeable.phi, 0.0),
+            "mass": ak.fill_none(second_leps_fakeable.mass, 0.0),
+        },
+        with_name="PtEtaPhiMLorentzVector",
+        behavior=vector.behavior,
+    )
+
+    Zmass_fakeable_cut = ak.any(
+        (
+            (abs(ak.fill_none(first_leps_fakeable.pdgId, 0)) == abs(ak.fill_none(second_leps_fakeable.pdgId, 0))) &
+            (ak.fill_none(first_leps_fakeable.charge, 0) != ak.fill_none(second_leps_fakeable.charge, 0)) &
+            (abs((lep1_lorentz_vec_fakeable + lep2_lorentz_vec_fakeable).mass - 91.1876) < 10.0)
+        ), axis = 1
+    ) == 0
+
+
+    lep_pairs_for_Zmass_tight = ak.combinations(leptons_tight, 2)
+    first_leps_tight, second_leps_tight = ak.unzip(lep_pairs_for_Zmass_tight)
+
+    lep1_lorentz_vec_tight = ak.zip(
+        {
+            "pt": ak.fill_none(first_leps_tight.pt, 0.0),
+            "eta": ak.fill_none(first_leps_tight.eta, 0.0),
+            "phi": ak.fill_none(first_leps_tight.phi, 0.0),
+            "mass": ak.fill_none(first_leps_tight.mass, 0.0),
+        },
+        with_name="PtEtaPhiMLorentzVector",
+        behavior=vector.behavior,
+    )
+
+    lep2_lorentz_vec_tight = ak.zip(
+        {
+            "pt": ak.fill_none(second_leps_tight.pt, 0.0),
+            "eta": ak.fill_none(second_leps_tight.eta, 0.0),
+            "phi": ak.fill_none(second_leps_tight.phi, 0.0),
+            "mass": ak.fill_none(second_leps_tight.mass, 0.0),
+        },
+        with_name="PtEtaPhiMLorentzVector",
+        behavior=vector.behavior,
+    )
+
+    Zmass_tight_cut = ak.any(
+        (
+            (abs(ak.fill_none(first_leps_tight.pdgId, 0)) == abs(ak.fill_none(second_leps_tight.pdgId, 0))) &
+            (ak.fill_none(first_leps_tight.charge, 0) != ak.fill_none(second_leps_tight.charge, 0)) &
+            (abs((lep1_lorentz_vec_tight + lep2_lorentz_vec_tight).mass - 91.1876) < 10.0)
+        ), axis = 1
+    ) == 0
+
+
+
     #double_step4_mask = ak.fill_none(Invariant_mass_cut & Zmass_cut, False)
     double_step4_mask = ak.fill_none(Invariant_mass_cut, False)
     events["Zveto"] = ak.fill_none(Zmass_cut, False) #Required extra event level bool in case of DY Estimation
+    events["Zveto_fakeable"] = ak.fill_none(Zmass_fakeable_cut, False) #Alexei thinks maybe we are too loose doing Zmass cut with preselected, upped to fakeable
+    events["Zveto_tight"] = ak.fill_none(Zmass_tight_cut, False) #Alexei thinks maybe we are too loose doing Zmass cut with preselected, upped to tight
     #For DY Estimation we need to turn off Zmass cut and the nBJets cut (ABCD method over M_{ll} and nBJets), so we separate them
 
 

@@ -331,6 +331,7 @@ def update_outfile(EventProcess, outfile):
             'XS': np.array(ak.ones_like(events_single.run)*EventProcess.XS, dtype=np.float32),
             'genWeight': fill_value(events_single, 'genWeight', 1.0, np.float32),
             'single_event_weight': fill_value(events_single, 'single_event_weight', 1.0, np.float32),
+            'npvs': np.array(events_single.PV.npvs),
         }
 
         print("Made single event dicts. Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
@@ -478,6 +479,8 @@ def update_outfile(EventProcess, outfile):
             'double_is_em': np.array(ak.fill_none(events_double.is_em, False), dtype=np.int32),
 
             'Zveto': np.array(ak.fill_none(events_double.Zveto, False), dtype=np.int32),
+            'Zveto_fakeable': np.array(ak.fill_none(events_double.Zveto_fakeable, False), dtype=np.int32),
+            'Zveto_tight': np.array(ak.fill_none(events_double.Zveto_tight, False), dtype=np.int32),
             'nBjets_pass': np.array(ak.fill_none(events_double.nBjets_pass, False), dtype=np.int32),
             'tt_reweight': fill_value(events_double, 'tt_reweight', 1.0, np.float32),
             'pu_reweight': fill_value(events_double, 'pu_reweight', 1.0, np.float32),
@@ -485,6 +488,7 @@ def update_outfile(EventProcess, outfile):
             'XS': np.array(ak.ones_like(events_double.run)*EventProcess.XS, dtype=np.float32),
             'genWeight': fill_value(events_double, 'genWeight', 1.0, np.float32),
             'double_event_weight': fill_value(events_double, 'double_event_weight', 1.0, np.float32),
+            'npvs': np.array(events_double.PV.npvs),
         }
 
         print("Made double event dicts. Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
