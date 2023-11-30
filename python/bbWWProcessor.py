@@ -639,7 +639,7 @@ class EventProcess():
         pu_reweight_dict = {
             "2016": {
                 "branch_name": "pu_reweight",
-                "json_file": pu_reweight_SF_dir+"puWeights.json",
+                "json_file": pu_reweight_SF_dir+"puWeights_preVPF.json",
                 "json_corrname": "Collisions16_UltraLegacy_goldenJSON",
             },
             "2022": {
