@@ -598,8 +598,10 @@ def update_outfile(EventProcess, outfile):
 
 
     #Always save events dict because that keeps track of nEvents in MC
+    #Adding sum of genWeight for more correct rescaling later
     nEvents_dict = {
         'nEvents': np.array([EventProcess.nEvents], dtype=np.int32),
+        'sumGenWeight': np.array([EventProcess.sumGenWeight], dtype=np.float32),
     }
     if "nEvents" in '\t'.join(outfile.keys()):
         print("Extending!")
