@@ -31,7 +31,12 @@ class EventProcess():
         uproot_file = uproot.open(self.fname)
         events = NanoEventsFactory.from_root(uproot_file, entry_start = entryStart, entry_stop = entryStop, schemaclass=NanoAODSchema.v7).events()
         self.nEvents = len(events)
-        self.sumGenWeight = ak.sum(events.genWeight)
+        #Need sumGenWeight, but data doesn't have a genWeight, so we must set to 1.0 ourselves
+        if not getattr(events, "genWeight", False):
+            self.sumGenWeight = self.nEvents
+        else:
+            self.sumGenWeight = ak.sum(events.genWeight)
+
         if self.nEvents == 0:
             print("Zero events! This will fail ):")
             self.skip_file = True
