@@ -1,15 +1,11 @@
-import awkward as ak
-import numpy as np
-import uproot
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 import os
-from scipy.stats import norm
 import ROOT
 import array
 
+filesdir = "/eos/user/d/daebi/2016_data_28Nov23_usexroot0/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8_ext2-v1/"
+fnamelist = [filesdir+fname for fname in os.listdir(filesdir) if "root" in fname]
 
-fnamelist = ["../input_files/2016_files/DY_File1.root", "../input_files/2016_files/DY_File2.root"]
+#fnamelist = ["../input_files/2016_files/DY_File1.root", "../input_files/2016_files/DY_File2.root"]
 
 
 base_cut = "(Double_Signal == 1)"
@@ -101,6 +97,15 @@ hD2_Estimation = hWeight2*hC
 hD2_Estimation.SetName("TwoBEstimation")
 
 
+print("Finished all files, simple getEntries")
+print("A = ", hA.GetEntries())
+print("B1 = ", hB1.GetEntries())
+print("B2 = ", hB2.GetEntries())
+print("C = ", hC.GetEntries())
+print("D1 = ", hD1.GetEntries())
+print("D2 = ", hD2.GetEntries())
+
+
 for hist in [hA, hB1, hB2, hC, hD1, hD2, hWeight1, hWeight2, hD1_Estimation, hD2_Estimation]:
     c1 = ROOT.TCanvas("c1", "c1", 800, 800)
     hist.Draw("hist")
@@ -121,7 +126,7 @@ c1.SaveAs("twoB_compare.pdf")
 
 #Must get new event weights, using the variable and Weights hist as a LUT
 for fname in fnamelist:
-    new_filename = fname[:-5]+"_wightWeight.root"
+    new_filename = fname[:-5]+"_withWeight"+varname+".root"
     print("Creating new file ", new_filename)
     events = trees_dict[fname]
     newfile = ROOT.TFile(new_filename, "recreate")
@@ -134,3 +139,5 @@ for fname in fnamelist:
         ABCD_Weight_val[0] = hWeight1.GetBinContent(weight1_bin)
         #print("HT is ", HT, " Bin is ", weight1_bin, " Val is ", ABCD_Weight_val[0])
         new_tree.Fill()
+    print("New file has entries ", new_tree.GetEntries())
+    new_tree.AutoSave()
