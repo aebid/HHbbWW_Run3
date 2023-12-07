@@ -16,7 +16,7 @@ export X509_USER_PROXY=../$1
 export XRD_NETWORKSTACK=IPv4
 export XRD_REQUESTTIMEOUT=1800
 
-source /cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc11-opt/setup.sh
+source /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-el9-gcc13-opt/setup.sh
 
 ls -lh
 

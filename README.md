@@ -10,7 +10,7 @@ python3 run_bbWW_processing.py -i Input_File -o Output_File
 Or on lxplus, xrootd is supported to avoid downloading the inputFile. To initialize the grid access and source the needed python packages follow
 ```
 voms-proxy-init --rfc --voms cms -valid 192:00
-source /cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc11-opt/setup.sh
+source /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-el9-gcc13-opt/setup.sh
 python3 run_bbWW_processing.py -i root://cmsxrootd.fnal.gov//path/to/dataset/file.root -o Output_File
 ```
 
