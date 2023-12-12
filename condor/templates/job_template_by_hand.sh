@@ -11,7 +11,7 @@ HLTCut=("1")
 useXrootD=("1")
 PYTHON_FOLDER=("/afs/cern.ch/work/d/daebi/diHiggs/HHbbWW_Run3/python/")
 
-source /cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc11-opt/setup.sh
+source /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-el9-gcc13-opt/setup.sh
 
 ls -lh
 
