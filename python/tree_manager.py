@@ -26,7 +26,7 @@ def update_outfile(EventProcess, outfile):
     double_mask = (events.Double_Signal | events.Double_Fake)
     single_mask = (events.Single_Signal | events.Single_Fake)
 
-    use_all_data = False
+    use_all_data = True
     if use_all_data:
         double_mask = ak.ones_like(events.Double_Signal)
         single_mask = ak.ones_like(events.Single_Signal)
@@ -325,6 +325,17 @@ def update_outfile(EventProcess, outfile):
             'single_is_e': np.array(ak.fill_none(events_single.is_e, False), dtype=np.int32),
             'single_is_m': np.array(ak.fill_none(events_single.is_m, False), dtype=np.int32),
 
+            'AtLeastOneFakeableLep': np.array(events_single.AtLeastOneFakeableLep, dtype=np.int32),
+            'PassesMETFilters': np.array(events_single.PassesMETFilters, dtype=np.int32),
+            'LeadLeptonConePtCut': np.array(events_single.LeadLeptonConePtCut, dtype=np.int32),
+            'ZMassAndInvarMassCut': np.array(events_single.ZMassAndInvarMassCut, dtype=np.int32),
+            'PassesHLTCuts': np.array(events_single.PassesHLTCuts, dtype=np.int32),
+            'AtMostOneTightLep': np.array(events_single.AtMostOneTightLep, dtype=np.int32),
+            'TauVeto': np.array(events_single.TauVeto, dtype=np.int32),
+            'AtLeastOneBJet': np.array(events_single.AtLeastOneBJet, dtype=np.int32),
+            'EnoughNonBJets': np.array(events_single.EnoughNonBJets, dtype=np.int32),
+
+
             'tt_reweight': fill_value(events_single, 'tt_reweight', 1.0, np.float32),
             'pu_reweight': fill_value(events_single, 'pu_reweight', 1.0, np.float32),
             'dnn_truth_value': np.array(events_single.dnn_truth_value, dtype=np.int32),
@@ -477,6 +488,15 @@ def update_outfile(EventProcess, outfile):
             'double_is_ee': np.array(ak.fill_none(events_double.is_ee, False), dtype=np.int32),
             'double_is_mm': np.array(ak.fill_none(events_double.is_mm, False), dtype=np.int32),
             'double_is_em': np.array(ak.fill_none(events_double.is_em, False), dtype=np.int32),
+
+            'AtLeastTwoFakeableLeps': np.array(events_double.AtLeastTwoFakeableLeps, dtype=np.int32),
+            'PassesMETFilters': np.array(events_double.PassesMETFilters, dtype=np.int32),
+            'LeadSubleadLeptonConePtCut': np.array(events_double.LeadSubleadLeptonConePtCut, dtype=np.int32),
+            'ZMassAndInvarMassCut': np.array(events_double.ZMassAndInvarMassCut, dtype=np.int32),
+            'PassesHLTCuts': np.array(events_double.PassesHLTCuts, dtype=np.int32),
+            'AtMostTwoTightLeps': np.array(events_double.AtMostTwoTightLeps, dtype=np.int32),
+            'EnoughJets': np.array(events_double.EnoughJets, dtype=np.int32),
+
 
             'Zveto': np.array(ak.fill_none(events_double.Zveto, False), dtype=np.int32),
             'Zveto_fakeable': np.array(ak.fill_none(events_double.Zveto_fakeable, False), dtype=np.int32),

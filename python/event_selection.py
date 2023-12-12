@@ -216,24 +216,28 @@ def single_lepton_category(EventProcess):
 
     single_step10_mask = ak.fill_none(jet_btag_veto, False)
 
-
     events["single_lepton"] = single_step1_mask
+    events["AtLeastOneFakeableLep"] = single_step1_mask
     if debug: print("N single events step1: ", ak.sum(events.single_lepton), " Require at least 1 fakeable (or tight) lepton")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
     events["single_lepton"] = single_step2_mask & events.single_lepton
+    events["PassesMETFilters"] = single_step2_mask
     if debug: print("N single events step2: ", ak.sum(events.single_lepton), " Require MET filters")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
     events["single_lepton"] = single_step3_mask & events.single_lepton
+    events["LeadLeptonConePtCut"] = single_step3_mask
     if debug: print("N single events step3: ", ak.sum(events.single_lepton), " Leading lepton cone-pT for El (Mu) >= 32.0 (25.0)")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
     events["single_lepton"] = single_step4_mask & events.single_lepton
+    events["ZMassAndInvarMassCut"] = single_step4_mask
     if debug: print("N single events step4: ", ak.sum(events.single_lepton), " Z mass and invariant mass cuts")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
     events["single_lepton"] = single_step5_mask & events.single_lepton
+    events["PassesHLTCuts"] = single_step5_mask
     if debug: print("N single events step5: ", ak.sum(events.single_lepton), " HLT Cuts")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
@@ -243,18 +247,22 @@ def single_lepton_category(EventProcess):
     #increment_cutflow(events, events.single_lepton, "single_cutflow")
 
     events["single_lepton"] = single_step7_mask & events.single_lepton
+    events["AtMostOneTightLep"] = single_step7_mask
     if debug: print("N single events step7: ", ak.sum(events.single_lepton), " Require no more than 1 tight lepton")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
     events["single_lepton"] = single_step8_mask & events.single_lepton
+    events["TauVeto"] = single_step8_mask
     if debug: print("N single events step8: ", ak.sum(events.single_lepton), " Tau veto")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
     events["single_lepton"] = single_step9_mask & events.single_lepton
+    events["AtLeastOneBJet"] = single_step9_mask
     if debug: print("N single events step9: ", ak.sum(events.single_lepton), " 1 or more btagged ak8_jets or 1 or more btagged ak4_jets")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
     events["single_lepton"] = single_step10_mask & events.single_lepton
+    events["EnoughNonBJets"] = single_step10_mask
     if debug: print("N single events step10: ", ak.sum(events.single_lepton), " Categories")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
@@ -554,22 +562,27 @@ def double_lepton_category(EventProcess):
 
 
     events["double_lepton"] = double_step1_mask
+    events["AtLeastTwoFakeableLeps"] = double_step1_mask
     if debug: print("N double events step1: ", ak.sum(events.double_lepton), " Require at least 2 fakeable (or tight) leptons")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
     events["double_lepton"] = double_step2_mask & events.double_lepton
+    events["PassesMETFilters"] = double_step2_mask
     if debug: print("N double events step2: ", ak.sum(events.double_lepton), " Require MET filters")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
     events["double_lepton"] = double_step3_mask & events.double_lepton
+    events["LeadSubleadLeptonConePtCut"] = double_step3_mask
     if debug: print("N double events step3: ", ak.sum(events.double_lepton), " Leading and Subleading lep cuts")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
     events["double_lepton"] = double_step4_mask & events.double_lepton
+    events["ZMassAndInvarMassCut"] = double_step4_mask
     if debug: print("N double events step4: ", ak.sum(events.double_lepton), " Z mass and Invariant mass cuts")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
     events["double_lepton"] = double_step5_mask & events.double_lepton
+    events["PassesHLTCuts"] = double_step5_mask
     if debug: print("N double events step5: ", ak.sum(events.double_lepton), " HLT Cuts")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
@@ -579,10 +592,12 @@ def double_lepton_category(EventProcess):
     #increment_cutflow(events, events.double_lepton, "double_cutflow")
 
     events["double_lepton"] = double_step7_mask & events.double_lepton
+    events["AtMostTwoTightLeps"] = double_step7_mask
     if debug: print("N double events step7: ", ak.sum(events.double_lepton), " No more than 2 tight leptons")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
     events["double_lepton"] = double_step8_mask & events.double_lepton
+    events["EnoughJets"] = double_step8_mask
     if debug: print("N double events step8: ", ak.sum(events.double_lepton), " Categories")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
