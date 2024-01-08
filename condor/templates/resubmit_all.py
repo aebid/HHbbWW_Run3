@@ -9,6 +9,7 @@ if not resub:
     print("RESUB IS FALSE, THIS IS ONLY CHECKING JOBS!")
 
 base_storage_folder = '/eos/user/d/daebi/2016_data_fullSF_CF/'
+base_storage_folder = os.getcwd()+'/'
 
 def check_jobs():
     subfolder_pass_rate_hist = ROOT.TH1F("subfolder_pass_rate", "subfolder_pass_rate", 11, 0, 1.1)
