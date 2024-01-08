@@ -14,7 +14,7 @@ def main():
     use_dict = True
     pickle_file = "../dataset/dataset_names/2016/2016_Datasets.pkl"
     nFilesPerJob = 1
-    subdir = "2016_data_27Nov23_usexroot0/"
+    subdir = "2016_data_8Jan24_allData_ttBarSignalOnly/"
     runyear = "2016"
     storage_folder = "/eos/user/d/daebi/"
     cross_section = 1.0
@@ -49,6 +49,7 @@ def main():
             file_list = dataset_dict['files'][dataset_name]
             cross_section = dataset_dict['xs'][dataset_name]
             make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, nFilesPerJob, runyear)
+
     else:
         make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, nFilesPerJob, runyear)
 
@@ -67,10 +68,11 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
     dataset_storage_folder = storage_folder+'/'+subdir+'/'+project_folder_names[0]+'/'+project_folder_names[1]+'/'
     if not os.path.exists(dataset_storage_folder):
         print("Making "+dataset_storage_folder)
-        os.makedirs(dataset_storage_folder)
+        os.makedirs(dataset_storage_folder)        
         os.makedirs(dataset_storage_folder+"/err")
         os.makedirs(dataset_storage_folder+"/log")
         os.makedirs(dataset_storage_folder+"/out")
+        #I'm not sure why but now the err/out files are put in the directory they were submitted in
 
     if not os.path.exists(subdir):
         os.makedirs(subdir)
@@ -79,22 +81,17 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
     os.system("cp templates/submit_all.py {}/".format(subdir))
 
 
-    resub_all_template = open("templates/resubmit_all.py", 'r')
-    resub_all_file = open(subdir+"/resubmit_all.py", 'w')
-    for line in resub_all_template:
-        if "base_storage_folder =" in line:
-            string_to_write = "base_storage_folder = '{}'".format(storage_folder+subdir)
-        else:
-            string_to_write = line
-        resub_all_file.write(string_to_write)
-
+    #With new err/out file location change, nolonger need a storage dir
+    os.system("cp templates/resubmit_all.py {}/".format(subdir))
 
 
     project_folder = subdir+project_folder
     if not os.path.exists(project_folder):
         print("Making "+project_folder)
         os.makedirs(project_folder)
+        os.makedirs(project_folder+"/err")
         os.makedirs(project_folder+"/log")
+        os.makedirs(project_folder+"/out")
 
     os.system("cp templates/initialize_condor.sh {}/".format(project_folder))
 
