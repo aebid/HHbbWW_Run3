@@ -87,7 +87,7 @@ eff.Draw()
 eff_signal.SetLineColor(ROOT.kRed)
 eff_signal.Draw("same")
 
-legend = ROOT.TLegend()
+legend = ROOT.TLegend(0.7, 0.2, 0.9, 0.4)
 legend.AddEntry(eff, "TTTo2L2Nu")
 legend.AddEntry(eff_signal, "DL Radion M400")
 legend.Draw("same")
@@ -103,7 +103,7 @@ eff_n1.Draw()
 eff_n1_signal.SetLineColor(ROOT.kRed)
 eff_n1_signal.Draw("same")
 
-legend = ROOT.TLegend()
+legend = ROOT.TLegend(0.7, 0.2, 0.9, 0.4)
 legend.AddEntry(eff_n1, "TTTo2L2Nu")
 legend.AddEntry(eff_n1_signal, "DL Radion M400")
 legend.Draw("same")
@@ -114,6 +114,7 @@ graph.SetMinimum(0)
 graph.SetMaximum(1.0)
 
 c1.SaveAs("eff_nminus1.pdf")
+
 
 
 
@@ -129,7 +130,7 @@ nFakes_hist.Draw()
 nFakes_signal_hist.Draw("same")
 nFakes_signal_hist.SetLineColor(ROOT.kRed)
 
-legend = ROOT.TLegend()
+legend = ROOT.TLegend(0.7, 0.2, 0.9, 0.4)
 legend.AddEntry(nFakes_hist, "TTTo2L2Nu")
 legend.AddEntry(nFakes_signal_hist, "DL Radion M400")
 legend.Draw("same")
@@ -138,3 +139,27 @@ nFakes_hist.SetMinimum(0)
 nFakes_hist.SetMaximum(1.0)
 
 c1.SaveAs("nFakeableLeps.pdf")
+
+
+
+nFakes_hist_cut = ROOT.TH1D("nfakes_cut", "nFakeable Leptons with no gen tau", 10, 0, 10)
+nFakes_signal_hist_cut = ROOT.TH1D("nfakes_signal_cut", "nFakable Leptons with no gen tau", 10, 0, 10)
+t_ttbar.Project("nfakes_cut", "n_fakeable_muons+n_fakeable_electrons", "(abs(gen_lep1_pdgId) != 15) && (abs(gen_lep2_pdgId) != 15)")
+t_signal.Project("nfakes_signal_cut", "n_fakeable_muons+n_fakeable_electrons", "(abs(gen_lep1_pdgId) != 15) && (abs(gen_lep2_pdgId) != 15)")
+
+nFakes_hist_cut.Scale(1.0/nFakes_hist_cut.Integral())
+nFakes_signal_hist_cut.Scale(1.0/nFakes_signal_hist_cut.Integral())
+
+nFakes_hist_cut.Draw()
+nFakes_signal_hist_cut.Draw("same")
+nFakes_signal_hist_cut.SetLineColor(ROOT.kRed)
+
+legend = ROOT.TLegend(0.7, 0.2, 0.9, 0.4)
+legend.AddEntry(nFakes_hist_cut, "TTTo2L2Nu")
+legend.AddEntry(nFakes_signal_hist_cut, "DL Radion M400")
+legend.Draw("same")
+
+nFakes_hist_cut.SetMinimum(0)
+nFakes_hist_cut.SetMaximum(1.0)
+
+c1.SaveAs("nFakeableLeps_cut.pdf")
