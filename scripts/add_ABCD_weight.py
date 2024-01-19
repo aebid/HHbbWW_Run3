@@ -3,8 +3,9 @@ import ROOT
 import array
 import glob
 
-if not os.path.exists("abcd_plots/"):
-    os.mkdir("abcd_plots/")
+plotdir = "abcd_plots_MCMatchLeps/"
+if not os.path.exists(plotdir):
+    os.mkdir(plotdir)
 
 #filesdir = "/eos/user/d/daebi/2016_data_28Nov23_usexroot0/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16NanoAODv7-PUMoriond17_Nano02Apr2020_102X_mcRun2_asymptotic_v8_ext2-v1/"
 #fnamelist = [filesdir+fname for fname in os.listdir(filesdir) if "root" in fname]
@@ -23,6 +24,7 @@ for fname in fnamelist:
     trees_dict[fname] = files_dict[fname].Get("Double_Tree")
 
 base_cut = "(Double_Signal == 1) && (lep0_MC_Match == 1) && (lep1_MC_Match == 1)"
+#base_cut = "(Double_Signal == 1)"
 ZVeto = "(Zveto == 1)"
 ZPeak = "(Zveto == 0)"
 nBJet0 = "(n_medium_btag_ak4_jets == 0)"
@@ -33,14 +35,14 @@ nBJet2 = "(n_medium_btag_ak4_jets == 2)"
 
 varlist = []
 varlist.append({"varname": "HT", "bins": 20, "binlow": 0.0, "binhigh": 1000.0, "weight1": ROOT.TH1D(), "weight2": ROOT.TH1D()})
-varlist.append({"varname": "lep0_pt", "bins": 20, "binlow": 0.0, "binhigh": 200.0, "weight1": ROOT.TH1D(), "weight2": ROOT.TH1D()})
+varlist.append({"varname": "lep0_pt", "bins": 20, "binlow": 0.0, "binhigh": 500.0, "weight1": ROOT.TH1D(), "weight2": ROOT.TH1D()})
 varlist.append({"varname": "lep0_eta", "bins": 20, "binlow": -3.0, "binhigh": 3.0, "weight1": ROOT.TH1D(), "weight2": ROOT.TH1D()})
-varlist.append({"varname": "lep1_pt", "bins": 20, "binlow": 0.0, "binhigh": 200.0})
-varlist.append({"varname": "lep1_eta", "bins": 20, "binlow": -3.0, "binhigh": 3.0})
-varlist.append({"varname": "ak4_jet0_pt", "bins": 20, "binlow": 0.0, "binhigh": 200.0})
-varlist.append({"varname": "ak4_jet0_eta", "bins": 20, "binlow": -3.0, "binhigh": 3.0})
-varlist.append({"varname": "ak4_jet1_pt", "bins": 20, "binlow": 0.0, "binhigh": 200.0})
-varlist.append({"varname": "ak4_jet1_eta", "bins": 20, "binlow": -3.0, "binhigh": 3.0})
+varlist.append({"varname": "lep1_pt", "bins": 20, "binlow": 0.0, "binhigh": 500.0, "weight1": ROOT.TH1D(), "weight2": ROOT.TH1D()})
+varlist.append({"varname": "lep1_eta", "bins": 20, "binlow": -3.0, "binhigh": 3.0, "weight1": ROOT.TH1D(), "weight2": ROOT.TH1D()})
+varlist.append({"varname": "ak4_jet0_pt", "bins": 20, "binlow": 0.0, "binhigh": 500.0, "weight1": ROOT.TH1D(), "weight2": ROOT.TH1D()})
+varlist.append({"varname": "ak4_jet0_eta", "bins": 20, "binlow": -3.0, "binhigh": 3.0, "weight1": ROOT.TH1D(), "weight2": ROOT.TH1D()})
+varlist.append({"varname": "ak4_jet1_pt", "bins": 20, "binlow": 0.0, "binhigh": 500.0, "weight1": ROOT.TH1D(), "weight2": ROOT.TH1D()})
+varlist.append({"varname": "ak4_jet1_eta", "bins": 20, "binlow": -3.0, "binhigh": 3.0, "weight1": ROOT.TH1D(), "weight2": ROOT.TH1D()})
 
 hA = [ROOT.TH1D()]
 hB1 = [ROOT.TH1D()]
@@ -117,18 +119,18 @@ for vardict in varlist:
 
 
     vardict["weight1"] = hB1[0].Clone()
-    vardict["weight1"].SetName("OneBWeight")
+    vardict["weight1"].SetName("OneBWeight_"+varname)
     vardict["weight1"].Divide(hA[0])
 
     vardict["weight2"] = hB2[0].Clone()
-    vardict["weight2"].SetName("TwoBWeight")
+    vardict["weight2"].SetName("TwoBWeight_"+varname)
     vardict["weight2"].Divide(hA[0])
 
     hD1_Estimation = vardict["weight1"]*hC[0]
-    hD1_Estimation.SetName("OneBEstimation")
+    hD1_Estimation.SetName("OneBEstimation_"+varname)
 
     hD2_Estimation = vardict["weight2"]*hC[0]
-    hD2_Estimation.SetName("TwoBEstimation")
+    hD2_Estimation.SetName("TwoBEstimation_"+varname)
 
 
     print("Finished all files for var "+varname+", simple getEntries")
@@ -142,28 +144,30 @@ for vardict in varlist:
 
     for hist in [hA[0], hB1[0], hB2[0], hC[0], hD1[0], hD2[0], vardict["weight1"], vardict["weight2"], hD1_Estimation, hD2_Estimation]:
         c1 = ROOT.TCanvas("c1", "c1", 800, 800)
+        c1.SetLogy()
         hist.Draw("hist")
-        c1.SaveAs("abcd_plots/"+hist.GetName()+".pdf")
+        c1.SaveAs(plotdir+hist.GetName()+".pdf")
 
     c1 = ROOT.TCanvas("c1", "c1", 800, 800)
+    c1.SetLogy()
     hD1[0].Draw("hist")
     hD1_Estimation.Draw("hist same")
     hD1_Estimation.SetLineColor(ROOT.kRed)
-    c1.SaveAs("abcd_plots/oneB_compare_"+varname+".pdf")
+    c1.SaveAs(plotdir+"oneB_compare_"+varname+".pdf")
 
     c1 = ROOT.TCanvas("c1", "c1", 800, 800)
+    c1.SetLogy()
     hD2[0].Draw("hist")
     hD2_Estimation.Draw("hist same")
     hD2_Estimation.SetLineColor(ROOT.kRed)
-    c1.SaveAs("abcd_plots/twoB_compare_"+varname+".pdf")
-
+    c1.SaveAs(plotdir+"twoB_compare_"+varname+".pdf")
 
 
 
 
 #Must get new event weights, using the variable and Weights hist as a LUT
 for fname in fnamelist:
-    new_filename = "abcd_plots/DY_withWeights.root"
+    new_filename = plotdir+"DY_withWeights.root"
     print("Creating new file ", new_filename)
     events = trees_dict[fname]
     newfile = ROOT.TFile(new_filename, "recreate")
