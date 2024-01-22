@@ -125,8 +125,9 @@ def electron_selection(EventProcess):
     if debug: print("Starting electron selection")
 
     #Need to check this! Run3 is mvaNoIso, Run2 is mvaFall17V2noIso
-    mvaNoIso_WPL = getattr(electrons, 'mvaNoIso_WPL', False) | getattr(electrons, 'mvaFall17V2noIso_WPL', False)
-    mvaNoIso_WP90 = getattr(electrons, 'mvaNoIso_WPL90', False) | getattr(electrons, 'mvaFall17V2noIso_WP90', False)
+    #22Jan24 Run3 signal files look to not have mvaNoIso_WPL, trying mvaIso_WP90 for now
+    mvaNoIso_WPL = getattr(electrons, 'mvaIso_WP90', False) | getattr(electrons, 'mvaNoIso_WPL', False) | getattr(electrons, 'mvaFall17V2noIso_WPL', False)
+    mvaNoIso_WP90 = getattr(electrons, 'mvaIso_WP90', False) | getattr(electrons, 'mvaNoIso_WPL90', False) | getattr(electrons, 'mvaFall17V2noIso_WP90', False)
 
     electron_preselection_mask = (
         (abs(electrons.eta) <= 2.5) & (electrons.pt >= 7.0)& (abs(electrons.dxy) <= 0.05) &
