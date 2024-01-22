@@ -77,8 +77,9 @@ def add_event_weight(EventProcess):
         double_event_weight = double_event_weight * events.tt_reweight
 
     #PU Reweight
-    single_event_weight = single_event_weight * events.pu_reweight
-    double_event_weight = double_event_weight * events.pu_reweight
+    #PU Weights are wrong, LUTs are for UltraLegacy but we are not using UL datasets
+    #single_event_weight = single_event_weight * events.pu_reweight
+    #double_event_weight = double_event_weight * events.pu_reweight
 
 
 

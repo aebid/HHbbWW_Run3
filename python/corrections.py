@@ -586,6 +586,8 @@ def pu_reweight(EventProcess):
     pu_reweight_values_up = pu_reweight_corrlib.evaluate(events.Pileup.nTrueInt, "up")
     pu_reweight_values_down = pu_reweight_corrlib.evaluate(events.Pileup.nTrueInt, "down")
     """
+
+    """
     pu_reweight_values = []
     pu_reweight_values_up = []
     pu_reweight_values_down = []
@@ -593,7 +595,11 @@ def pu_reweight(EventProcess):
         pu_reweight_values.append(pu_reweight_corrlib.evaluate(val, "nominal"))
         pu_reweight_values_up.append(pu_reweight_corrlib.evaluate(val, "up"))
         pu_reweight_values_down.append(pu_reweight_corrlib.evaluate(val, "down"))
-
+    """
+    #Actually all of these are wrong, the json files are for UltraLegacy and we are not using UL datasets ):
+    pu_reweight_values = pu_reweight_corrlib.evaluate(np.array(events.Pileup.nTrueInt), "nominal")
+    pu_reweight_values_up = pu_reweight_corrlib.evaluate(np.array(events.Pileup.nTrueInt), "up")
+    pu_reweight_values_down = pu_reweight_corrlib.evaluate(np.array(events.Pileup.nTrueInt), "down")
 
 
     events[branch_name] = pu_reweight_values
