@@ -72,16 +72,17 @@ def single_lepton_category(EventProcess):
     events["is_m"] = (abs(leading_leptons.pdgId) == 13)
 
     #Require at least 1 fakeable (or tight) lepton
-    one_fakeable_lepton = ak.sum(leptons_fakeable.fakeable, axis=1) >= 1
-    single_step1_mask = ak.fill_none(one_fakeable_lepton, False)
+    one_fakeable_lepton = ak.fill_none(ak.sum(leptons_fakeable.fakeable, axis=1) >= 1, False)
+    events["AtLeastOneFakeableLepSingle"] = one_fakeable_lepton
+    #single_step1_mask = ak.fill_none(one_fakeable_lepton, False)
 
     #Require MET filters
     #These filters are recommended from the JetMET POG (Currently use 2018, JetMET says Run2 filters are good to use) https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#UL_data
-    MET_filters = (flag.goodVertices) & (flag.globalSuperTightHalo2016Filter) & (flag.HBHENoiseFilter) & (flag.HBHENoiseIsoFilter) & (flag.EcalDeadCellTriggerPrimitiveFilter) & (flag.BadPFMuonFilter) & (flag.ecalBadCalibFilter) & (flag.eeBadScFilter)
-    single_step2_mask = ak.fill_none(MET_filters, False)
+    MET_filters = ak.fill_none((flag.goodVertices) & (flag.globalSuperTightHalo2016Filter) & (flag.HBHENoiseFilter) & (flag.HBHENoiseIsoFilter) & (flag.EcalDeadCellTriggerPrimitiveFilter) & (flag.BadPFMuonFilter) & (flag.ecalBadCalibFilter) & (flag.eeBadScFilter), False)
+    events["PassesMETFiltersSingle"] = MET_filters
 
     #Leading lepton cone-pT for El (Mu) >= 32.0 (25.0)
-    cone_pt_cuts = ak.where(
+    cone_pt_cuts = ak.fill_none(ak.where(
         abs(leading_leptons.pdgId) == 11,
             leading_leptons.conept >= 32.0,
             ak.where(
@@ -89,8 +90,8 @@ def single_lepton_category(EventProcess):
                     leading_leptons.conept >= 25.0,
                     False
             )
-    )
-    single_step3_mask = ak.fill_none(cone_pt_cuts, False)
+    ), False)
+    events["LeadLeptonConePtCutSingle"] = cone_pt_cuts
 
     #Z mass and invariant mass cuts
     #No pair of same-flavor, opposite-sign preselcted leptons within 10 GeV of the Z mass (91.1876)
@@ -121,29 +122,35 @@ def single_lepton_category(EventProcess):
     )
 
 
-    Invariant_mass_cut = ak.all(
+    Invariant_mass_cut = ak.fill_none(ak.all(
         (
             ((lep1_lorentz_vec + lep2_lorentz_vec).mass > 12.0) |
             ak.is_none(first_leps, axis = 1) |
             ak.is_none(second_leps, axis = 1)
         ), axis = 1
-    )
-    Zmass_cut = ak.any(
+    ), False)
+
+    events["InvarMassCutSingle"] = Invariant_mass_cut
+
+
+    Zmass_cut = ak.fill_none(ak.any(
         (
             (abs(ak.fill_none(first_leps.pdgId, 0)) == abs(ak.fill_none(second_leps.pdgId, 0))) &
             (ak.fill_none(first_leps.charge, 0) != ak.fill_none(second_leps.charge, 0)) &
             (abs((lep1_lorentz_vec + lep2_lorentz_vec).mass - 91.1876) < 10.0)
         ), axis = 1
-    ) == 0
+    ) == 0, False)
 
-    single_step4_mask = ak.fill_none(Invariant_mass_cut & Zmass_cut, False)
+    events["ZMassCutSingle"] = Zmass_cut
 
     #HLT Cuts
     #   If Mu, pass Mu trigger
     #   If El, pass El trigger
-    HLT_cut = ((events.is_m & EventProcess.muon_trigger_cuts) | (events.is_e & EventProcess.electron_trigger_cuts))
+    HLT_cut = ak.fill_none(((events.is_m & EventProcess.muon_trigger_cuts) | (events.is_e & EventProcess.electron_trigger_cuts)), False)
 
-    single_step5_mask = ak.fill_none(HLT_cut, False)
+    events["PassesHLTCutsSingle"] = HLT_cut
+
+
 
     #MC match for leading and subleading leptons
     leading_MC_match = leading_leptons.MC_Match | (isMC == False)
@@ -154,10 +161,10 @@ def single_lepton_category(EventProcess):
     #No more than 1 tight leptons AND should be the same as leading lepton
     n_tight_leptons = ak.sum(leptons_tight.tight, axis=1)
 
-    tight_lep_cut = ((n_tight_leptons == 0) | ((n_tight_leptons == 1) & (leading_leptons.tight)))
+    tight_lep_cut = ak.fill_none(((n_tight_leptons == 0) | ((n_tight_leptons == 1) & (leading_leptons.tight))), False)
 
-    #single_step7_mask = ak.fill_none(n_tight_leptons <= 1, False)
-    single_step7_mask = ak.fill_none(tight_lep_cut, False)
+    events["AtMostOneTightLepSingle"] = tight_lep_cut
+
 
     #Tau veto: no tau passing pt>20, abs(eta) < 2.3, abs(dxy) <= 1000, abs(dz) <= 0.2, "decayModeFindingNewDMs", decay modes = {0, 1, 2, 10, 11}, and "byMediumDeepTau2017v2VSjet", "byVLooseDeepTau2017v2VSmu", "byVVVLooseDeepTau2017v2VSe". Taus overlapping with fakeable electrons or fakeable muons within dR < 0.3 are not considered for the tau veto
     #False -> Gets Removed : True -> Passes veto
@@ -174,15 +181,16 @@ def single_lepton_category(EventProcess):
     (taus.idDeepTau2017v2p1VSjet >= 16) & (taus.idDeepTau2017v2p1VSmu >= 1) & (taus.idDeepTau2017v2p1VSe >= 1)
     )
 
-    tau_veto = ak.any(tau_veto_cleaning & tau_veto_selection, axis=1) == 0
+    tau_veto = ak.fill_none(ak.any(tau_veto_cleaning & tau_veto_selection, axis=1) == 0, False)
 
-    single_step8_mask = ak.fill_none(tau_veto, False)
+    events["TauVetoSingle"] = tau_veto
+
 
     #Jet cuts
     #1 or more btagged ak8_jets or 1 or more btagged ak4_jets
-    one_btagged_jet = (ak.sum(ak4_jets.medium_btag_single, axis=1) >= 1) | (ak.sum(ak8_jets.btag_single, axis=1) >= 1)
+    one_btagged_jet = ak.fill_none((ak.sum(ak4_jets.medium_btag_single, axis=1) >= 1) | (ak.sum(ak8_jets.btag_single, axis=1) >= 1), False)
 
-    single_step9_mask = ak.fill_none(one_btagged_jet, False)
+    events["AtLeastOneBJetSingle"] = one_btagged_jet
 
     #Count ak4 jets that are dR 1.2 away from btagged ak8 jets
     #Require either:
@@ -208,36 +216,32 @@ def single_lepton_category(EventProcess):
     n_jets_that_not_bb = ak.sum(ak4_jets.jets_that_not_bb, axis=1)
 
 
-    jet_btag_veto = (
+    jet_btag_veto = ak.fill_none((
         ( (n_jets_that_not_bb >= 1) & (ak.sum(ak8_jets.btag_single, axis=1) >= 1) )
         |
         ( (ak.sum(ak8_jets.btag_single, axis=1) == 0) & (ak.sum(ak4_jets.cleaned_single, axis=1) >= 3) )
-    )
+    ), False)
 
-    single_step10_mask = ak.fill_none(jet_btag_veto, False)
+    events["EnoughNonBJetsSingle"] = jet_btag_veto
 
-    events["single_lepton"] = single_step1_mask
-    events["AtLeastOneFakeableLep"] = single_step1_mask
+
+    events["single_lepton"] = one_fakeable_lepton
     if debug: print("N single events step1: ", ak.sum(events.single_lepton), " Require at least 1 fakeable (or tight) lepton")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
-    events["single_lepton"] = single_step2_mask & events.single_lepton
-    events["PassesMETFilters"] = single_step2_mask
+    events["single_lepton"] = MET_filters & events.single_lepton
     if debug: print("N single events step2: ", ak.sum(events.single_lepton), " Require MET filters")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
-    events["single_lepton"] = single_step3_mask & events.single_lepton
-    events["LeadLeptonConePtCut"] = single_step3_mask
+    events["single_lepton"] = cone_pt_cuts & events.single_lepton
     if debug: print("N single events step3: ", ak.sum(events.single_lepton), " Leading lepton cone-pT for El (Mu) >= 32.0 (25.0)")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
-    events["single_lepton"] = single_step4_mask & events.single_lepton
-    events["ZMassAndInvarMassCut"] = single_step4_mask
+    events["single_lepton"] = Invariant_mass_cut & Zmass_cut & events.single_lepton
     if debug: print("N single events step4: ", ak.sum(events.single_lepton), " Z mass and invariant mass cuts")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
-    events["single_lepton"] = single_step5_mask & events.single_lepton
-    events["PassesHLTCuts"] = single_step5_mask
+    events["single_lepton"] = HLT_cut & events.single_lepton
     if debug: print("N single events step5: ", ak.sum(events.single_lepton), " HLT Cuts")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
@@ -246,23 +250,19 @@ def single_lepton_category(EventProcess):
     #if debug: print("N single events step6: ", ak.sum(events.single_lepton), " MC match for leading lepton")
     #increment_cutflow(events, events.single_lepton, "single_cutflow")
 
-    events["single_lepton"] = single_step7_mask & events.single_lepton
-    events["AtMostOneTightLep"] = single_step7_mask
+    events["single_lepton"] = tight_lep_cut & events.single_lepton
     if debug: print("N single events step7: ", ak.sum(events.single_lepton), " Require no more than 1 tight lepton")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
-    events["single_lepton"] = single_step8_mask & events.single_lepton
-    events["TauVeto"] = single_step8_mask
+    events["single_lepton"] = tau_veto & events.single_lepton
     if debug: print("N single events step8: ", ak.sum(events.single_lepton), " Tau veto")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
-    events["single_lepton"] = single_step9_mask & events.single_lepton
-    events["AtLeastOneBJet"] = single_step9_mask
+    events["single_lepton"] = one_btagged_jet & events.single_lepton
     if debug: print("N single events step9: ", ak.sum(events.single_lepton), " 1 or more btagged ak8_jets or 1 or more btagged ak4_jets")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
-    events["single_lepton"] = single_step10_mask & events.single_lepton
-    events["EnoughNonBJets"] = single_step10_mask
+    events["single_lepton"] = jet_btag_veto & events.single_lepton
     if debug: print("N single events step10: ", ak.sum(events.single_lepton), " Categories")
     increment_cutflow(events, events.single_lepton, "single_cutflow")
 
@@ -365,21 +365,29 @@ def double_lepton_category(EventProcess):
 
     events["is_ee"] = (abs(leading_leptons.pdgId) == 11) & (abs(subleading_leptons.pdgId) == 11)
     events["is_mm"] = (abs(leading_leptons.pdgId) == 13) & (abs(subleading_leptons.pdgId) == 13)
-    events["is_em"] = ((abs(leading_leptons.pdgId) == 11) & (abs(subleading_leptons.pdgId) == 13)) | ((abs(leading_leptons.pdgId) == 13) & (abs(subleading_leptons.pdgId) == 11))
+    events["is_em"] = (abs(leading_leptons.pdgId) == 11) & (abs(subleading_leptons.pdgId) == 13)
+    events["is_me"] = (abs(leading_leptons.pdgId) == 13) & (abs(subleading_leptons.pdgId) == 11)
 
     #Require at least 2 fakeable (or tight) leptons
-    two_fakeable_lepton = ak.sum(leptons_fakeable.fakeable, axis=1) >= 2
-    double_step1_mask = ak.fill_none(two_fakeable_lepton, False)
+    two_fakeable_lepton = ak.fill_none(ak.sum(leptons_fakeable.fakeable, axis=1) >= 2, False)
+
+    events["AtLeastTwoFakeableLepsDouble"] = two_fakeable_lepton
+
 
     #Require MET filters
     #These filters are recommended from the JetMET POG (Currently use 2018, JetMET says Run2 filters are good to use) https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#UL_data
-    MET_filters = (flag.goodVertices) & (flag.globalSuperTightHalo2016Filter) & (flag.HBHENoiseFilter) & (flag.HBHENoiseIsoFilter) & (flag.EcalDeadCellTriggerPrimitiveFilter) & (flag.BadPFMuonFilter) & (flag.ecalBadCalibFilter) & (flag.eeBadScFilter)
-    double_step2_mask = ak.fill_none(MET_filters, False)
+    MET_filters = ak.fill_none((flag.goodVertices) & (flag.globalSuperTightHalo2016Filter) & (flag.HBHENoiseFilter) & (flag.HBHENoiseIsoFilter) & (flag.EcalDeadCellTriggerPrimitiveFilter) & (flag.BadPFMuonFilter) & (flag.ecalBadCalibFilter) & (flag.eeBadScFilter), False)
+
+    events["PassesMETFiltersDouble"] = MET_filters
+
 
     #Leading lepton cone-pT > 25.0, subleading lepton cone-pT > 15.0, leading lepton charge != subleading lepton charge
-    cone_pt_cuts = (leading_leptons.conept > 25.0) & (subleading_leptons.conept > 15.0)
-    charge_cuts = (leading_leptons.charge != subleading_leptons.charge)
-    double_step3_mask = ak.fill_none(cone_pt_cuts & charge_cuts, False)
+    cone_pt_cuts = ak.fill_none((leading_leptons.conept > 25.0) & (subleading_leptons.conept > 15.0), False)
+    charge_cuts = ak.fill_none((leading_leptons.charge != subleading_leptons.charge), False)
+
+    events["LeadSubleadLeptonConePtCutDouble"] = cone_pt_cuts
+    events["LeadSubleadChargeCutDouble"] = charge_cuts
+
 
     #Z mass and invariant mass cuts
     #No pair of same-flavor, opposite-sign preselcted leptons within 10 GeV of the Z mass (91.1876)
@@ -410,20 +418,20 @@ def double_lepton_category(EventProcess):
     )
 
 
-    Invariant_mass_cut = ak.all(
+    Invariant_mass_cut = ak.fill_none(ak.all(
         (
             ((lep1_lorentz_vec + lep2_lorentz_vec).mass > 12.0) |
             ak.is_none(first_leps, axis = 1) |
             ak.is_none(second_leps, axis = 1)
         ), axis = 1
-    )
-    Zmass_cut = ak.any(
+    ), False)
+    Zmass_cut = ak.fill_none(ak.any(
         (
             (abs(ak.fill_none(first_leps.pdgId, 0)) == abs(ak.fill_none(second_leps.pdgId, 0))) &
             (ak.fill_none(first_leps.charge, 0) != ak.fill_none(second_leps.charge, 0)) &
             (abs((lep1_lorentz_vec + lep2_lorentz_vec).mass - 91.1876) < 10.0)
         ), axis = 1
-    ) == 0
+    ) == 0, False)
 
 
     lep_pairs_for_Zmass_fakeable = ak.combinations(leptons_fakeable, 2)
@@ -494,9 +502,12 @@ def double_lepton_category(EventProcess):
     ) == 0
 
 
+    events["ZMassCutDouble"] = Zmass_cut
+    events["InvarMassCutDouble"] = Invariant_mass_cut
+
+
 
     #double_step4_mask = ak.fill_none(Invariant_mass_cut & Zmass_cut, False)
-    double_step4_mask = ak.fill_none(Invariant_mass_cut, False)
     events["Zveto"] = ak.fill_none(Zmass_cut, False) #Required extra event level bool in case of DY Estimation
     events["Zveto_fakeable"] = ak.fill_none(Zmass_fakeable_cut, False) #Alexei thinks maybe we are too loose doing Zmass cut with preselected, upped to fakeable
     events["Zveto_tight"] = ak.fill_none(Zmass_tight_cut, False) #Alexei thinks maybe we are too loose doing Zmass cut with preselected, upped to tight
@@ -507,21 +518,22 @@ def double_lepton_category(EventProcess):
     #If MuMu, pass MuMu or Mu trigger
     #If ElEl, pass ElEl or El trigger
     #If MuEl, pass MuEl or El or Mu trigger
-    HLT_cut = ak.where(
+    HLT_cut = ak.fill_none(ak.where(
         events.is_mm,
             EventProcess.double_muon_trigger_cuts | EventProcess.muon_trigger_cuts,
             ak.where(
                 events.is_ee,
                     EventProcess.double_electron_trigger_cuts | EventProcess.electron_trigger_cuts,
                     ak.where(
-                        events.is_em,
+                        (events.is_em | events.is_me),
                             EventProcess.muon_electron_trigger_cuts | EventProcess.electron_trigger_cuts | EventProcess.muon_trigger_cuts,
                             False
                     )
             )
-    )
+    ), False)
 
-    double_step5_mask = ak.fill_none(HLT_cut, False)
+    events["PassesHLTCutsDouble"] = HLT_cut
+
 
 
     #MC match for leading and subleading leptons
@@ -534,8 +546,9 @@ def double_lepton_category(EventProcess):
 
     #No more than 2 tight leptons
     n_tight_leptons = ak.sum(leptons_tight.tight, axis=1)
+    two_tight_leptons = ak.fill_none(n_tight_leptons <= 2, False)
 
-    double_step7_mask = ak.fill_none(n_tight_leptons <= 2, False)
+    events["AtMostTwoTightLepsDouble"] = two_tight_leptons
 
 
     #Put into category
@@ -554,35 +567,33 @@ def double_lepton_category(EventProcess):
     double_res_1b_cut = ak.fill_none((ak.sum(ak4_jets.cleaned_double, axis=1) >= 2) & (ak.sum(ak4_jets.medium_btag_double, axis=1) == 1), False)
     double_res_2b_cut = ak.fill_none((ak.sum(ak4_jets.cleaned_double, axis=1) >= 2) & (ak.sum(ak4_jets.medium_btag_double, axis=1) >= 2), False)
 
-    double_step8_mask = ak.fill_none((double_hbbfat_cut) | (double_res_0b_cut) | (double_res_1b_cut) | (double_res_2b_cut), False)
+    enough_jets = ak.fill_none((double_hbbfat_cut) | (double_res_0b_cut) | (double_res_1b_cut) | (double_res_2b_cut), False)
+    events["EnoughJetsDouble"] = enough_jets
+
     #For DY Estimation we need to turn off Zmass cut and the nBJets cut (ABCD method over M_{ll} and nBJets)
     #We still want to require the base jets (1 ak8 or 2 ak4)
-    events["nBjets_pass"] = ak.fill_none((double_hbbfat_cut) | (double_res_1b_cut) | (double_res_2b_cut), False)
+    events["nBjets_passDouble"] = ak.fill_none((double_hbbfat_cut) | (double_res_1b_cut) | (double_res_2b_cut), False)
     #Required extra event level bool in case of DY Estimation
 
 
-    events["double_lepton"] = double_step1_mask
-    events["AtLeastTwoFakeableLeps"] = double_step1_mask
+    events["double_lepton"] = two_fakeable_lepton
     if debug: print("N double events step1: ", ak.sum(events.double_lepton), " Require at least 2 fakeable (or tight) leptons")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
-    events["double_lepton"] = double_step2_mask & events.double_lepton
-    events["PassesMETFilters"] = double_step2_mask
+    events["double_lepton"] = MET_filters & events.double_lepton
     if debug: print("N double events step2: ", ak.sum(events.double_lepton), " Require MET filters")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
-    events["double_lepton"] = double_step3_mask & events.double_lepton
-    events["LeadSubleadLeptonConePtCut"] = double_step3_mask
+    events["double_lepton"] = cone_pt_cuts & charge_cuts & events.double_lepton
     if debug: print("N double events step3: ", ak.sum(events.double_lepton), " Leading and Subleading lep cuts")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
-    events["double_lepton"] = double_step4_mask & events.double_lepton
-    events["ZMassAndInvarMassCut"] = double_step4_mask
+    #events["double_lepton"] = Zmass_cut & Invariant_mass_cut & events.double_lepton
+    events["double_lepton"] = Invariant_mass_cut & events.double_lepton #Removed Z mass cut for DY estimation
     if debug: print("N double events step4: ", ak.sum(events.double_lepton), " Z mass and Invariant mass cuts")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
-    events["double_lepton"] = double_step5_mask & events.double_lepton
-    events["PassesHLTCuts"] = double_step5_mask
+    events["double_lepton"] = HLT_cut & events.double_lepton
     if debug: print("N double events step5: ", ak.sum(events.double_lepton), " HLT Cuts")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
@@ -591,13 +602,11 @@ def double_lepton_category(EventProcess):
     #if debug: print("N double events step6: ", ak.sum(events.double_lepton), " MC match for leading and subleading leptons")
     #increment_cutflow(events, events.double_lepton, "double_cutflow")
 
-    events["double_lepton"] = double_step7_mask & events.double_lepton
-    events["AtMostTwoTightLeps"] = double_step7_mask
+    events["double_lepton"] = two_tight_leptons & events.double_lepton
     if debug: print("N double events step7: ", ak.sum(events.double_lepton), " No more than 2 tight leptons")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
-    events["double_lepton"] = double_step8_mask & events.double_lepton
-    events["EnoughJets"] = double_step8_mask
+    events["double_lepton"] = enough_jets & events.double_lepton
     if debug: print("N double events step8: ", ak.sum(events.double_lepton), " Categories")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
