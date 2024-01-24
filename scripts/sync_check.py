@@ -38,27 +38,47 @@ nMediumBAk8Jets = ak.sum(events.n_btag_ak8_jets)
 
 
 
-print("nReco Electrons        = ", nRecoElectrons)
-print("nPreselected Electrons = ", nPreselElectrons)
-print("nFakeable Electrons    = ", nFakeableElectrons)
-print("nTight Electrons       = ", nTightElectrons)
+nEvents_RecoEleGt2 = ak.sum(events.n_electrons >= 2)
+nEvents_PreselEleGt2 = ak.sum(events.n_presel_electrons >= 2)
+nEvents_FakeEleGt2 = ak.sum(events.n_fakeable_electrons >= 2)
+nEvents_TightEleGt2 = ak.sum(events.n_tight_electrons >= 2)
+
+nEvents_RecoMuonGt2 = ak.sum(events.n_muons >= 2)
+nEvents_PreselMuonGt2 = ak.sum(events.n_presel_muons >= 2)
+nEvents_FakeMuonGt2 = ak.sum(events.n_fakeable_muons >= 2)
+nEvents_TightMuonGt2 = ak.sum(events.n_tight_muons >= 2)
+
+nEvents_Ak4JetsGt1 = ak.sum(events.n_ak4_jets >= 1)
+nEvents_PreselAk4JetsGt1 = ak.sum(events.n_presel_ak4_jets >= 1)
+nEvents_CleanedAk4JetsGt1 = ak.sum(events.n_cleaned_ak4_jets >= 1)
+nEvents_MediumBAk4JetsGt1 = ak.sum(events.n_medium_btag_ak4_jets >= 1)
+
+nEvents_Ak8JetsGt1 = ak.sum(events.n_ak8_jets >= 1)
+nEvents_PreselAk8JetsGt1 = ak.sum(events.n_presel_ak8_jets >= 1)
+nEvents_CleanedAk8JetsGt1 = ak.sum(events.n_cleaned_ak8_jets >= 1)
+nEvents_MediumBAk8JetsGt1 = ak.sum(events.n_btag_ak8_jets >= 1)
 
 
-print("nReco Muons            = ", nRecoMuons)
-print("nPreselected Muons     = ", nPreselMuons)
-print("nFakeable Muons        = ", nFakeableMuons)
-print("nTight Muons           = ", nTightMuons)
 
+print("nEvents with nReco Electrons >= 2         = ", nEvents_RecoEleGt2)
+print("nEvents with nPreselected Electrons >= 2  = ", nEvents_PreselEleGt2)
+print("nEvents with nFakeable Electrons >= 2     = ", nEvents_FakeEleGt2)
+print("nEvents with nTight Electrons >= 2        = ", nEvents_TightEleGt2)
 
-print("nReco Ak4 Jets         = ", nAk4Jets)
-print("nPreselected Ak4 Jets  = ", nPreselAk4Jets)
-print("nCleaned Ak4 Jets      = ", nCleanedAk4Jets)
-print("nMediumB Ak4 Jets      = ", nMediumBAk4Jets)
+print("nEvents with nReco Muons >= 2             = ", nEvents_RecoMuonGt2)
+print("nEvents with nPreselected Muons >= 2      = ", nEvents_PreselMuonGt2)
+print("nEvents with nFakeable Muons >= 2         = ", nEvents_FakeMuonGt2)
+print("nEvents with nTight Muons >= 2            = ", nEvents_TightMuonGt2)
 
-print("nReco Ak8 Jets         = ", nAk8Jets)
-print("nPreselected Ak8 Jets  = ", nPreselAk8Jets)
-print("nCleaned Ak8 Jets      = ", nCleanedAk8Jets)
-print("nMediumB Ak8 Jets      = ", nMediumBAk8Jets)
+print("nEvents with nReco Ak4 Jets >= 1          = ", nEvents_Ak4JetsGt1)
+print("nEvents with nPreselected Ak4 Jets >= 1   = ", nEvents_PreselAk4JetsGt1)
+print("nEvents with nCleaned Ak4 Jets >= 1       = ", nEvents_CleanedAk4JetsGt1)
+print("nEvents with nMediumB Ak4 Jets >= 1       = ", nEvents_MediumBAk4JetsGt1)
+
+print("nEvents with nReco Ak8 Jets >= 1          = ", nEvents_Ak8JetsGt1)
+print("nEvents with nPreselected Ak8 Jets >= 1   = ", nEvents_PreselAk8JetsGt1)
+print("nEvents with nCleaned Ak8 Jets >= 1       = ", nEvents_CleanedAk8JetsGt1)
+print("nEvents with nMediumB Ak8 Jets >= 1       = ", nEvents_MediumBAk8JetsGt1)
 
 nFakeableLeptons = (events.n_fakeable_electrons + events.n_fakeable_muons)
 
@@ -147,27 +167,47 @@ nMediumBAk8Jets = ak.sum(events.n_btag_ak8_jets)
 
 
 
-print("nReco Electrons        = ", nRecoElectrons)
-print("nPreselected Electrons = ", nPreselElectrons)
-print("nFakeable Electrons    = ", nFakeableElectrons)
-print("nTight Electrons       = ", nTightElectrons)
+nEvents_RecoEleGt1 = ak.sum(events.n_electrons >= 1)
+nEvents_PreselEleGt1 = ak.sum(events.n_presel_electrons >= 1)
+nEvents_FakeEleGt1 = ak.sum(events.n_fakeable_electrons >= 1)
+nEvents_TightEleGt1 = ak.sum(events.n_tight_electrons >= 1)
+
+nEvents_RecoMuonGt1 = ak.sum(events.n_muons >= 1)
+nEvents_PreselMuonGt1 = ak.sum(events.n_presel_muons >= 1)
+nEvents_FakeMuonGt1 = ak.sum(events.n_fakeable_muons >= 1)
+nEvents_TightMuonGt1 = ak.sum(events.n_tight_muons >= 1)
+
+nEvents_Ak4JetsGt1 = ak.sum(events.n_ak4_jets >= 1)
+nEvents_PreselAk4JetsGt1 = ak.sum(events.n_presel_ak4_jets >= 1)
+nEvents_CleanedAk4JetsGt1 = ak.sum(events.n_cleaned_ak4_jets >= 1)
+nEvents_MediumBAk4JetsGt1 = ak.sum(events.n_medium_btag_ak4_jets >= 1)
+
+nEvents_Ak8JetsGt1 = ak.sum(events.n_ak8_jets >= 1)
+nEvents_PreselAk8JetsGt1 = ak.sum(events.n_presel_ak8_jets >= 1)
+nEvents_CleanedAk8JetsGt1 = ak.sum(events.n_cleaned_ak8_jets >= 1)
+nEvents_MediumBAk8JetsGt1 = ak.sum(events.n_btag_ak8_jets >= 1)
 
 
-print("nReco Muons            = ", nRecoMuons)
-print("nPreselected Muons     = ", nPreselMuons)
-print("nFakeable Muons        = ", nFakeableMuons)
-print("nTight Muons           = ", nTightMuons)
 
+print("nEvents with nReco Electrons >= 1         = ", nEvents_RecoEleGt1)
+print("nEvents with nPreselected Electrons >= 1  = ", nEvents_PreselEleGt1)
+print("nEvents with nFakeable Electrons >= 1     = ", nEvents_FakeEleGt1)
+print("nEvents with nTight Electrons >= 1        = ", nEvents_TightEleGt1)
 
-print("nReco Ak4 Jets         = ", nAk4Jets)
-print("nPreselected Ak4 Jets  = ", nPreselAk4Jets)
-print("nCleaned Ak4 Jets      = ", nCleanedAk4Jets)
-print("nMediumB Ak4 Jets      = ", nMediumBAk4Jets)
+print("nEvents with nReco Muons >= 1             = ", nEvents_RecoMuonGt1)
+print("nEvents with nPreselected Muons >= 1      = ", nEvents_PreselMuonGt1)
+print("nEvents with nFakeable Muons >= 1         = ", nEvents_FakeMuonGt1)
+print("nEvents with nTight Muons >= 1            = ", nEvents_TightMuonGt1)
 
-print("nReco Ak8 Jets         = ", nAk8Jets)
-print("nPreselected Ak8 Jets  = ", nPreselAk8Jets)
-print("nCleaned Ak8 Jets      = ", nCleanedAk8Jets)
-print("nMediumB Ak8 Jets      = ", nMediumBAk8Jets)
+print("nEvents with nReco Ak4 Jets >= 1          = ", nEvents_Ak4JetsGt1)
+print("nEvents with nPreselected Ak4 Jets >= 1   = ", nEvents_PreselAk4JetsGt1)
+print("nEvents with nCleaned Ak4 Jets >= 1       = ", nEvents_CleanedAk4JetsGt1)
+print("nEvents with nMediumB Ak4 Jets >= 1       = ", nEvents_MediumBAk4JetsGt1)
+
+print("nEvents with nReco Ak8 Jets >= 1          = ", nEvents_Ak8JetsGt1)
+print("nEvents with nPreselected Ak8 Jets >= 1   = ", nEvents_PreselAk8JetsGt1)
+print("nEvents with nCleaned Ak8 Jets >= 1       = ", nEvents_CleanedAk8JetsGt1)
+print("nEvents with nMediumB Ak8 Jets >= 1       = ", nEvents_MediumBAk8JetsGt1)
 
 nFakeableLeptons = (events.n_fakeable_electrons + events.n_fakeable_muons)
 
