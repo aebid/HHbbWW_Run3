@@ -1,14 +1,11 @@
 ##########################DATA##########################################
 ##########################2016##########################################
-#Single Electron Run2022
+#Single Electron and DoubleEG Run2022
 /EGamma/Run2022C-22Sep2023-v1/NANOAOD 1.0
 /EGamma/Run2022D-22Sep2023-v1/NANOAOD 1.0
+/EGamma/Run2022E-22Sep2023-v1/NANOAOD 1.0
 /EGamma/Run2022F-22Sep2023-v1/NANOAOD 1.0
 /EGamma/Run2022G-22Sep2023-v2/NANOAOD 1.0
-
-
-#DoubleEG Run2022
-
 
 #SingleMuon Run2022
 /SingleMuon/Run2022C-22Sep2023-v1/NANOAOD 1.0
@@ -17,6 +14,7 @@
 #Muon Run2022
 /Muon/Run2022C-22Sep2023-v1/NANOAOD 1.0
 /Muon/Run2022D-22Sep2023-v1/NANOAOD 1.0
+/Muon/Run2022C-22Sep2023-v1/NANOAOD 1.0
 /Muon/Run2022F-22Sep2023-v1/NANOAOD 1.0
 /Muon/Run2022G-22Sep2023-v1/NANOAOD 1.0
 
@@ -28,6 +26,7 @@
 #MuonEG
 /MuonEG/Run2022C-22Sep2023-v1/NANOAOD 1.0
 /MuonEG/Run2022D-22Sep2023-v1/NANOAOD 1.0
+/MuonEG/Run2022E-22Sep2023-v1/NANOAOD 1.0
 /MuonEG/Run2022F-22Sep2023-v1/NANOAOD 1.0
 /MuonEG/Run2022G-22Sep2023-v1/NANOAOD 1.0
 
