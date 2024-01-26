@@ -26,7 +26,7 @@ def update_outfile(EventProcess, outfile):
     double_mask = (events.Double_Signal | events.Double_Fake)
     single_mask = (events.Single_Signal | events.Single_Fake)
 
-    use_all_data = True
+    use_all_data = False
     if use_all_data:
         double_mask = ak.ones_like(events.Double_Signal)
         single_mask = ak.ones_like(events.Single_Signal)
