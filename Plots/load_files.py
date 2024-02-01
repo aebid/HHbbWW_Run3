@@ -8,7 +8,12 @@ import math
 import pickle
 
 filesdir = '/eos/user/d/daebi/2016_data_allData_DYEst/'
+filesdir = '/eos/user/d/daebi/2016_data_SF1_DYEst1_FakeRate_10Nov23/'
+filesdir = '/eos/user/d/daebi/2016_data_SF1_DYEst1_FakeRate_15Nov23/'
+filesdir = '/eos/user/d/daebi/2016_data_28Nov23_usexroot0/'
 #filesdir = '/eos/user/d/daebi/2016_data_fullSF/'
+filesdir = '/eos/user/d/daebi/2016_data_30Nov23_preVFP_pureweight/'
+filesdir = '/eos/user/d/daebi/2022_data_26Jan24/'
 
 datafilelist = []
 MCfilelist = []
@@ -22,7 +27,7 @@ for dataset in os.listdir(filesdir):
         fulldatafile = fulldataset+datafile
         if os.path.isfile(fulldatafile) and ("NoDuplicates" in fulldatafile):
           datafilelist.append(fulldatafile)
-    elif dataset not in ["SingleElectron", "SingleMuon", "DoubleEG", "DoubleMuon", "MuonEG"]:
+    elif dataset not in ["SingleElectron", "SingleMuon", "DoubleEG", "DoubleMuon", "MuonEG", "Muon", "EGamma"]:
       for subdir in os.listdir(fulldataset):
         fullsubdir = fulldataset+subdir+"/"
         if os.path.isdir(fullsubdir):
@@ -37,7 +42,7 @@ Double_Tree = {}
 nEvents = {}
 xsection = {}
 
-datasetInfo = pickle.load(open("../dataset/dataset_names/2016/2016_Datasets.pkl", "rb"))
+datasetInfo = pickle.load(open("../dataset/dataset_names/2022/2022_Datasets.pkl", "rb"))
 def loaddata():
   for mcfile in MCfilelist:
     datasetname = mcfile.split('/')[-3]
@@ -47,14 +52,37 @@ def loaddata():
 
     if datasetname in nEvents:
       print("Already found dataset ", datasetname, " extending!!!")
-      nEvents[datasetname] = int(datasetInfo['nevents'][LUT_key])
+
+      #Commenting out for now to handle extensions better
+      #nEvents[datasetname] = int(datasetInfo['nevents'][LUT_key])
+      print("Dataset already exists, lets find the value inside the nEvents tree")
+      f_tmp = TFile(mcfile)
+      t_tmp = f_tmp.Get("nEvents")
+      nEvtTot = 0
+      for event in t_tmp:
+          nEvtTot += event.nEvents
+      #print("nEvents in file is ", nEvtTot)
+      #print("But pkl said ", int(datasetInfo['nevents'][LUT_key]))
+      nEvents[datasetname] += nEvtTot
       if xsection[datasetname] != datasetInfo['xs'][LUT_key]:
         print("BAD XSEC FOR THIS SAMPLE, EXTENSION DOESN'T MATCH!")
     else:
       print("New dataset ", datasetname)
       Single_Tree[datasetname] = TChain("Single_Tree")
       Double_Tree[datasetname] = TChain("Double_Tree")
-      nEvents[datasetname] = int(datasetInfo['nevents'][LUT_key])
+
+      #Commenting out for now to handle extensions better
+      #nEvents[datasetname] = int(datasetInfo['nevents'][LUT_key])
+
+      f_tmp = TFile(mcfile)
+      t_tmp = f_tmp.Get("nEvents")
+      nEvtTot = 0
+      for event in t_tmp:
+          nEvtTot += event.nEvents
+      #print("nEvents in file is ", nEvtTot)
+      #print("But pkl said ", int(datasetInfo['nevents'][LUT_key]))
+      nEvents[datasetname] = nEvtTot
+
       xsection[datasetname] = datasetInfo['xs'][LUT_key]
 
     Single_Tree[datasetname].Add(mcfile)
