@@ -7,7 +7,7 @@ import glob
 
 def main():
 
-    year = 2016
+    year = 2022
     #If use dict, will run over the pickle file, otherwise will use the project_folder
     #YOU MUST CHANGE THESE VARIABLES YOURSELF
     #2016 Run2 Block
@@ -24,8 +24,8 @@ def main():
     if (year == 2022):
       use_dict = True
       pickle_file = "../dataset/dataset_names/2022/2022_Datasets.pkl"
-      nFilesPerJob = 5
-      subdir = "2022_data/"
+      nFilesPerJob = 10
+      subdir = "2022_data_6Feb24/"
       runyear = "2022"
       storage_folder = "/eos/user/d/daebi/"
       cross_section = 1.0
@@ -57,7 +57,7 @@ def main():
 def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, nFilesPerJob, runyear):
     print("Making "+subdir+project_folder)
     print("There are ", len(file_list), "total files")
-    SF = 1
+    SF = 0
     HLTCut = 1
     useXrootD = 0
 
@@ -68,11 +68,19 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
     dataset_storage_folder = storage_folder+'/'+subdir+'/'+project_folder_names[0]+'/'+project_folder_names[1]+'/'
     if not os.path.exists(dataset_storage_folder):
         print("Making "+dataset_storage_folder)
-        os.makedirs(dataset_storage_folder)        
+        os.makedirs(dataset_storage_folder)
         os.makedirs(dataset_storage_folder+"/err")
         os.makedirs(dataset_storage_folder+"/log")
         os.makedirs(dataset_storage_folder+"/out")
         #I'm not sure why but now the err/out files are put in the directory they were submitted in
+
+    datadir = storage_folder+"/"+subdir+"/data"
+    if not os.path.exists(datadir):
+        os.makedirs(datadir)
+        #Need to make a data folder ready for the hadd and removeDuplicates step
+    os.system("cp templates/hadd_data_files.sh {}/.".format(datadir))
+    os.system("cp templates/removeDuplicates.C {}/.".format(datadir))
+
 
     if not os.path.exists(subdir):
         os.makedirs(subdir)
