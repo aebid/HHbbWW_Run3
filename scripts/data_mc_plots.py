@@ -346,9 +346,9 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
     #c1.SaveAs('Histo_' + save + '_' + passedSelection + '.pdf')
 
     c1.SaveAs(plotdir+'Histo_' + save + '.pdf')
+    print('Finished {var} {cut} plots at: '.format(var = var, cut = passedSelection) + str((time.time() - startTime)))
     del var
     del histName
-    print('Finished {var} {cut} plots at: '.format(var = var, cut = cut) + str((time.time() - startTime)))
 
 
 
