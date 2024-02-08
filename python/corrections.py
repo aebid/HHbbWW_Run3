@@ -6,6 +6,12 @@ import correctionlib
 import numpy as np
 import math
 
+def jetmet_2022(EventProcess):
+    #Starting handling 2022 jec files, but they are in json.gz files
+    jec_corr = correctionlib.CorrectionSet.from_file("correction_files/2022/jetmet/2022_Summer22EE/jet_jerc.json.gz")
+    #Notice can handle json.gz or just json
+    print(list(jec_corr.keys()))
+    #For some reason, the correctionset isn't finding the L1L2L3Res key in the json file??? But if you vim this file it is there!
 
 def jet_corrector(EventProcess):
     events = EventProcess.events
