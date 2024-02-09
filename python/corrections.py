@@ -13,6 +13,14 @@ def jetmet_2022(EventProcess):
     print(list(jec_corr.keys()))
     #For some reason, the correctionset isn't finding the L1L2L3Res key in the json file??? But if you vim this file it is there!
 
+    #Actually there are some examples in the jetmet correction location of cvmfs
+    #/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/examples/jercExample.py
+    #We can use combined but it is done in a weird way
+    jet_corr_compound = jec_corr.compound
+    print("Compound has keys")
+    print(jec_corr_compound.keys())
+    #Also these JERC files have all four pieces (JES JUNC JER JERSF) Will add later
+
 def jet_corrector(EventProcess):
     events = EventProcess.events
     events_pretrigger = EventProcess.events_pretrigger
