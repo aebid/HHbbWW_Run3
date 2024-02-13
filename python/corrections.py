@@ -85,7 +85,35 @@ def jetmet_json(EventProcess):
     #Also these JERC files have all four pieces (JES JUNC JER JERSF) Will add later
 
 
+def btag_json(EventProcess):
+    events = EventProcess.events
+    btag_files = EventProcess.jetmet_files_Run3
 
+    #btag_files = "correction_files/2022/btag_SF/2022_Summer22/btagging.json.gz"
+
+    btag_file = btag_files['btag_SF_file']
+    btag_key = btag_files['btag_SF_key']
+
+    btag_cset = correctionlib.CorrectionSet.from_file(btag_file)
+    btag_SF = btag_cset[btag_key]
+
+    hadronFlavour = ak.flatten(abs(events.Jet.hadronFlavour))
+    #For some reason, eta MUST be less than 2.5 or else binning crashes in correctionlib
+    eta = abs(events.Jet.eta)
+    eta = ak.where(
+        eta >= 2.5,
+            2.49,
+            eta
+    )
+    abseta = ak.flatten(eta)
+    pt = ak.flatten(events.Jet.pt)
+    disc = ak.flatten(events.Jet.btagDeepFlavB)
+    counts = ak.num(events.Jet)
+
+    btag_SF_central = ak.unflatten(btag_SF.evaluate("central", hadronFlavour, abseta, pt, disc), counts)
+
+    events.Jet = ak.with_field(events.Jet, btag_SF_central, "btag_SF")
+    #Will do systematics later, just need main value for now
 
 
 
