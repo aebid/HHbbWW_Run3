@@ -15,8 +15,9 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Run3 analysis for H->hh->bbWW')
 parser.add_argument("-i", "--inputFileList", dest="infile_list", type=str, nargs='+', default=[], help="input file name. [Default: [] ]")
-parser.add_argument("-o", "--outputFile", dest="outfile", type=str, default="out.root", help="output file name. [Default: out.root]")
+parser.add_argument("-o", "--outputFile", dest="outfile", type=str, default="out.root", help="output file name. [Default: 'out.root']")
 parser.add_argument("-ry", "--runyear", dest="Runyear", type=int, default=2022, help="Runyear of the file. [Default: 2022]")
+parser.add_argument("-re", "--runera", dest="runera", type=str, default="A", help="RunA, B, C, etc. For Run3 2022 jetmet corrections. [Default: 'A']")
 parser.add_argument("-MC", dest="isMC", type=int, default=0, help="Is the file MC. [Default: 0]")
 parser.add_argument("-t", "--truth", dest="dnn_truth_value", type=int, default="8", help="DNN Truth value, HH:0 TTbar:1 ST:2 DY:3 H:4 TTbarV(X):5 VV(V):6 Other:7 Data:8. [Default: 8 (Data)]")
 parser.add_argument("-d", "--debug", dest="debug", type=int, default="0", help="Debug. [Default: 0 (False)]")
@@ -46,6 +47,7 @@ dnn_truth_value = args.dnn_truth_value
 debug = args.debug
 
 Runyear = args.Runyear
+runera = args.runera
 isMC = args.isMC
 XS = args.XS
 doSF = args.SF
@@ -59,7 +61,7 @@ print("Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / f
 
 for fname in flist:
     print("Starting file: ", fname)
-    nEventsLoopSize = 100000
+    nEventsLoopSize = 250000
     #Check how many events are in the file
     uproot_file = uproot.open(fname)
     events = NanoEventsFactory.from_root(uproot_file, schemaclass=NanoAODSchema.v7).events()
@@ -75,9 +77,14 @@ for fname in flist:
         entryStop = nEventsLoopSize*(nLoopIter+1)
 
         #Only load the events in range
-        eventProcess = EventProcess(fname, entryStart, entryStop, isMC, doSF, Runyear, dnn_truth_value, XS, debug, HLT_Cuts)
+        eventProcess = EventProcess(fname, entryStart, entryStop, isMC, doSF, Runyear, runera, dnn_truth_value, XS, debug, HLT_Cuts)
         if eventProcess.skip_file: continue
         eventProcess.make_evaluator()
+
+        #For now we hardcode 2022 jetmet corrections
+        if Runyear == 2022:
+            print("Doing 2022 jetmet corrections!!! Maybe turn this off")
+            eventProcess.jetmet_json_corrector()
 
         if doSF:
             #Jet Corrections are for both MC and Data
