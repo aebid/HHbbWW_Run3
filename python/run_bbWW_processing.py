@@ -85,6 +85,7 @@ for fname in flist:
         if Runyear == 2022:
             print("Doing 2022 jetmet corrections!!! Maybe turn this off")
             eventProcess.jetmet_json_corrector()
+            eventProcess.btag_json_SF()
 
         if doSF:
             #Jet Corrections are for both MC and Data
