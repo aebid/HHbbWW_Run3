@@ -1,27 +1,42 @@
 import awkward as ak
-from coffea.lookup_tools import extractor
+from coffea.lookup_tools import extractor, json_converters
 from coffea.btag_tools import BTagScaleFactor
 from coffea.jetmet_tools import FactorizedJetCorrector, JetCorrectionUncertainty, JECStack, CorrectedJetsFactory, JetResolution, JetResolutionScaleFactor, CorrectedMETFactory
 import correctionlib
 import numpy as np
 import math
 
-def jetmet_2022(EventProcess):
+def jetmet_json(EventProcess):
     events = EventProcess.events
+    jetmet_files = EventProcess.jetmet_files_Run3
 
     #Starting handling 2022 jec files, but they are in json.gz files
-    jerc_ak4_file = "correction_files/2022/jetmet/2022_Summer22EE/jet_jerc.json.gz"
-    jerc_ak8_file = "correction_files/2022/jetmet/2022_Summer22EE/fatJet_jerc.json.gz"
+    #jerc_ak4_file = "correction_files/2022/jetmet/2022_Summer22EE/jet_jerc.json.gz"
+    #jerc_ak8_file = "correction_files/2022/jetmet/2022_Summer22EE/fatJet_jerc.json.gz"
 
-    run = "RunE"
-    isMC = 0
-    data_or_MC = "DATA"
-    if isMC:
-        data_or_MC = "MC"
+    #jerc_ak4_data_key = "Summer22EE_22Sep2023_RunE_V2_DATA_L1L2L3Res_AK4PFPuppi"
+    #jerc_ak4_MC_key = "Summer22EE_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi"
 
-    jec_string = "Summer22EE_22Sep2023_RunE_V2_DATA"
-    compoundLevel = "L1L2L3Res"
-    algo = "AK4PFPuppi"
+    #jerc_ak8_data_key = "Summer22EE_22Sep2023_RunE_V2_DATA_L1L2L3Res_AK8PFPuppi"
+    #jerc_ak8_MC_key = "Summer22EE_22Sep2023_V2_MC_L1L2L3Res_AK8PFPuppi"
+
+
+    jerc_ak4_file = jetmet_files['ak4_file']
+    jerc_ak8_file = jetmet_files['ak8_file']
+
+    jerc_ak4_data_key = jetmet_files['ak4_data_key']
+    jerc_ak8_data_key = jetmet_files['ak8_data_key']
+
+    jerc_ak4_MC_key = jetmet_files['ak4_MC_key']
+    jerc_ak8_MC_key = jetmet_files['ak8_MC_key']
+
+
+    ak4_jerc_key = jerc_ak4_data_key
+    ak8_jerc_key = jerc_ak8_data_key
+    if EventProcess.isMC:
+        ak4_jerc_key = jerc_ak4_MC_key
+        ak8_jerc_key = jerc_ak8_MC_key
+
 
     jerc_ak4_set = correctionlib.CorrectionSet.from_file(jerc_ak4_file)
     jerc_ak8_set = correctionlib.CorrectionSet.from_file(jerc_ak8_file)
@@ -32,33 +47,47 @@ def jetmet_2022(EventProcess):
     ak8_compound = jerc_ak8_set.compound
 
 
-    ak4_sf_string = "{}_{}_{}".format(jec_string, compoundLevel, algo)
-    ak4_jec = ak4_compound[ak4_sf_string]
+    ak4_jec = ak4_compound[jerc_ak4_data_key]
     #Check what inputs the json wants
-    print([input.name for input in ak4_jec.inputs])
+    #print([input.name for input in ak4_jec.inputs])
     #LUT to turn JSON names into object names
     lut = {'JetA': 'area', 'JetEta': 'eta', 'JetPt': 'pt', 'Rho': 'rho'}
-    print([lut[input.name] for input in ak4_jec.inputs])
+    #print([lut[input.name] for input in ak4_jec.inputs])
     #Now get values from these real names
     #Cannot use jets.lut[input.name] or jets[lut[input.name]], must use getattr
     #For now, correctionlib doesn't take awkard arrays, so we take original shape, flatten variables, LUT, then reshape
-    inputs = [ak.flatten(getattr(events.Jet, lut[input.name])) for input in ak4_jec.inputs]
-    print(inputs)
+    ak4_inputs = [ak.flatten(getattr(events.Jet, lut[input.name])) for input in ak4_jec.inputs]
+    #print(ak4_inputs)
     #Now we try to feed it those inputs from the jet object
-    counts = ak.num(events.Jet)
-    correction_values = ak4_jec.evaluate(*inputs)
-    correction_values_fixed = ak.unflatten(correction_values, counts)
+    ak4_counts = ak.num(events.Jet)
+    ak4_correction_values = ak.unflatten(ak4_jec.evaluate(*ak4_inputs), ak4_counts)
     #Now we have the correction values, but we must apply them to the jets still
-    events.Jet["jes"] = correction_values_fixed
-    events.Jet["pt_raw"] = events.Jet.pt
-    events.Jet["pt"] = events.Jet.pt*correction_values_fixed
-    events.Jet["mass_raw"] = events.Jet.mass
-    events.Jet["mass"] = events.Jet.mass*correction_values_fixed
+    events.Jet = ak.with_field(events.Jet, ak4_correction_values, "par_jet_rescale")
+    events.Jet = ak.with_field(events.Jet, events.Jet.pt, "pt_raw")
+    events.Jet = ak.with_field(events.Jet, events.Jet.pt*ak4_correction_values, "pt")
+    events.Jet = ak.with_field(events.Jet, events.Jet.mass, "mass_raw")
+    events.Jet = ak.with_field(events.Jet, events.Jet.mass*ak4_correction_values, "mass")
 
+
+    #Now ak8 jets
+    ak8_jec = ak8_compound[jerc_ak8_data_key]
+    ak8_inputs = [ak.flatten(getattr(events.FatJet, lut[input.name])) for input in ak8_jec.inputs]
+    ak8_counts = ak.num(events.FatJet)
+    ak8_correction_values = ak.unflatten(ak8_jec.evaluate(*ak8_inputs), ak8_counts)
+    events.FatJet = ak.with_field(events.FatJet, ak8_correction_values, "par_jet_rescale")
+    events.FatJet = ak.with_field(events.FatJet, events.FatJet.pt, "pt_raw")
+    events.FatJet = ak.with_field(events.FatJet, events.FatJet.pt*ak8_correction_values, "pt")
+    events.FatJet = ak.with_field(events.FatJet, events.FatJet.mass, "mass_raw")
+    events.FatJet = ak.with_field(events.FatJet, events.FatJet.mass*ak8_correction_values, "mass")
 
 
 
     #Also these JERC files have all four pieces (JES JUNC JER JERSF) Will add later
+
+
+
+
+
 
 def jet_corrector(EventProcess):
     events = EventProcess.events
