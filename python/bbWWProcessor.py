@@ -15,11 +15,12 @@ import weights
 #import jet_corrections
 
 class EventProcess():
-    def __init__(self, inputFile, entryStart, entryStop, isMC, doSF, Runyear, dnn_truth_value, XS, debug=0, HLT_Cuts=0):
+    def __init__(self, inputFile, entryStart, entryStop, isMC, doSF, Runyear, runera, dnn_truth_value, XS, debug=0, HLT_Cuts=0):
         self.fname = inputFile
         self.isMC  = isMC
         self.doSF = doSF
         self.Runyear = Runyear
+        self.runera = runera
         self.dnn_truth_value = dnn_truth_value
         self.XS = XS
         self.debug  = debug
@@ -207,6 +208,73 @@ class EventProcess():
                 "ak8_jersf_file": [jetmet_dir+"Summer20UL16_JRV3_MC_SF_AK8PFPuppi.jersf.txt"],
             },
         }
+
+
+        jetmet_dir_run3 = python_folder_base+"/correction_files/2022/jetmet/"
+        jetmet_files_dict_run3 = {
+            "2022": {
+                "A": {
+                    "ak4_file": jetmet_dir_run3+"2022_Summer22/jet_jerc.json.gz",
+                    "ak8_file": jetmet_dir_run3+"2022_Summer22/fatJet_jerc.json.gz",
+                    "ak4_data_key": "Summer22_22Sep2023_RunCD_V2_DATA_L1L2L3Res_AK4PFPuppi",
+                    "ak8_data_key": "Summer22_22Sep2023_RunCD_V2_DATA_L1L2L3Res_AK8PFPuppi",
+                    "ak4_MC_key": "Summer22_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi",
+                    "ak8_MC_key": "Summer22_22Sep2023_V2_MC_L1L2L3Res_AK8PFPuppi",
+                },
+                "B": {
+                    "ak4_file": jetmet_dir_run3+"2022_Summer22/jet_jerc.json.gz",
+                    "ak8_file": jetmet_dir_run3+"2022_Summer22/fatJet_jerc.json.gz",
+                    "ak4_data_key": "Summer22_22Sep2023_RunCD_V2_DATA_L1L2L3Res_AK4PFPuppi",
+                    "ak8_data_key": "Summer22_22Sep2023_RunCD_V2_DATA_L1L2L3Res_AK8PFPuppi",
+                    "ak4_MC_key": "Summer22_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi",
+                    "ak8_MC_key": "Summer22_22Sep2023_V2_MC_L1L2L3Res_AK8PFPuppi",
+                },
+                "C": {
+                    "ak4_file": jetmet_dir_run3+"2022_Summer22/jet_jerc.json.gz",
+                    "ak8_file": jetmet_dir_run3+"2022_Summer22/fatJet_jerc.json.gz",
+                    "ak4_data_key": "Summer22_22Sep2023_RunCD_V2_DATA_L1L2L3Res_AK4PFPuppi",
+                    "ak8_data_key": "Summer22_22Sep2023_RunCD_V2_DATA_L1L2L3Res_AK8PFPuppi",
+                    "ak4_MC_key": "Summer22_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi",
+                    "ak8_MC_key": "Summer22_22Sep2023_V2_MC_L1L2L3Res_AK8PFPuppi",
+                },
+                "D": {
+                    "ak4_file": jetmet_dir_run3+"2022_Summer22/jet_jerc.json.gz",
+                    "ak8_file": jetmet_dir_run3+"2022_Summer22/fatJet_jerc.json.gz",
+                    "ak4_data_key": "Summer22_22Sep2023_RunCD_V2_DATA_L1L2L3Res_AK4PFPuppi",
+                    "ak8_data_key": "Summer22_22Sep2023_RunCD_V2_DATA_L1L2L3Res_AK8PFPuppi",
+                    "ak4_MC_key": "Summer22_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi",
+                    "ak8_MC_key": "Summer22_22Sep2023_V2_MC_L1L2L3Res_AK8PFPuppi",
+                },
+                "E": {
+                    "ak4_file": jetmet_dir_run3+"2022_Summer22EE/jet_jerc.json.gz",
+                    "ak8_file": jetmet_dir_run3+"2022_Summer22EE/fatJet_jerc.json.gz",
+                    "ak4_data_key": "Summer22EE_22Sep2023_RunE_V2_DATA_L1L2L3Res_AK4PFPuppi",
+                    "ak8_data_key": "Summer22EE_22Sep2023_RunE_V2_DATA_L1L2L3Res_AK8PFPuppi",
+                    "ak4_MC_key": "Summer22EE_22Sep2023_RunE_V2_MC_L1L2L3Res_AK4PFPuppi",
+                    "ak8_MC_key": "Summer22EE_22Sep2023_RunE_V2_MC_L1L2L3Res_AK8PFPuppi",
+                },
+                "F": {
+                    "ak4_file": jetmet_dir_run3+"2022_Summer22EE/jet_jerc.json.gz",
+                    "ak8_file": jetmet_dir_run3+"2022_Summer22EE/fatJet_jerc.json.gz",
+                    "ak4_data_key": "Summer22EE_22Sep2023_RunF_V2_DATA_L1L2L3Res_AK4PFPuppi",
+                    "ak8_data_key": "Summer22EE_22Sep2023_RunF_V2_DATA_L1L2L3Res_AK8PFPuppi",
+                    "ak4_MC_key": "Summer22EE_22Sep2023_RunF_V2_MC_L1L2L3Res_AK4PFPuppi",
+                    "ak8_MC_key": "Summer22EE_22Sep2023_RunF_V2_MC_L1L2L3Res_AK8PFPuppi",
+                },
+                "G": {
+                    "ak4_file": jetmet_dir_run3+"2022_Summer22EE/jet_jerc.json.gz",
+                    "ak8_file": jetmet_dir_run3+"2022_Summer22EE/fatJet_jerc.json.gz",
+                    "ak4_data_key": "Summer22EE_22Sep2023_RunF_V2_DATA_L1L2L3Res_AK4PFPuppi",
+                    "ak8_data_key": "Summer22EE_22Sep2023_RunF_V2_DATA_L1L2L3Res_AK8PFPuppi",
+                    "ak4_MC_key": "Summer22EE_22Sep2023_RunF_V2_MC_L1L2L3Res_AK4PFPuppi",
+                    "ak8_MC_key": "Summer22EE_22Sep2023_RunF_V2_MC_L1L2L3Res_AK8PFPuppi",
+                },
+            },
+            "2023": {
+
+            },
+        }
+
 
         btag_SF_file_dict = {
             "2016": btag_dir+"DeepJet_2016LegacySF_V1.csv",
@@ -667,6 +735,9 @@ class EventProcess():
         self.btag_SF_file = btag_SF_file_dict[str(self.Runyear)]
         self.pu_reweight_dict = pu_reweight_dict[str(self.Runyear)]
 
+        #Run3 jetmet files are in a different format
+        self.jetmet_files_Run3 = jetmet_files_dict_run3[str(self.Runyear)][str(self.runera)]
+
         if self.debug > 0:
             print("Muons: ",       self.events.Muon)
             print("Electrons: ",   self.events.Electron)
@@ -709,6 +780,8 @@ class EventProcess():
     #Jet Energy Corrections
     def jet_corrector(self):
         return corrections.jet_corrector(self)
+    def jetmet_json_corrector(self):
+        return corrections.jetmet_json(self)
     def met_corrector(self):
         return corrections.met_corrector(self)
     def jet_met_corrector(self):
