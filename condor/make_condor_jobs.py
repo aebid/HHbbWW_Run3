@@ -25,7 +25,7 @@ def main():
       use_dict = True
       pickle_file = "../dataset/dataset_names/2022/2022_Datasets.pkl"
       nFilesPerJob = 10
-      subdir = "2022_data_6Feb24/"
+      subdir = "2022_data_14Feb24/"
       runyear = "2022"
       storage_folder = "/eos/user/d/daebi/"
       cross_section = 1.0
@@ -106,6 +106,7 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
     project_folder_names = project_folder.split('/')
     isMC = 1
     DNN_Truth = -1
+    runera = "A"
     dataset_name = project_folder_names[1]
     trigger_lists = ["EGamma", "SingleElectron", "SingleMuon", "DoubleEG", "DoubleMuon", "MuonEG", "Muon"]
     print("Name? = ", project_folder_names[1])
@@ -128,6 +129,20 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
         DNN_Truth = 6
     else:
         DNN_Truth = 7
+    #Here write something to fix runera
+    print("Testing for runera, what is the project_folder?")
+    print(project_folder)
+    final_string_for_era = project_folder.split("/")[-1]
+    #
+    if isMC:
+        if "postEE" in final_string_for_era:
+            runera = "E"
+        else:
+            runera = "D"
+    else:
+        #String for data is "Run202*A-*-*", so split by "-" and take last char
+        runera = final_string_for_era.split("-")[0][-1]
+    print("Runera decided to be ", runera)
 
     #Find what DNN Truth Value to add
     #value list example HH:0 TTbar:1 ST:2 DY:3 H:4 TTbarV(X):5 VV(V):6 Other:7 Data:8
@@ -175,6 +190,8 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
                 job_file.write('HLTCut=("{}")\n'.format(HLTCut))
             elif "useXrootD=" in line:
                 job_file.write('useXrootD=("{}")\n'.format(useXrootD))
+            elif "runera=" in line:
+                job_file.write('runera=("{}")\n'.format(runera))
             else:
                 job_file.write(line)
 
