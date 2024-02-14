@@ -3,6 +3,7 @@
 list_of_files=("test0.root" "test1.root")
 filename=("filename.sh")
 runyear=("2022")
+runera=("A")
 isMC=("1")
 XS=("1.0")
 DNN=("-1")
@@ -22,7 +23,7 @@ ls -lh
 
 if [ $useXrootD -eq "1" ]
 then
-  python3 run_bbWW_processing.py -i ${list_of_files} -o ../out_condor_${filename}.root -d 0 -ry ${runyear} -MC ${isMC} -XS ${XS} -t ${DNN} -SF ${SF} -HLTCut ${HLTCut}
+  python3 run_bbWW_processing.py -i ${list_of_files} -o ../out_condor_${filename}.root -d 0 -ry ${runyear} -re ${runera} -MC ${isMC} -XS ${XS} -t ${DNN} -SF ${SF} -HLTCut ${HLTCut} -nEvts 100000
 else
   filecount=0
   list_of_tmp_files=("")
@@ -32,7 +33,7 @@ else
     list_of_tmp_files+=" tmp_file"${filecount}.root
     filecount=$((filecount+1))
   done
-  python3 run_bbWW_processing.py -i ${list_of_tmp_files} -o ../out_condor_${filename}.root -d 0 -ry ${runyear} -MC ${isMC} -XS ${XS} -t ${DNN} -SF ${SF} -HLTCut ${HLTCut}
+  python3 run_bbWW_processing.py -i ${list_of_tmp_files} -o ../out_condor_${filename}.root -d 0 -ry ${runyear} -re ${runera} -MC ${isMC} -XS ${XS} -t ${DNN} -SF ${SF} -HLTCut ${HLTCut} -nEvts 100000
   rm tmp_file*
 fi
 
