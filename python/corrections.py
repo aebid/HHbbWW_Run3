@@ -8,7 +8,7 @@ import math
 
 def jetmet_json(EventProcess):
     events = EventProcess.events
-    corr_files = EventProcess.jetmet_files_Run3
+    corr_files = EventProcess.corr_files_Run3
 
     #Starting handling 2022 jec files, but they are in json.gz files
     #jerc_ak4_file = "correction_files/2022/jetmet/2022_Summer22EE/jet_jerc.json.gz"
@@ -87,7 +87,7 @@ def jetmet_json(EventProcess):
 
 def btag_json(EventProcess):
     events = EventProcess.events
-    corr_files = EventProcess.jetmet_files_Run3
+    corr_files = EventProcess.corr_files_Run3
 
     #btag_files = "correction_files/2022/btag_SF/2022_Summer22/btagging.json.gz"
 
@@ -119,18 +119,18 @@ def btag_json(EventProcess):
 
 def pu_reweight_json(EventProcess):
     events = EventProcess.events
-    #corr_files = EventProcess.jetmet_files_Run3
+    corr_files = EventProcess.corr_files_Run3
 
-    #pu_reweight_file = corr_files['pu_reweight_file']
-    #pu_reweight_key = corr_files['pu_reweight_key']
+    pu_reweight_file = corr_files['pu_reweight_file']
+    pu_reweight_key = corr_files['pu_reweight_key']
 
-    pu_reweight_file = "correction_files/2022/pu_reweight/2022_Summer22/puWeights.json.gz"
-    pu_reweight_key = "Collisions2022_355100_357900_eraBCD_GoldenJson"
+    #pu_reweight_file = "correction_files/2022/pu_reweight/2022_Summer22/puWeights.json.gz"
+    #pu_reweight_key = "Collisions2022_355100_357900_eraBCD_GoldenJson"
 
     pu_cset = correctionlib.CorrectionSet.from_file(pu_reweight_file)
     pu_reweight = pu_cset[pu_reweight_key]
 
-    pu_reweight_values = pu_rewieght.evaluate(events.PileUp.nTrueInt, "nominal")
+    pu_reweight_values = pu_reweight.evaluate(events.Pileup.nTrueInt, "nominal")
     events["pu_reweight"] = pu_reweight_values
     #Will do systematis later, just need main value for now
     #nominal, up, down

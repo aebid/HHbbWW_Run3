@@ -211,7 +211,7 @@ class EventProcess():
 
 
         corrections_dir_run3 = python_folder_base+"/correction_files/2022/"
-        jetmet_files_dict_run3 = {
+        corr_files_dict_run3 = {
             "2022": {
                 "A": {
                     "ak4_file": corrections_dir_run3+"jetmet/2022_Summer22/jet_jerc.json.gz",
@@ -223,6 +223,9 @@ class EventProcess():
 
                     "btag_SF_file": corrections_dir_run3+"btag_SF/2022_Summer22/btagging.json.gz",
                     "btag_SF_key": "deepJet_shape",
+
+                    "pu_reweight_file": corrections_dir_run3+"pu_reweight/2022_Summer22/puWeights.json.gz",
+                    "pu_reweight_key": "Collisions2022_355100_357900_eraBCD_GoldenJson",
                 },
                 "B": {
                     "ak4_file": corrections_dir_run3+"jetmet/2022_Summer22/jet_jerc.json.gz",
@@ -234,6 +237,9 @@ class EventProcess():
 
                     "btag_SF_file": corrections_dir_run3+"btag_SF/2022_Summer22/btagging.json.gz",
                     "btag_SF_key": "deepJet_shape",
+
+                    "pu_reweight_file": corrections_dir_run3+"pu_reweight/2022_Summer22/puWeights.json.gz",
+                    "pu_reweight_key": "Collisions2022_355100_357900_eraBCD_GoldenJson",
                 },
                 "C": {
                     "ak4_file": corrections_dir_run3+"jetmet/2022_Summer22/jet_jerc.json.gz",
@@ -245,6 +251,9 @@ class EventProcess():
 
                     "btag_SF_file": corrections_dir_run3+"btag_SF/2022_Summer22/btagging.json.gz",
                     "btag_SF_key": "deepJet_shape",
+
+                    "pu_reweight_file": corrections_dir_run3+"pu_reweight/2022_Summer22/puWeights.json.gz",
+                    "pu_reweight_key": "Collisions2022_355100_357900_eraBCD_GoldenJson",
                 },
                 "D": {
                     "ak4_file": corrections_dir_run3+"jetmet/2022_Summer22/jet_jerc.json.gz",
@@ -256,6 +265,9 @@ class EventProcess():
 
                     "btag_SF_file": corrections_dir_run3+"btag_SF/2022_Summer22/btagging.json.gz",
                     "btag_SF_key": "deepJet_shape",
+
+                    "pu_reweight_file": corrections_dir_run3+"pu_reweight/2022_Summer22/puWeights.json.gz",
+                    "pu_reweight_key": "Collisions2022_355100_357900_eraBCD_GoldenJson",
                 },
                 "E": {
                     "ak4_file": corrections_dir_run3+"jetmet/2022_Summer22EE/jet_jerc.json.gz",
@@ -267,6 +279,9 @@ class EventProcess():
 
                     "btag_SF_file": corrections_dir_run3+"btag_SF/2022_Summer22/btagging.json.gz",
                     "btag_SF_key": "deepJet_shape",
+
+                    "pu_reweight_file": corrections_dir_run3+"pu_reweight/2022_Summer22EE/puWeights.json.gz",
+                    "pu_reweight_key": "Collisions2022_359022_362760_eraEFG_GoldenJson",
                 },
                 "F": {
                     "ak4_file": corrections_dir_run3+"jetmet/2022_Summer22EE/jet_jerc.json.gz",
@@ -278,6 +293,9 @@ class EventProcess():
 
                     "btag_SF_file": corrections_dir_run3+"btag_SF/2022_Summer22/btagging.json.gz",
                     "btag_SF_key": "deepJet_shape",
+
+                    "pu_reweight_file": corrections_dir_run3+"pu_reweight/2022_Summer22EE/puWeights.json.gz",
+                    "pu_reweight_key": "Collisions2022_359022_362760_eraEFG_GoldenJson",
                 },
                 "G": {
                     "ak4_file": corrections_dir_run3+"jetmet/2022_Summer22EE/jet_jerc.json.gz",
@@ -289,6 +307,9 @@ class EventProcess():
 
                     "btag_SF_file": corrections_dir_run3+"btag_SF/2022_Summer22/btagging.json.gz",
                     "btag_SF_key": "deepJet_shape",
+
+                    "pu_reweight_file": corrections_dir_run3+"pu_reweight/2022_Summer22EE/puWeights.json.gz",
+                    "pu_reweight_key": "Collisions2022_359022_362760_eraEFG_GoldenJson",
                 },
             },
             "2023": {
@@ -757,7 +778,7 @@ class EventProcess():
         self.pu_reweight_dict = pu_reweight_dict[str(self.Runyear)]
 
         #Run3 jetmet files are in a different format
-        self.jetmet_files_Run3 = jetmet_files_dict_run3[str(self.Runyear)][str(self.runera)]
+        self.corr_files_Run3 = corr_files_dict_run3[str(self.Runyear)][str(self.runera)]
 
         if self.debug > 0:
             print("Muons: ",       self.events.Muon)
@@ -806,6 +827,8 @@ class EventProcess():
         return corrections.jetmet_json(self)
     def btag_json_SF(self):
         return corrections.btag_json(self)
+    def pu_reweight_json(self):
+        return corrections.pu_reweight_json(self)
 
 
     def met_corrector(self):
