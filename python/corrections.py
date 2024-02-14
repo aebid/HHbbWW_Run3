@@ -8,7 +8,7 @@ import math
 
 def jetmet_json(EventProcess):
     events = EventProcess.events
-    jetmet_files = EventProcess.jetmet_files_Run3
+    corr_files = EventProcess.jetmet_files_Run3
 
     #Starting handling 2022 jec files, but they are in json.gz files
     #jerc_ak4_file = "correction_files/2022/jetmet/2022_Summer22EE/jet_jerc.json.gz"
@@ -21,14 +21,14 @@ def jetmet_json(EventProcess):
     #jerc_ak8_MC_key = "Summer22EE_22Sep2023_V2_MC_L1L2L3Res_AK8PFPuppi"
 
 
-    jerc_ak4_file = jetmet_files['ak4_file']
-    jerc_ak8_file = jetmet_files['ak8_file']
+    jerc_ak4_file = corr_files['ak4_file']
+    jerc_ak8_file = corr_files['ak8_file']
 
-    jerc_ak4_data_key = jetmet_files['ak4_data_key']
-    jerc_ak8_data_key = jetmet_files['ak8_data_key']
+    jerc_ak4_data_key = corr_files['ak4_data_key']
+    jerc_ak8_data_key = corr_files['ak8_data_key']
 
-    jerc_ak4_MC_key = jetmet_files['ak4_MC_key']
-    jerc_ak8_MC_key = jetmet_files['ak8_MC_key']
+    jerc_ak4_MC_key = corr_files['ak4_MC_key']
+    jerc_ak8_MC_key = corr_files['ak8_MC_key']
 
 
     ak4_jerc_key = jerc_ak4_data_key
@@ -87,12 +87,12 @@ def jetmet_json(EventProcess):
 
 def btag_json(EventProcess):
     events = EventProcess.events
-    btag_files = EventProcess.jetmet_files_Run3
+    corr_files = EventProcess.jetmet_files_Run3
 
     #btag_files = "correction_files/2022/btag_SF/2022_Summer22/btagging.json.gz"
 
-    btag_file = btag_files['btag_SF_file']
-    btag_key = btag_files['btag_SF_key']
+    btag_file = corr_files['btag_SF_file']
+    btag_key = corr_files['btag_SF_key']
 
     btag_cset = correctionlib.CorrectionSet.from_file(btag_file)
     btag_SF = btag_cset[btag_key]
@@ -114,6 +114,26 @@ def btag_json(EventProcess):
 
     events.Jet = ak.with_field(events.Jet, btag_SF_central, "btag_SF")
     #Will do systematics later, just need main value for now
+    #central, up, down
+
+
+def pu_reweight_json(EventProcess):
+    events = EventProcess.events
+    #corr_files = EventProcess.jetmet_files_Run3
+
+    #pu_reweight_file = corr_files['pu_reweight_file']
+    #pu_reweight_key = corr_files['pu_reweight_key']
+
+    pu_reweight_file = "correction_files/2022/pu_reweight/2022_Summer22/puWeights.json.gz"
+    pu_reweight_key = "Collisions2022_355100_357900_eraBCD_GoldenJson"
+
+    pu_cset = correctionlib.CorrectionSet.from_file(pu_reweight_file)
+    pu_reweight = pu_cset[pu_reweight_key]
+
+    pu_reweight_values = pu_rewieght.evaluate(events.PileUp.nTrueInt, "nominal")
+    events["pu_reweight"] = pu_reweight_values
+    #Will do systematis later, just need main value for now
+    #nominal, up, down
 
 
 
