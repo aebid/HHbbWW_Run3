@@ -103,6 +103,27 @@ def muon_selection(EventProcess):
 
     muon_tight_mask = ((muons.mvaTTH >= 0.50) & (muons.mediumId))
 
+
+    #For Run3 we want to move away from ttH mva
+    muon_fakeable_mask = (
+        (muons.conept >= 10.0) &
+        ak.where(
+            ak.is_none(muons.ak4_jets, axis=1),
+                (
+                    (muons.mediumPromptId)
+                    | #OR
+                    (muons.jetRelIso < 0.80)
+                ),
+                (muons.ak4_jets.btagDeepFlavB <= jetDeepJet_WP_medium) &
+                (
+                    (muons.mediumPromptId)
+                    | #OR
+                    (muons.jetRelIso < 0.80) & (muons.ak4_jets.btagDeepFlavB <= muons.jetDeepJet_Upper)
+                )
+            )
+    )
+    muon_tight_mask = ((muons.mediumId) & (muons.mediumPromptId))
+
     events.Muon = ak.with_field(events.Muon, muon_preselection_mask, "preselected")
     events.Muon = ak.with_field(events.Muon, muon_fakeable_mask & muon_preselection_mask, "fakeable")
     events.Muon = ak.with_field(events.Muon, muon_tight_mask & muon_fakeable_mask & muon_preselection_mask, "tight")
@@ -128,6 +149,8 @@ def electron_selection(EventProcess):
     #22Jan24 Run3 signal files look to not have mvaNoIso_WPL, trying mvaIso_WP90 for now
     mvaNoIso_WPL = getattr(electrons, 'mvaIso_WP90', False) | getattr(electrons, 'mvaNoIso_WPL', False) | getattr(electrons, 'mvaFall17V2noIso_WPL', False)
     mvaNoIso_WP90 = getattr(electrons, 'mvaIso_WP90', False) | getattr(electrons, 'mvaNoIso_WPL90', False) | getattr(electrons, 'mvaFall17V2noIso_WP90', False)
+
+    mvaIso_WP90 = getattr(electrons, 'mvaIso_WP90', False)
 
     electron_preselection_mask = (
         (abs(electrons.eta) <= 2.5) & (electrons.pt >= 7.0)& (abs(electrons.dxy) <= 0.05) &
@@ -160,6 +183,36 @@ def electron_selection(EventProcess):
     )
 
     electron_tight_mask = electrons.mvaTTH >= 0.30
+
+
+    #For Run3 we want to move away from ttH mva
+    electron_fakeable_mask = (
+        (electrons.conept >= 10.0) & (electrons.hoe <= 0.10) & (electrons.eInvMinusPInv >= -0.04) &
+        (electrons.lostHits == 0) & (electrons.convVeto) &
+        (
+            (abs(electrons.eta + electrons.deltaEtaSC) > 1.479) & (electrons.sieie <= 0.030)
+            | #OR
+            (abs(electrons.eta + electrons.deltaEtaSC) <= 1.479) & (electrons.sieie <= 0.011)
+        ) &
+        ak.where(
+            ak.is_none(electrons.ak4_jets, axis=1),
+                True,
+                ak.where(
+                    (mvaIso_WP90 == 0),
+                        electrons.ak4_jets.btagDeepFlavB <= jetDeepJet_WP_tight,
+                        electrons.ak4_jets.btagDeepFlavB <= jetDeepJet_WP_medium
+                )
+        ) &
+        ak.where(
+            mvaIso_WP90,
+                (electrons.jetRelIso < 0.7) & (mvaNoIso_WP90),
+                True
+        )
+    )
+
+    electron_tight_mask = mvaIso_WP90
+
+
 
     events.Electron = ak.with_field(events.Electron, electron_preselection_mask, "preselected")
 
