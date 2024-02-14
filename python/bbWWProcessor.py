@@ -274,8 +274,8 @@ class EventProcess():
                     "ak8_file": corrections_dir_run3+"jetmet/2022_Summer22EE/fatJet_jerc.json.gz",
                     "ak4_data_key": "Summer22EE_22Sep2023_RunE_V2_DATA_L1L2L3Res_AK4PFPuppi",
                     "ak8_data_key": "Summer22EE_22Sep2023_RunE_V2_DATA_L1L2L3Res_AK8PFPuppi",
-                    "ak4_MC_key": "Summer22EE_22Sep2023_RunE_V2_MC_L1L2L3Res_AK4PFPuppi",
-                    "ak8_MC_key": "Summer22EE_22Sep2023_RunE_V2_MC_L1L2L3Res_AK8PFPuppi",
+                    "ak4_MC_key": "Summer22EE_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi",
+                    "ak8_MC_key": "Summer22EE_22Sep2023_V2_MC_L1L2L3Res_AK8PFPuppi",
 
                     "btag_SF_file": corrections_dir_run3+"btag_SF/2022_Summer22/btagging.json.gz",
                     "btag_SF_key": "deepJet_shape",
@@ -288,8 +288,8 @@ class EventProcess():
                     "ak8_file": corrections_dir_run3+"jetmet/2022_Summer22EE/fatJet_jerc.json.gz",
                     "ak4_data_key": "Summer22EE_22Sep2023_RunF_V2_DATA_L1L2L3Res_AK4PFPuppi",
                     "ak8_data_key": "Summer22EE_22Sep2023_RunF_V2_DATA_L1L2L3Res_AK8PFPuppi",
-                    "ak4_MC_key": "Summer22EE_22Sep2023_RunF_V2_MC_L1L2L3Res_AK4PFPuppi",
-                    "ak8_MC_key": "Summer22EE_22Sep2023_RunF_V2_MC_L1L2L3Res_AK8PFPuppi",
+                    "ak4_MC_key": "Summer22EE_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi",
+                    "ak8_MC_key": "Summer22EE_22Sep2023_V2_MC_L1L2L3Res_AK8PFPuppi",
 
                     "btag_SF_file": corrections_dir_run3+"btag_SF/2022_Summer22/btagging.json.gz",
                     "btag_SF_key": "deepJet_shape",
@@ -300,10 +300,10 @@ class EventProcess():
                 "G": {
                     "ak4_file": corrections_dir_run3+"jetmet/2022_Summer22EE/jet_jerc.json.gz",
                     "ak8_file": corrections_dir_run3+"jetmet/2022_Summer22EE/fatJet_jerc.json.gz",
-                    "ak4_data_key": "Summer22EE_22Sep2023_RunF_V2_DATA_L1L2L3Res_AK4PFPuppi",
-                    "ak8_data_key": "Summer22EE_22Sep2023_RunF_V2_DATA_L1L2L3Res_AK8PFPuppi",
-                    "ak4_MC_key": "Summer22EE_22Sep2023_RunF_V2_MC_L1L2L3Res_AK4PFPuppi",
-                    "ak8_MC_key": "Summer22EE_22Sep2023_RunF_V2_MC_L1L2L3Res_AK8PFPuppi",
+                    "ak4_data_key": "Summer22EE_22Sep2023_RunG_V2_DATA_L1L2L3Res_AK4PFPuppi",
+                    "ak8_data_key": "Summer22EE_22Sep2023_RunG_V2_DATA_L1L2L3Res_AK8PFPuppi",
+                    "ak4_MC_key": "Summer22EE_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi",
+                    "ak8_MC_key": "Summer22EE_22Sep2023_V2_MC_L1L2L3Res_AK8PFPuppi",
 
                     "btag_SF_file": corrections_dir_run3+"btag_SF/2022_Summer22/btagging.json.gz",
                     "btag_SF_key": "deepJet_shape",
