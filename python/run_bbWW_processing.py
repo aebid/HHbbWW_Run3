@@ -24,6 +24,7 @@ parser.add_argument("-d", "--debug", dest="debug", type=int, default="0", help="
 parser.add_argument("-XS", dest="XS", type=float, default=1.0, help="Cross Section. [Default: 1.0]")
 parser.add_argument("-SF", dest="SF", type=int, default=0, help="Add Scale Factors. [Default: 0 (False)]")
 parser.add_argument("-HLTCut", dest="HLTCut", type=int, default=1, help="Filter out MC events that do not pass HLT. [Default: 1 (True)]")
+parser.add_argument("-nEvts", dest="nEventsLoopSize", type=int, default=500000, help="Number of events to loop over to save RAM. [Default: 500,000]")
 args, unknown = parser.parse_known_args()
 
 flist = args.infile_list
@@ -52,6 +53,7 @@ isMC = args.isMC
 XS = args.XS
 doSF = args.SF
 HLT_Cuts = args.HLTCut
+nEventsLoopSize = args.nEventsLoopSize
 
 print("Processing: ", flist)
 print("Will save as: ", outname)
@@ -61,7 +63,7 @@ print("Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / f
 
 for fname in flist:
     print("Starting file: ", fname)
-    nEventsLoopSize = 250000
+    #nEventsLoopSize = 250000
     #Check how many events are in the file
     uproot_file = uproot.open(fname)
     events = NanoEventsFactory.from_root(uproot_file, schemaclass=NanoAODSchema.v7).events()
@@ -85,7 +87,16 @@ for fname in flist:
         if Runyear == 2022:
             print("Doing 2022 jetmet corrections!!! Maybe turn this off")
             eventProcess.jetmet_json_corrector()
-            eventProcess.btag_json_SF()
+            if isMC:
+                #Scale Factors are only for MC
+                print("Doing 2022 btag SF!!!")
+                eventProcess.btag_json_SF()
+                print("Doing 2022 pu reweight!!!")
+                eventProcess.pu_reweight_json()
+            if dnn_truth_value == 1:
+                #TTBar sample, do TTBar reweights
+                print("Doing 2022 top pt reweight!!!")
+                eventProcess.top_pt_reweight()
 
         if doSF:
             #Jet Corrections are for both MC and Data
