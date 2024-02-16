@@ -70,13 +70,19 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
     data.Sumw2()
 
     for Sample in List:
+        #We don't need to look at all of the signal, big waste of time, lets jsut look at some of the m450 points
+        if (Sample.startswith('GluGlu')):
+            if not (("Radion" in Sample) and ("M-450" in Sample)):
+                continue
+
         print(Sample, 'channel: ', channel)
+
         if ( ('Single' in channel) and (not Sample in Single_Tree)): continue
         if ( ('Double' in channel) and (not Sample in Double_Tree)): continue
         if (Sample.startswith('Double') or Sample.startswith('Single')):
             weight  = '(1.0)'
         else:
-            weight = '('+str(xsection[Sample])+"*"+str(lumi2022)+'/'+str(nEvents[Sample])+')'
+            weight = '('+str(xsection[Sample])+"*"+str(lumi2022)+'/'+str(nEvents[Sample])+')*(tt_reweight * pu_reweight * ak4_jet0_btag_SF * ak4_jet1_btag_SF)'
             #fix me: all others weigh per event (like PU weight, lepton SF) can mutplied on RH in numenator
         histName = Sample
         Variable[histName] = TH1D(histName, histName, bin,low,high)
@@ -105,11 +111,11 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
         elif (Sample.startswith('TT')):
             ttbar_bkg.Add(Variable[histName])
             added_bkg.Add(Variable[histName])
-        elif ('GluGluToRadionToHHTo2B2Tau' in Sample ):
+        elif ('GluGlutoRadiontoHHto2B2Tau' in Sample ):
             sig_bbtt.Add(Variable[histName])
-        elif ('GluGluToRadionToHHTo2B2V' in Sample ):
+        elif ('GluGlutoRadiontoHHto2B2V' in Sample ):
             sig_bbzz.Add(Variable[histName])
-        elif ('GluGluToRadionToHHTo2B2W' in Sample ):
+        elif ('GluGlutoRadiontoHHto2B2W' in Sample ):
             sig_bbww.Add(Variable[histName])
         elif (Sample.startswith('ST_')):
             singleT_bkg.Add(Variable[histName])
