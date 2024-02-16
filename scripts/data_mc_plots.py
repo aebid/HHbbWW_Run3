@@ -70,13 +70,19 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
     data.Sumw2()
 
     for Sample in List:
+        #We don't need to look at all of the signal, big waste of time, lets jsut look at some of the m450 points
+        if (Sample.startswith('GluGlu')):
+            if not (("Radion" in Sample) and ("M-450" in Sample)):
+                continue
+
         print(Sample, 'channel: ', channel)
+
         if ( ('Single' in channel) and (not Sample in Single_Tree)): continue
         if ( ('Double' in channel) and (not Sample in Double_Tree)): continue
         if (Sample.startswith('Double') or Sample.startswith('Single')):
             weight  = '(1.0)'
         else:
-            weight = '('+str(xsection[Sample])+"*"+str(lumi2022)+'/'+str(nEvents[Sample])+')'
+            weight = '('+str(xsection[Sample])+"*"+str(lumi2022)+'/'+str(nEvents[Sample])+')*(tt_reweight * pu_reweight * ak4_jet0_btag_SF * ak4_jet1_btag_SF)'
             #fix me: all others weigh per event (like PU weight, lepton SF) can mutplied on RH in numenator
         histName = Sample
         Variable[histName] = TH1D(histName, histName, bin,low,high)
@@ -105,11 +111,11 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
         elif (Sample.startswith('TT')):
             ttbar_bkg.Add(Variable[histName])
             added_bkg.Add(Variable[histName])
-        elif ('GluGluToRadionToHHTo2B2Tau' in Sample ):
+        elif ('GluGlutoRadiontoHHto2B2Tau' in Sample ):
             sig_bbtt.Add(Variable[histName])
-        elif ('GluGluToRadionToHHTo2B2V' in Sample ):
+        elif ('GluGlutoRadiontoHHto2B2V' in Sample ):
             sig_bbzz.Add(Variable[histName])
-        elif ('GluGluToRadionToHHTo2B2W' in Sample ):
+        elif ('GluGlutoRadiontoHHto2B2W' in Sample ):
             sig_bbww.Add(Variable[histName])
         elif (Sample.startswith('ST_')):
             singleT_bkg.Add(Variable[histName])
@@ -302,11 +308,15 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
     print('Data:',data.Integral(1,2))
     gPad.RedrawAxis()
 
+
+    ratio_agni = True #Agni wanted it to be data/bg not (data-bg)/bg
+
     if (doratio):
         print("Starting doRatio, checking bin 5")
         ratio = data.Clone('ratio')
         print(ratio.GetBinContent(5))
-        ratio.Add(added_bkg, -1)
+        if not ratio_agni:
+            ratio.Add(added_bkg, -1)
         print(ratio.GetBinContent(5))
         ratio.Divide(added_bkg)
         print(ratio.GetBinContent(5))
@@ -330,15 +340,22 @@ def make_plot(channel, var, bin, low, high, xlabel, xunits, prelim, setLogX, set
         ratio.GetXaxis().SetTitle
         ratio.GetYaxis().SetTitleSize(0.03);
         ratio.GetYaxis().SetTitleOffset(1.5);
-        ratio.GetYaxis().SetTitle("#frac{Data-Bkg}{Bkg}");
+        if not ratio_agni:
+            ratio.GetYaxis().SetTitle("#frac{Data-Bkg}{Bkg}");
+        if ratio_agni:
+            ratio.GetYaxis().SetTitle("#frac{Data}{Bkg}");
         ratio.GetYaxis().CenterTitle();
         ratio.GetYaxis().SetLabelSize(0.03);
         ratio.SetMarkerStyle(20);
         ratio.SetMarkerSize(1.2);
         ratio.SetLineColor(1)
         ratio.SetMarkerColor(1)
-        ratio.SetMinimum(-0.5);
-        ratio.SetMaximum(0.5);
+        if not ratio_agni:
+            ratio.SetMinimum(-0.5);
+            ratio.SetMaximum(0.5);
+        if ratio_agni:
+            ratio.SetMinimum(0.0);
+            ratio.SetMaximum(3.0);
         ratio.Draw("ep");
         c1.Modified();
         c1.Update()
@@ -356,7 +373,7 @@ print('Starting plots at: ' + str((time.time() - startTime)))
 
 #Double Channel DNN Input Plots
 base_dl_cut = "((Double_Signal) && (nBjets_pass) && (Zveto))"
-plotdir = "feb5_run3"
+plotdir = "feb16_run3"
 
 #Boosted Plots
 var = 'n_ak8_jets'
