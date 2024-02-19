@@ -375,241 +375,245 @@ print('Starting plots at: ' + str((time.time() - startTime)))
 base_dl_cut = "((Double_Signal) && (nBjets_pass) && (Zveto))"
 plotdir = "feb16_run3"
 
-#Boosted Plots
-var = 'n_ak8_jets'
-varname = 'n fatjets'
-varunit = ''
-nBins = 10
-binlow = -0.5
-binhigh = 9.5
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
+do_boosted = False
+do_res_1b = False
+do_res_2b = True
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
+if do_boosted:
+    #Boosted Plots
+    var = 'n_ak8_jets'
+    varname = 'n fatjets'
+    varunit = ''
+    nBins = 10
+    binlow = -0.5
+    binhigh = 9.5
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
-var = 'n_cleaned_ak8_jets'
-varname = 'n cleaned fatjets'
-varunit = ''
-nBins = 10
-binlow = -0.5
-binhigh = 9.5
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
+    var = 'n_cleaned_ak8_jets'
+    varname = 'n cleaned fatjets'
+    varunit = ''
+    nBins = 10
+    binlow = -0.5
+    binhigh = 9.5
 
-var = 'n_btag_ak8_jets'
-varname = 'n btagged fatjets'
-varunit = ''
-nBins = 10
-binlow = -0.5
-binhigh = 9.5
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
+    var = 'n_btag_ak8_jets'
+    varname = 'n btagged fatjets'
+    varunit = ''
+    nBins = 10
+    binlow = -0.5
+    binhigh = 9.5
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
-var = 'ak8_jet0_pt'
-varname = 'fatjet 0 pT'
-varunit = 'GeV'
-nBins = 100
-binlow = 200.0
-binhigh = 800.0
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
+    var = 'ak8_jet0_pt'
+    varname = 'fatjet 0 pT'
+    varunit = 'GeV'
+    nBins = 100
+    binlow = 200.0
+    binhigh = 800.0
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
-var = 'ak8_jet0_eta'
-varname = 'fatjet 0 eta'
-varunit = 'GeV'
-nBins = 30
-binlow = -3.0
-binhigh = 3.0
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
+    var = 'ak8_jet0_eta'
+    varname = 'fatjet 0 eta'
+    varunit = 'GeV'
+    nBins = 30
+    binlow = -3.0
+    binhigh = 3.0
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
 
 
-var = 'ak8_jet0_subjet1_pt'
-varname = 'fatjet 0 subjet1 pT'
-varunit = 'GeV'
-nBins = 50
-binlow = 0.0
-binhigh = 500.0
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
+    var = 'ak8_jet0_subjet1_pt'
+    varname = 'fatjet 0 subjet1 pT'
+    varunit = 'GeV'
+    nBins = 50
+    binlow = 0.0
+    binhigh = 500.0
 
-var = 'ak8_jet0_subjet2_pt'
-varname = 'fatjet 0 subjet2 pT'
-varunit = 'GeV'
-nBins = 50
-binlow = 0.0
-binhigh = 500.0
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
+    var = 'ak8_jet0_subjet2_pt'
+    varname = 'fatjet 0 subjet2 pT'
+    varunit = 'GeV'
+    nBins = 50
+    binlow = 0.0
+    binhigh = 500.0
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
 
-var = 'll_mass'
-varname = 'll invar mass'
-varunit = 'GeV'
-nBins = 60
-binlow = 0.0
-binhigh = 300.0
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
+    var = 'll_mass'
+    varname = 'll invar mass'
+    varunit = 'GeV'
+    nBins = 60
+    binlow = 0.0
+    binhigh = 300.0
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
 
 
 
 
-var = 'lep0_pt'
-varname = 'lep0 pt'
-varunit = 'GeV'
-nBins = 100
-binlow = 0.0
-binhigh = 300.0
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
+    var = 'lep0_pt'
+    varname = 'lep0 pt'
+    varunit = 'GeV'
+    nBins = 100
+    binlow = 0.0
+    binhigh = 300.0
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-var = 'lep1_pt'
-varname = 'lep1 pt'
-varunit = 'GeV'
-nBins = 100
-binlow = 0.0
-binhigh = 300.0
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
+    var = 'lep1_pt'
+    varname = 'lep1 pt'
+    varunit = 'GeV'
+    nBins = 100
+    binlow = 0.0
+    binhigh = 300.0
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-var = 'lep0_eta'
-varname = 'lep0 eta'
-varunit = 'GeV'
-nBins = 30
-binlow = -3.0
-binhigh = 3.0
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
+    var = 'lep0_eta'
+    varname = 'lep0 eta'
+    varunit = 'GeV'
+    nBins = 30
+    binlow = -3.0
+    binhigh = 3.0
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
-var = 'lep1_eta'
-varname = 'lep1 eta'
-varunit = 'GeV'
-nBins = 30
-binlow = -3.0
-binhigh = 3.0
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
-cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
+    var = 'lep1_eta'
+    varname = 'lep1 eta'
+    varunit = 'GeV'
+    nBins = 30
+    binlow = -3.0
+    binhigh = 3.0
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_ee/")
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_mm/")
 
+    cut = base_dl_cut+" && (Double_HbbFat) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/boosted_em/")
 
 
 
@@ -620,137 +624,137 @@ make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, Fa
 
 
 
-#Resolved 1B Plots
-base_dl_cut = "((Double_Signal) && (nBjets_pass) && (Zveto))"
-plotdir = "feb5_run3"
 
-var = 'n_ak4_jets'
-varname = 'n jets'
-varunit = ''
-nBins = 10
-binlow = -0.5
-binhigh = 9.5
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
+if do_res_1b:
+    #Resolved 1B Plots
+    base_dl_cut = "((Double_Signal) && (nBjets_pass) && (Zveto))"
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
+    var = 'n_ak4_jets'
+    varname = 'n jets'
+    varunit = ''
+    nBins = 10
+    binlow = -0.5
+    binhigh = 9.5
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-var = 'n_cleaned_ak4_jets'
-varname = 'n cleaned jets'
-varunit = ''
-nBins = 10
-binlow = -0.5
-binhigh = 9.5
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
+    var = 'n_cleaned_ak4_jets'
+    varname = 'n cleaned jets'
+    varunit = ''
+    nBins = 10
+    binlow = -0.5
+    binhigh = 9.5
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-var = 'n_medium_btag_ak4_jets'
-varname = 'n medium btagged jets'
-varunit = ''
-nBins = 10
-binlow = -0.5
-binhigh = 9.5
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
+    var = 'n_medium_btag_ak4_jets'
+    varname = 'n medium btagged jets'
+    varunit = ''
+    nBins = 10
+    binlow = -0.5
+    binhigh = 9.5
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
 
-var = 'ak4_jet0_pt'
-varname = 'ak4 jet0 pt'
-varunit = ''
-nBins = 100
-binlow = 0.0
-binhigh = 500.0
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
+    var = 'ak4_jet0_pt'
+    varname = 'ak4 jet0 pt'
+    varunit = ''
+    nBins = 100
+    binlow = 0.0
+    binhigh = 500.0
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
-var = 'ak4_jet1_pt'
-varname = 'ak4 jet1 pt'
-varunit = ''
-nBins = 100
-binlow = 0.0
-binhigh = 500.0
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
+    var = 'ak4_jet1_pt'
+    varname = 'ak4 jet1 pt'
+    varunit = ''
+    nBins = 100
+    binlow = 0.0
+    binhigh = 500.0
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
 
 
-var = 'ak4_jet0_eta'
-varname = 'ak4 jet0 eta'
-varunit = ''
-nBins = 30
-binlow = -3.0
-binhigh = 3.0
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
+    var = 'ak4_jet0_eta'
+    varname = 'ak4 jet0 eta'
+    varunit = ''
+    nBins = 30
+    binlow = -3.0
+    binhigh = 3.0
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
-var = 'ak4_jet1_eta'
-varname = 'ak4 jet1 eta'
-varunit = ''
-nBins = 30
-binlow = -3.0
-binhigh = 3.0
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
+    var = 'ak4_jet1_eta'
+    varname = 'ak4 jet1 eta'
+    varunit = ''
+    nBins = 30
+    binlow = -3.0
+    binhigh = 3.0
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
 
 
 
@@ -758,93 +762,93 @@ make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, Fa
 
 
 
-var = 'lep0_pt'
-varname = 'lep0 pt'
-varunit = ''
-nBins = 100
-binlow = 0.0
-binhigh = 300.0
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
+    var = 'lep0_pt'
+    varname = 'lep0 pt'
+    varunit = ''
+    nBins = 100
+    binlow = 0.0
+    binhigh = 300.0
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
-var = 'lep1_pt'
-varname = 'lep1 pt'
-varunit = ''
-nBins = 100
-binlow = 0.0
-binhigh = 300.0
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
+    var = 'lep1_pt'
+    varname = 'lep1 pt'
+    varunit = ''
+    nBins = 100
+    binlow = 0.0
+    binhigh = 300.0
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
-var = 'lep0_eta'
-varname = 'lep0 eta'
-varunit = ''
-nBins = 30
-binlow = -3.0
-binhigh = 3.0
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
+    var = 'lep0_eta'
+    varname = 'lep0 eta'
+    varunit = ''
+    nBins = 30
+    binlow = -3.0
+    binhigh = 3.0
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
-var = 'lep1_eta'
-varname = 'lep1 eta'
-varunit = ''
-nBins = 30
-binlow = -3.0
-binhigh = 3.0
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
+    var = 'lep1_eta'
+    varname = 'lep1 eta'
+    varunit = ''
+    nBins = 30
+    binlow = -3.0
+    binhigh = 3.0
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-var = 'll_mass'
-varname = 'll invar mass'
-varunit = 'GeV'
-nBins = 60
-binlow = 0.0
-binhigh = 300.0
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
+    var = 'll_mass'
+    varname = 'll invar mass'
+    varunit = 'GeV'
+    nBins = 60
+    binlow = 0.0
+    binhigh = 300.0
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_mm/")
 
+    cut = base_dl_cut+" && (Double_Res_1b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res1b_em/")
 
 
 
@@ -856,220 +860,222 @@ make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, Fa
 
 
 
-#Resolved 2B Plots
-base_dl_cut = "((Double_Signal) && (nBjets_pass) && (Zveto))"
-plotdir = "feb5_run3"
 
-var = 'n_ak4_jets'
-varname = 'n jets'
-varunit = ''
-nBins = 10
-binlow = -0.5
-binhigh = 9.5
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
+if do_res_2b:
+    #Resolved 2B Plots
+    base_dl_cut = "((Double_Signal) && (nBjets_pass) && (Zveto))"
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
+    var = 'n_ak4_jets'
+    varname = 'n jets'
+    varunit = ''
+    nBins = 10
+    binlow = -0.5
+    binhigh = 9.5
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
 
-var = 'n_cleaned_ak4_jets'
-varname = 'n cleaned jets'
-varunit = ''
-nBins = 10
-binlow = -0.5
-binhigh = 9.5
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
+    var = 'n_cleaned_ak4_jets'
+    varname = 'n cleaned jets'
+    varunit = ''
+    nBins = 10
+    binlow = -0.5
+    binhigh = 9.5
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
 
-var = 'n_medium_btag_ak4_jets'
-varname = 'n medium btagged jets'
-varunit = ''
-nBins = 10
-binlow = -0.5
-binhigh = 9.5
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
+    var = 'n_medium_btag_ak4_jets'
+    varname = 'n medium btagged jets'
+    varunit = ''
+    nBins = 10
+    binlow = -0.5
+    binhigh = 9.5
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
 
 
-var = 'ak4_jet0_pt'
-varname = 'ak4 jet0 pt'
-varunit = ''
-nBins = 100
-binlow = 0.0
-binhigh = 500.0
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
+    var = 'ak4_jet0_pt'
+    varname = 'ak4 jet0 pt'
+    varunit = ''
+    nBins = 100
+    binlow = 0.0
+    binhigh = 500.0
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
 
-var = 'ak4_jet1_pt'
-varname = 'ak4 jet1 pt'
-varunit = ''
-nBins = 100
-binlow = 0.0
-binhigh = 500.0
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
+    var = 'ak4_jet1_pt'
+    varname = 'ak4 jet1 pt'
+    varunit = ''
+    nBins = 100
+    binlow = 0.0
+    binhigh = 500.0
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
 
 
 
-var = 'ak4_jet0_eta'
-varname = 'ak4 jet0 eta'
-varunit = ''
-nBins = 30
-binlow = -3.0
-binhigh = 3.0
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
+    var = 'ak4_jet0_eta'
+    varname = 'ak4 jet0 eta'
+    varunit = ''
+    nBins = 30
+    binlow = -3.0
+    binhigh = 3.0
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
 
-var = 'ak4_jet1_eta'
-varname = 'ak4 jet1 eta'
-varunit = ''
-nBins = 30
-binlow = -3.0
-binhigh = 3.0
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
+    var = 'ak4_jet1_eta'
+    varname = 'ak4 jet1 eta'
+    varunit = ''
+    nBins = 30
+    binlow = -3.0
+    binhigh = 3.0
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
 
 
 
 
-var = 'lep0_pt'
-varname = 'lep0 pt'
-varunit = ''
-nBins = 100
-binlow = 0.0
-binhigh = 300.0
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
+    var = 'lep0_pt'
+    varname = 'lep0 pt'
+    varunit = ''
+    nBins = 100
+    binlow = 0.0
+    binhigh = 300.0
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
 
-var = 'lep1_pt'
-varname = 'lep1 pt'
-varunit = ''
-nBins = 100
-binlow = 0.0
-binhigh = 300.0
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
+    var = 'lep1_pt'
+    varname = 'lep1 pt'
+    varunit = ''
+    nBins = 100
+    binlow = 0.0
+    binhigh = 300.0
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
 
-var = 'lep0_eta'
-varname = 'lep0 eta'
-varunit = ''
-nBins = 30
-binlow = -3.0
-binhigh = 3.0
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
+    var = 'lep0_eta'
+    varname = 'lep0 eta'
+    varunit = ''
+    nBins = 30
+    binlow = -3.0
+    binhigh = 3.0
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
 
-var = 'lep1_eta'
-varname = 'lep1 eta'
-varunit = ''
-nBins = 30
-binlow = -3.0
-binhigh = 3.0
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
+    var = 'lep1_eta'
+    varname = 'lep1 eta'
+    varunit = ''
+    nBins = 30
+    binlow = -3.0
+    binhigh = 3.0
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
 
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
 
-var = 'll_mass'
-varname = 'll invar mass'
-varunit = 'GeV'
-nBins = 60
-binlow = 0.0
-binhigh = 300.0
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
+    var = 'll_mass'
+    varname = 'll invar mass'
+    varunit = 'GeV'
+    nBins = 60
+    binlow = 0.0
+    binhigh = 300.0
 
-cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
-make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_ee)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_ee/")
+
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_mm)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_mm/")
+
+    cut = base_dl_cut+" && (Double_Res_2b) && (double_is_em || double_is_me)"
+    make_plot('Doublelepton',var, nBins, binlow, binhigh, varname, varunit, True, False, True, cut, plotdir+"/res2b_em/")
