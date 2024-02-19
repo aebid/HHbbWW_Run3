@@ -13,15 +13,15 @@ model = tf.keras.Sequential()
 
 #For resolved case, we start with Lep1/2 and Jet1/2 4 vectors, E,px,py,pz
 #Since these will already be flattened (not 2D) we do not need a flatten layer
-model.add(tf.keras.layers.Dense(16, activation="relu"))
+model.add(tf.keras.layers.Dense(26, activation="relu"))
 
-model.add(tf.keras.layers.Dense(128, activation="relu"))
+model.add(tf.keras.layers.Dense(64, activation="relu"))
 
 #model.add(tf.keras.layers.Dropout(0.5))
 
-model.add(tf.keras.layers.Dense(128, activation="relu"))
+model.add(tf.keras.layers.Dense(64, activation="relu"))
 
-model.add(tf.keras.layers.Dense(3))
+model.add(tf.keras.layers.Dense(3, activation="softmax"))
 
 model.compile(
     optimizer='adam',
@@ -72,6 +72,7 @@ print("Starting the training and then will test")
 
 
 #Lets try to use class weights? This allows us to have a weight per class to emphasize underrepresented data in the training
+total_events = len(signal_events_filtered) + len(tt_events_filtered) + len(DY_events_filtered)
 signal_classweight = 1.0
 tt_classweight = len(signal_events_filtered)/len(tt_events_filtered)
 DY_classweight = len(signal_events_filtered)/len(DY_events_filtered)
@@ -81,80 +82,50 @@ print(class_weight)
 
 
 #Put in a list of [ [px, py, pz, E, ...], [px, py, pz, E, ...], [px, py, pz, E, ...] ]
-signal_array = np.array([
-    signal_events_filtered.lep0_px,
-    signal_events_filtered.lep0_py,
-    signal_events_filtered.lep0_pz,
-    signal_events_filtered.lep0_E,
+def create_nparray(events):
+    array = np.array([
+        events.lep0_px,
+        events.lep0_py,
+        events.lep0_pz,
+        events.lep0_E,
+        events.lep0_pdgId,
+        events.lep0_charge,
 
-    signal_events_filtered.lep1_px,
-    signal_events_filtered.lep1_py,
-    signal_events_filtered.lep1_pz,
-    signal_events_filtered.lep1_E,
+        events.lep1_px,
+        events.lep1_py,
+        events.lep1_pz,
+        events.lep1_E,
+        events.lep1_pdgId,
+        events.lep1_charge,
 
-    signal_events_filtered.ak4_jet0_px,
-    signal_events_filtered.ak4_jet0_py,
-    signal_events_filtered.ak4_jet0_pz,
-    signal_events_filtered.ak4_jet0_E,
+        events.ak4_jet0_px,
+        events.ak4_jet0_py,
+        events.ak4_jet0_pz,
+        events.ak4_jet0_E,
+        events.ak4_jet0_btagDeepFlavB,
 
-    signal_events_filtered.ak4_jet1_px,
-    signal_events_filtered.ak4_jet1_py,
-    signal_events_filtered.ak4_jet1_pz,
-    signal_events_filtered.ak4_jet1_E
-])
+        events.ak4_jet1_px,
+        events.ak4_jet1_py,
+        events.ak4_jet1_pz,
+        events.ak4_jet1_E,
+        events.ak4_jet1_btagDeepFlavB,
+
+        events.met_px,
+        events.met_py,
+        events.met_pz,
+        events.met_E,
+    ])
+    return array
+
+signal_array = create_nparray(signal_events_filtered)
 signal_array = signal_array.transpose()
 signal_label = np.full(len(signal_array), 0)
 
-
-tt_array = np.array([
-    tt_events_filtered.lep0_px,
-    tt_events_filtered.lep0_py,
-    tt_events_filtered.lep0_pz,
-    tt_events_filtered.lep0_E,
-
-    tt_events_filtered.lep1_px,
-    tt_events_filtered.lep1_py,
-    tt_events_filtered.lep1_pz,
-    tt_events_filtered.lep1_E,
-
-    tt_events_filtered.ak4_jet0_px,
-    tt_events_filtered.ak4_jet0_py,
-    tt_events_filtered.ak4_jet0_pz,
-    tt_events_filtered.ak4_jet0_E,
-
-    tt_events_filtered.ak4_jet1_px,
-    tt_events_filtered.ak4_jet1_py,
-    tt_events_filtered.ak4_jet1_pz,
-    tt_events_filtered.ak4_jet1_E,
-
-])
+tt_array = create_nparray(tt_events_filtered)
 tt_array = tt_array.transpose()
 tt_label = np.full(len(tt_array), 1)
 
-
-
-DY_array = np.array([
-    DY_events_filtered.lep0_px,
-    DY_events_filtered.lep0_py,
-    DY_events_filtered.lep0_pz,
-    DY_events_filtered.lep0_E,
-
-    DY_events_filtered.lep1_px,
-    DY_events_filtered.lep1_py,
-    DY_events_filtered.lep1_pz,
-    DY_events_filtered.lep1_E,
-
-    DY_events_filtered.ak4_jet0_px,
-    DY_events_filtered.ak4_jet0_py,
-    DY_events_filtered.ak4_jet0_pz,
-    DY_events_filtered.ak4_jet0_E,
-
-    DY_events_filtered.ak4_jet1_px,
-    DY_events_filtered.ak4_jet1_py,
-    DY_events_filtered.ak4_jet1_pz,
-    DY_events_filtered.ak4_jet1_E,
-
-])
+DY_array = create_nparray(DY_events_filtered)
 DY_array = DY_array.transpose()
 DY_label = np.full(len(DY_array), 2)
 
@@ -213,7 +184,7 @@ test_set = test_set[shuffle_index]
 test_labels = test_labels[shuffle_index]
 
 
-model.fit(train_set, train_labels, epochs=20, class_weight=class_weight)
+model.fit(train_set, train_labels, epochs=10, class_weight=class_weight)
 
 prob_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
