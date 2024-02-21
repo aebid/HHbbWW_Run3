@@ -42,19 +42,11 @@ print("DY ", len(DY_events_filtered))
 print("Starting the training and then will test")
 
 
-#For now, we have too much TT events, lets only use 1000 events
-#nEvtMax = 5000
-#signal_events_filtered = signal_events_filtered[:min(nEvtMax, len(signal_events_filtered))]
-#tt_events_filtered = tt_events_filtered[:min(nEvtMax, len(tt_events_filtered))]
-#DY_events_filtered = DY_events_filtered[:min(nEvtMax, len(DY_events_filtered))]
-
-
-
 #Lets try to use class weights? This allows us to have a weight per class to emphasize underrepresented data in the training
 total_events = len(signal_events_filtered) + len(tt_events_filtered) + len(DY_events_filtered)
-signal_classweight = 1.0
-tt_classweight = len(signal_events_filtered)/len(tt_events_filtered)
-DY_classweight = len(signal_events_filtered)/len(DY_events_filtered)
+signal_classweight = 1.0/len(signal_events_filtered)
+tt_classweight = 1.0/len(tt_events_filtered)
+DY_classweight = 1.0/len(DY_events_filtered)
 class_weight = {0: signal_classweight, 1: tt_classweight, 2: DY_classweight}
 print("Using classweights, weights are")
 print(class_weight)
@@ -118,7 +110,7 @@ DY_label = np.full(len(DY_array), 2)
 
 #Loaded all of the events, now we separate what we want to train on and what we want to test on
 #Will use 90% of events for training, 10% for testing
-PercOfTrain = 0.9
+PercOfTrain = 0.5
 nSignalTrain = int(PercOfTrain*len(signal_events_filtered))
 nttTrain = int(PercOfTrain*len(tt_events_filtered))
 nDYTrain = int(PercOfTrain*len(DY_events_filtered))
@@ -191,9 +183,15 @@ model.add(tf.keras.layers.Dense(26, activation="relu"))
 
 model.add(tf.keras.layers.Dense(64, activation="relu"))
 
-#model.add(tf.keras.layers.Dropout(0.5))
+model.add(tf.keras.layers.Dropout(0.1))
 
 model.add(tf.keras.layers.Dense(64, activation="relu"))
+
+model.add(tf.keras.layers.Dropout(0.1))
+
+model.add(tf.keras.layers.Dense(64, activation="relu"))
+
+model.add(tf.keras.layers.Dropout(0.1))
 
 model.add(tf.keras.layers.Dense(3, activation="softmax"))
 
@@ -211,7 +209,7 @@ model.compile(
 
 
 #model.fit(train_set, train_labels, epochs=10, class_weight=class_weight)
-model.fit(train_set_norm, train_labels_onehot, epochs=10, class_weight=class_weight)
+history = model.fit(train_set_norm, train_labels_onehot, epochs=10, class_weight=class_weight)
 
 prob_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
@@ -229,4 +227,14 @@ import sklearn.metrics
 cm = sklearn.metrics.confusion_matrix(np.argmax(test_labels_onehot, axis=1), np.argmax(prob_examples, axis=1), normalize='true')
 disp = sklearn.metrics.ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Signal", "TT", "DY"])
 disp.plot(cmap=plt.cm.Blues)
-plt.show()
+plt.savefig("conf_matrix.pdf")
+plt.close()
+
+#Lets look at training metrics, maybe just a plot of the history?
+plt.plot(history.history['categorical_accuracy'])
+plt.savefig("accuracy.pdf")
+plt.close()
+
+plt.plot(history.history['loss'])
+plt.savefig("loss.pdf")
+plt.close()
