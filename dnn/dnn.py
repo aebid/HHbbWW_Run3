@@ -224,14 +224,9 @@ test_loss, test_acc = model.evaluate(test_set_norm, test_labels_onehot, verbose=
 
 
 
-"""
-#Testing ROC plots
-from sklearn.preprocessing import LabelBinarizer
-label_binarizer = LabelBinarizer().fit(train_labels)
-onehot_test = label_binarizer.transform(test_labels)
+import sklearn.metrics
 
-from sklearn.metrics import RocCurveDisplay
-display = RocCurveDisplay.from_predictions(onehot_test[:, 0], prob_model.predict(test_set)[:, 0], name="test", color="darkorange")
-
-display.plot()
-"""
+cm = sklearn.metrics.confusion_matrix(np.argmax(test_labels_onehot, axis=1), np.argmax(prob_examples, axis=1), normalize='true')
+disp = sklearn.metrics.ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Signal", "TT", "DY"])
+disp.plot(cmap=plt.cm.Blues)
+plt.show()
