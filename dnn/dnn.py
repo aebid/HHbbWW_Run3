@@ -9,27 +9,6 @@ import matplotlib.pyplot as plt
 print(tf.__version__)
 
 
-model = tf.keras.Sequential()
-
-#For resolved case, we start with Lep1/2 and Jet1/2 4 vectors, E,px,py,pz
-#Since these will already be flattened (not 2D) we do not need a flatten layer
-model.add(tf.keras.layers.Dense(26, activation="relu"))
-
-model.add(tf.keras.layers.Dense(64, activation="relu"))
-
-#model.add(tf.keras.layers.Dropout(0.5))
-
-model.add(tf.keras.layers.Dense(64, activation="relu"))
-
-model.add(tf.keras.layers.Dense(3, activation="softmax"))
-
-model.compile(
-    optimizer='adam',
-    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    metrics=['accuracy']
-)
-
-
 signal_sample = "GluGlutoRadion_2L_M450_PreEE.root"
 signal_file = uproot.open(signal_sample)
 signal_tree = signal_file['Double_Tree']
@@ -63,22 +42,18 @@ print("DY ", len(DY_events_filtered))
 print("Starting the training and then will test")
 
 
-#For now, we have too much TT events, lets only use 1000 events
-#nEvtMax = 5000
-#signal_events_filtered = signal_events_filtered[:min(nEvtMax, len(signal_events_filtered))]
-#tt_events_filtered = tt_events_filtered[:min(nEvtMax, len(tt_events_filtered))]
-#DY_events_filtered = DY_events_filtered[:min(nEvtMax, len(DY_events_filtered))]
-
-
-
 #Lets try to use class weights? This allows us to have a weight per class to emphasize underrepresented data in the training
 total_events = len(signal_events_filtered) + len(tt_events_filtered) + len(DY_events_filtered)
-signal_classweight = 1.0
-tt_classweight = len(signal_events_filtered)/len(tt_events_filtered)
-DY_classweight = len(signal_events_filtered)/len(DY_events_filtered)
+signal_classweight = 1.0/len(signal_events_filtered)
+tt_classweight = 1.0/len(tt_events_filtered)
+DY_classweight = 1.0/len(DY_events_filtered)
 class_weight = {0: signal_classweight, 1: tt_classweight, 2: DY_classweight}
 print("Using classweights, weights are")
 print(class_weight)
+
+#Turn the labels into onehots, prepare the binarizer
+from sklearn.preprocessing import LabelBinarizer
+label_binarizer = LabelBinarizer().fit([0,1,2])
 
 
 #Put in a list of [ [px, py, pz, E, ...], [px, py, pz, E, ...], [px, py, pz, E, ...] ]
@@ -114,6 +89,7 @@ def create_nparray(events):
         events.met_py,
         events.met_pz,
         events.met_E,
+
     ])
     return array
 
@@ -134,7 +110,7 @@ DY_label = np.full(len(DY_array), 2)
 
 #Loaded all of the events, now we separate what we want to train on and what we want to test on
 #Will use 90% of events for training, 10% for testing
-PercOfTrain = 0.9
+PercOfTrain = 0.5
 nSignalTrain = int(PercOfTrain*len(signal_events_filtered))
 nttTrain = int(PercOfTrain*len(tt_events_filtered))
 nDYTrain = int(PercOfTrain*len(DY_events_filtered))
@@ -166,11 +142,14 @@ test_DY_labels = DY_label[:][nDYTrain:]
 train_set = np.concatenate((train_signal_events, train_tt_events, train_DY_events))
 train_labels = np.concatenate((train_signal_labels, train_tt_labels, train_DY_labels))
 
+
+
 #Shuffle the train set and labels in unison
 shuffle_index = np.random.permutation(len(train_signal_events)+len(train_tt_events)+len(train_DY_events))
 
 train_set = train_set[shuffle_index]
 train_labels = train_labels[shuffle_index]
+train_labels_onehot = label_binarizer.transform(train_labels)
 
 
 
@@ -182,26 +161,80 @@ shuffle_index = np.random.permutation(len(test_signal_events)+len(test_tt_events
 
 test_set = test_set[shuffle_index]
 test_labels = test_labels[shuffle_index]
+test_labels_onehot = label_binarizer.transform(test_labels)
 
 
-model.fit(train_set, train_labels, epochs=10, class_weight=class_weight)
+#Create a layer to normalize the inputs
+#Inputs for DNN must be normalized, set normalization funcs on the train set
+norm_inputs = tf.keras.layers.Normalization(axis=-1)
+norm_inputs.adapt(train_set)
+
+train_set_norm = norm_inputs(train_set)
+test_set_norm = norm_inputs(test_set)
+
+
+
+model = tf.keras.Sequential()
+
+#For resolved case, we start with Lep1/2 and Jet1/2 4 vectors, E,px,py,pz
+#Since these will already be flattened (not 2D) we do not need a flatten layer
+
+model.add(tf.keras.layers.Dense(26, activation="relu"))
+
+model.add(tf.keras.layers.Dense(64, activation="relu"))
+
+model.add(tf.keras.layers.Dropout(0.1))
+
+model.add(tf.keras.layers.Dense(64, activation="relu"))
+
+model.add(tf.keras.layers.Dropout(0.1))
+
+model.add(tf.keras.layers.Dense(64, activation="relu"))
+
+model.add(tf.keras.layers.Dropout(0.1))
+
+model.add(tf.keras.layers.Dense(3, activation="softmax"))
+
+model.compile(
+    optimizer='adam',
+    loss=tf.keras.losses.CategoricalCrossentropy(),
+    metrics=[
+        #'accuracy',
+        tf.keras.metrics.CategoricalAccuracy(),
+    ]
+)
+
+
+
+
+
+#model.fit(train_set, train_labels, epochs=10, class_weight=class_weight)
+history = model.fit(train_set_norm, train_labels_onehot, epochs=10, class_weight=class_weight)
 
 prob_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
+prob_examples = prob_model.predict(test_set_norm)
 
-test_loss, test_acc = model.evaluate(test_set, test_labels, verbose=2)
-
-
-
-
+#test_loss, test_acc = model.evaluate(test_set, test_labels, verbose=2)
+test_loss, test_acc = model.evaluate(test_set_norm, test_labels_onehot, verbose=2)
 
 
-#Testing ROC plots
-from sklearn.preprocessing import LabelBinarizer
-label_binarizer = LabelBinarizer().fit(train_labels)
-onehot_test = label_binarizer.transform(test_labels)
 
-from sklearn.metrics import RocCurveDisplay
-display = RocCurveDisplay.from_predictions(onehot_test[:, 0], prob_model.predict(test_set)[:, 0], name="test", color="darkorange")
 
-display.plot()
+
+import sklearn.metrics
+
+cm = sklearn.metrics.confusion_matrix(np.argmax(test_labels_onehot, axis=1), np.argmax(prob_examples, axis=1), normalize='true')
+disp = sklearn.metrics.ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Signal", "TT", "DY"])
+disp.plot(cmap=plt.cm.Blues)
+plt.savefig("conf_matrix.pdf")
+plt.close()
+
+#Lets look at training metrics, maybe just a plot of the history?
+plt.plot(history.history['categorical_accuracy'])
+plt.savefig("accuracy.pdf")
+plt.close()
+
+plt.plot(history.history['loss'])
+plt.savefig("loss.pdf")
+plt.close()
