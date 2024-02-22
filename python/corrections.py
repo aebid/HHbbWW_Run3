@@ -108,6 +108,8 @@ def btag_json(EventProcess):
     abseta = ak.flatten(eta)
     pt = ak.flatten(events.Jet.pt)
     disc = ak.flatten(events.Jet.btagDeepFlavB)
+    #For one MC file in 2022 there is a single jet that has nan for the disc, we fix that ONE EDGE CASE here ):
+    disc = ak.nan_to_num(disc, 0.0)
     counts = ak.num(events.Jet)
 
     btag_SF_central = ak.unflatten(btag_SF.evaluate("central", hadronFlavour, abseta, pt, disc), counts)
