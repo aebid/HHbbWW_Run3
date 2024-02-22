@@ -567,7 +567,7 @@ def double_lepton_category(EventProcess):
     double_res_1b_cut = ak.fill_none((ak.sum(ak4_jets.cleaned_double, axis=1) >= 2) & (ak.sum(ak4_jets.medium_btag_double, axis=1) == 1), False)
     double_res_2b_cut = ak.fill_none((ak.sum(ak4_jets.cleaned_double, axis=1) >= 2) & (ak.sum(ak4_jets.medium_btag_double, axis=1) >= 2), False)
 
-    enough_jets = ak.fill_none((double_hbbfat_cut) | (double_res_0b_cut) | (double_res_1b_cut) | (double_res_2b_cut), False)
+    enough_jets = ak.fill_none((double_hbbfat_cut) | (double_res_1b_cut) | (double_res_2b_cut), False)
     events["EnoughJetsDouble"] = enough_jets
 
     #For DY Estimation we need to turn off Zmass cut and the nBJets cut (ABCD method over M_{ll} and nBJets)
@@ -589,7 +589,7 @@ def double_lepton_category(EventProcess):
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
     #events["double_lepton"] = Zmass_cut & Invariant_mass_cut & events.double_lepton
-    events["double_lepton"] = Invariant_mass_cut & events.double_lepton #Removed Z mass cut for DY estimation
+    events["double_lepton"] = Zmass_cut & Invariant_mass_cut & events.double_lepton
     if debug: print("N double events step4: ", ak.sum(events.double_lepton), " Z mass and Invariant mass cuts")
     increment_cutflow(events, events.double_lepton, "double_cutflow")
 
@@ -622,6 +622,9 @@ def double_lepton_category(EventProcess):
     events["Double_Signal"] = ak.fill_none((events.double_lepton) & ((leading_leptons.tight) & (subleading_leptons.tight)), False)
 
     events["Double_Fake"] = ak.fill_none((events.double_lepton) & (((leading_leptons.tight) == 0) | ((subleading_leptons.tight) == 0)), False)
+
+    #Create full selection without the Zmass or nBJets cuts
+    events["DY_Est_Evt"] = two_fakeable_lepton & MET_filters & cone_pt_cuts & charge_cuts & Zmass_cut & Invariant_mass_cut & HLT_cut & two_tight_leptons * ak.fill_none(((leading_leptons.tight) & (subleading_leptons.tight)), False)
 
     if debug:
         print("Double HbbFat: ", events.Double_HbbFat, ak.sum(events.Double_HbbFat))
