@@ -23,10 +23,10 @@ def update_outfile(EventProcess, outfile):
     ak8_subjets = events.SubJet
     met = events.MET
 
-    double_mask = (events.Double_Signal | events.Double_Fake)
+    double_mask = (events.Double_Signal | events.Double_Fake | events.DY_Est_Evt) #Need to include option for DY est (Signal reqs without the ZpeakVeto and nBjets req)
     single_mask = (events.Single_Signal | events.Single_Fake)
 
-    use_all_data = False
+    use_all_data = True
     if use_all_data:
         double_mask = ak.ones_like(events.Double_Signal)
         single_mask = ak.ones_like(events.Single_Signal)
@@ -510,6 +510,7 @@ def update_outfile(EventProcess, outfile):
             'EnoughJets': np.array(events_double.EnoughJetsDouble, dtype=np.int32),
 
 
+            'DY_Est_Evt': np.array(ak.fill_none(events_double.DY_Est_Evt, False), dtype=np.int32),
             'Zveto': np.array(ak.fill_none(events_double.Zveto, False), dtype=np.int32),
             'Zveto_fakeable': np.array(ak.fill_none(events_double.Zveto_fakeable, False), dtype=np.int32),
             'Zveto_tight': np.array(ak.fill_none(events_double.Zveto_tight, False), dtype=np.int32),

@@ -16,13 +16,15 @@ def add_conept(EventProcess):
     if debug: print("Starting cone pt")
 
     muon_conept = ak.where(
-        (abs(muons.pdgId) == 13) & (muons.mediumId) & (muons.mvaTTH > 0.50),
+        #(abs(muons.pdgId) == 13) & (muons.mediumId) & (muons.mvaTTH > 0.50),
+        (abs(muons.pdgId) == 13) & (muons.mediumId) & (muons.mediumPromptId), #Moving away from ttH analysis, but eventually we might stop using cone-pt at all
             muons.pt,
             0.9 * muons.pt * (1.0 + muons.jetRelIso)
     )
 
     electron_conept = ak.where(
-        (abs(electrons.pdgId) == 11) & (electrons.mvaTTH > 0.30),
+        #(abs(electrons.pdgId) == 11) & (electrons.mvaTTH > 0.30),
+        (abs(electrons.pdgId) == 11) & (electrons.mvaIso_WP90),
             electrons.pt,
             0.9 * electrons.pt * (1.0 + electrons.jetRelIso)
     )
@@ -176,9 +178,9 @@ def electron_selection(EventProcess):
                 )
         ) &
         ak.where(
-            electrons.mvaTTH < 0.30,
-                (electrons.jetRelIso < 0.7) & (mvaNoIso_WP90),
-                True
+            electrons.mvaTTH >= 0.30,
+                True,
+                (electrons.jetRelIso < 0.7) & (mvaNoIso_WP90)
         )
     )
 
