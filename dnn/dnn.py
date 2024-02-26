@@ -76,6 +76,26 @@ label_binarizer = LabelBinarizer().fit([0,1,2,3])
 
 
 #Put in a list of [ [px, py, pz, E, ...], [px, py, pz, E, ...], [px, py, pz, E, ...] ]
+input_labels = [
+    "Lep0 px", "Lep0 py", "Lep0 pz", "Lep0 E", "Lep0 pdgId", "Lep0 charge",
+    "Lep1 px", "Lep1 py", "Lep1 pz", "Lep1 E", "Lep1 pdgId", "Lep1 charge",
+    "Ak4 Jet0 px", "Ak4 Jet0 py", "Ak4 Jet0 pz", "Ak4 Jet0 E", "Ak4 Jet0 btagDeepFlavB",
+    "Ak4 Jet1 px", "Ak4 Jet1 py", "Ak4 Jet1 pz", "Ak4 Jet1 E", "Ak4 Jet1 btagDeepFlavB",
+    "Ak4 Jet2 px", "Ak4 Jet2 py", "Ak4 Jet2 pz", "Ak4 Jet2 E", "Ak4 Jet2 btagDeepFlavB",
+    "Ak4 Jet3 px", "Ak4 Jet3 py", "Ak4 Jet3 pz", "Ak4 Jet3 E", "Ak4 Jet3 btagDeepFlavB",
+    "MET px", "MET py", "MET pz", "MET E",
+    "HT",
+    "ll px", "ll py", "ll pz", "ll E", "ll mass",
+    "hWW px", "hWW py", "hWW pz", "hWW E", "hWW mass",
+    "hbb px", "hbb py", "hbb pz", "hbb E", "hbb mass",
+    "hh px", "hh py", "hh pz", "hh E", "hh mass",
+    "n Fakeable Muons",
+    "n Fakeable Electrons",
+    "n Cleaned Ak4 Jets",
+    "n Medium B Ak4 Jets",
+    "Lep0 Lep1 dR",
+    "Jet0 Jet1 dR"
+]
 def create_nparray(events):
     array = np.array([
         events.lep0_px,
@@ -253,7 +273,7 @@ model.compile(
 
 
 
-history = model.fit(events_train_norm, labels_train, validation_data=(events_test_norm, labels_test), epochs=200, class_weight=class_weight, batch_size=4096)
+history = model.fit(events_train_norm, labels_train, validation_data=(events_test_norm, labels_test), epochs=100, class_weight=class_weight, batch_size=4096)
 
 prob_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
@@ -306,3 +326,66 @@ c_ax.grid(True)
 c_ax.set_xlabel("False Positive Rate")
 c_ax.set_ylabel("True Positive Rate")
 g.savefig("roc_curves.pdf")
+
+
+
+
+
+
+
+
+do_feature_imp = False
+
+
+if do_feature_imp:
+    from keras.wrappers.scikit_learn import KerasClassifier, KerasRegressor
+    import eli5
+    from eli5.sklearn import PermutationImportance
+
+
+    def base_model():
+        model = tf.keras.Sequential()
+
+        #Manuel recommends having the nodes look like a cone and continue to decrease
+        model.add(tf.keras.layers.Dense(128, input_dim=input_len))
+
+        model.add(tf.keras.layers.Dropout(0.3))
+
+        model.add(tf.keras.layers.Dense(64, activation="relu"))
+
+        model.add(tf.keras.layers.Dropout(0.3))
+
+        model.add(tf.keras.layers.Dense(32, activation="relu"))
+
+        model.add(tf.keras.layers.Dropout(0.3))
+
+        model.add(tf.keras.layers.Dense(16, activation="relu"))
+
+        model.add(tf.keras.layers.Dropout(0.3))
+
+        model.add(tf.keras.layers.Dense(8, activation="relu"))
+
+        model.add(tf.keras.layers.Dropout(0.3))
+
+        model.add(tf.keras.layers.Dense(4, activation="softmax"))
+
+        model.compile(
+            optimizer='adam',
+            loss=tf.keras.losses.CategoricalCrossentropy(),
+            metrics=[
+                #'accuracy',
+                tf.keras.metrics.CategoricalAccuracy(),
+            ]
+        )
+        return model
+
+
+    my_model = KerasRegressor(build_fn=base_model)
+
+    my_model.fit(events_train_norm, labels_train, validation_data=(events_test_norm, labels_test), epochs=50, class_weight=class_weight, batch_size=4096)
+    perm = PermutationImportance(my_model, random_state=1).fit(events_train_norm, labels_train)
+    feat_import_dict = eli5.format_as_dict(eli5.explain_weights(perm, top=100))
+
+
+    feat_import = feat_import_dict['feature_importances']['importances']
+    print(eli5.format_as_text(eli5.explain_weights(perm, top=100, feature_names=input_labels)))
