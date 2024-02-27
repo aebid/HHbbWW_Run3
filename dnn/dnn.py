@@ -352,7 +352,7 @@ predict_examples = model.predict(events_test_norm)
 
 
 
-def make_conf_matrix(model, test_events, test_labels, plot_prefix=""):
+def make_performance_plots(model, test_events, test_labels, plot_prefix=""):
     predict_set = model.predict(test_events)
     cm = sklearn.metrics.confusion_matrix(np.argmax(test_labels, axis=1), np.argmax(predict_set, axis=1), normalize='true')
     disp = sklearn.metrics.ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_labels)
@@ -360,8 +360,25 @@ def make_conf_matrix(model, test_events, test_labels, plot_prefix=""):
     plt.savefig(plot_prefix+"conf_matrix.pdf")
     plt.close()
 
-make_conf_matrix(model, events_test_norm, labels_test)
-make_conf_matrix(sk_model, events_test_norm, labels_test, "sk_")
+    #Lets put the ROC curve for each class on a plot and calculate AUC
+    g, c_ax = plt.subplots(1,1, figsize = (12,8))
+    for (idx, c_label) in enumerate(class_labels):
+        fpr, tpr, thresholds = sklearn.metrics.roc_curve(test_labels[:,idx].astype(int), predict_set[:,idx])
+        c_ax.plot(fpr, tpr, label = "{label} (AUC: {auc})".format(label = c_label, auc = sklearn.metrics.auc(fpr, tpr)))
+
+    c_ax.plot(fpr, fpr, "b-", label = "Random Guessing")
+
+    c_ax.legend()
+    c_ax.grid(True)
+    c_ax.set_xlabel("False Positive Rate")
+    c_ax.set_ylabel("True Positive Rate")
+    g.savefig(plot_prefix+"roc_curves.pdf")
+    g.clf()
+    g.close()
+
+
+make_performance_plots(model, events_test_norm, labels_test)
+make_performance_plots(sk_model, events_test_norm, labels_test, "sk_")
 
 def make_history_plots(history, plot_prefix=""):
     #Lets look at training metrics, maybe just a plot of the history?
@@ -373,6 +390,7 @@ def make_history_plots(history, plot_prefix=""):
     plt.ylim(0, 1.1)
     plt.legend(['train', 'test'], loc='upper left')
     plt.savefig(plot_prefix+"accuracy.pdf")
+    plt.clf()
     plt.close()
 
     plt.plot(history.history['loss'])
@@ -383,6 +401,7 @@ def make_history_plots(history, plot_prefix=""):
     plt.ylabel("Loss")
     plt.legend(['train', 'test'], loc='upper left')
     plt.savefig(plot_prefix+"loss.pdf")
+    plt.clf()
     plt.close()
 
 make_history_plots(history)
@@ -390,75 +409,19 @@ make_history_plots(sk_history, "sk_")
 
 
 
-#Lets put the ROC curve for each class on a plot and calculate AUC
-g, c_ax = plt.subplots(1,1, figsize = (12,8))
-for (idx, c_label) in enumerate(class_labels):
-    fpr, tpr, thresholds = sklearn.metrics.roc_curve(labels_test[:,idx].astype(int), predict_examples[:,idx])
-    c_ax.plot(fpr, tpr, label = "{label} (AUC: {auc})".format(label = c_label, auc = sklearn.metrics.auc(fpr, tpr)))
 
-c_ax.plot(fpr, fpr, "b-", label = "Random Guessing")
-
-c_ax.legend()
-c_ax.grid(True)
-c_ax.set_xlabel("False Positive Rate")
-c_ax.set_ylabel("True Positive Rate")
-g.savefig("roc_curves.pdf")
-
-
-
-
-
-
-
-
-def do_feature_imp():
+def do_feature_imp(sk_model):
+    #Feature importance requires sklearn model
     import eli5
     from eli5.sklearn import PermutationImportance
 
-
-    def base_model():
-        model = tf.keras.Sequential()
-
-        #Manuel recommends having the nodes look like a cone and continue to decrease
-        model.add(tf.keras.layers.Dense(128, input_dim=input_len))
-
-        model.add(tf.keras.layers.Dropout(0.3))
-
-        model.add(tf.keras.layers.Dense(64, activation="relu"))
-
-        model.add(tf.keras.layers.Dropout(0.3))
-
-        model.add(tf.keras.layers.Dense(32, activation="relu"))
-
-        model.add(tf.keras.layers.Dropout(0.3))
-
-        model.add(tf.keras.layers.Dense(16, activation="relu"))
-
-        model.add(tf.keras.layers.Dropout(0.3))
-
-        model.add(tf.keras.layers.Dense(8, activation="relu"))
-
-        model.add(tf.keras.layers.Dropout(0.3))
-
-        model.add(tf.keras.layers.Dense(4, activation="softmax"))
-
-        model.compile(
-            optimizer='adam',
-            loss=tf.keras.losses.CategoricalCrossentropy(),
-            metrics=[
-                #'accuracy',
-                tf.keras.metrics.CategoricalAccuracy(),
-            ]
-        )
-        return model
-
-
-    my_model = KerasRegressor(build_fn=base_model)
-
-    my_model.fit(events_train_norm, labels_train, validation_data=(events_test_norm, labels_test), epochs=50, class_weight=class_weight, batch_size=4096)
-    perm = PermutationImportance(my_model, random_state=1).fit(events_train_norm, labels_train)
+    perm = PermutationImportance(sk_model, random_state=1).fit(events_train_norm, labels_train)
     feat_import_dict = eli5.format_as_dict(eli5.explain_weights(perm, top=100))
 
 
     feat_import = feat_import_dict['feature_importances']['importances']
     print(eli5.format_as_text(eli5.explain_weights(perm, top=100, feature_names=input_labels)))
+    return perm
+
+
+perm = do_feature_imp(sk_model)
