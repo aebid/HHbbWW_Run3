@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelBinarizer
 import sklearn.metrics
+from keras.wrappers.scikit_learn import KerasClassifier, KerasRegressor
+
 
 
 
@@ -65,11 +67,12 @@ tt_classweight = 1.0/len(tt_events_filtered)
 DY_classweight = 1.0/len(DY_events_filtered)
 ST_classweight = 1.0/len(ST_events_filtered)
 class_weight = {0: signal_classweight, 1: tt_classweight, 2: DY_classweight, 3: ST_classweight}
+
 class_labels = ["Signal", "TT", "DY", "ST"]
 print("Using classweights, weights are")
 print(class_weight)
 print(class_labels)
-#Manuel has code fo better classweights, input plotting, and something else ask him he will send code
+#Manuel has code for better classweights, input plotting, and something else ask him he will send code
 
 #Turn the labels into onehots, prepare the binarizer
 label_binarizer = LabelBinarizer().fit([0,1,2,3])
@@ -191,21 +194,26 @@ def create_nparray(events):
     return array
 """
 
+
 signal_array = create_nparray(signal_events_filtered)
 signal_array = signal_array.transpose()
 signal_label = np.full(len(signal_array), 0)
+signal_sampleweights = np.full(len(signal_array), signal_classweight)
 
 tt_array = create_nparray(tt_events_filtered)
 tt_array = tt_array.transpose()
 tt_label = np.full(len(tt_array), 1)
+tt_sampleweights = np.full(len(tt_array), tt_classweight)
 
 DY_array = create_nparray(DY_events_filtered)
 DY_array = DY_array.transpose()
 DY_label = np.full(len(DY_array), 2)
+DY_sampleweights = np.full(len(DY_array), DY_classweight)
 
 ST_array = create_nparray(ST_events_filtered)
 ST_array = ST_array.transpose()
 ST_label = np.full(len(ST_array), 3)
+ST_sampleweights = np.full(len(ST_array), ST_classweight)
 
 #How many inputs?
 input_len = len(signal_array[0])
@@ -214,7 +222,9 @@ input_len = len(signal_array[0])
 #Prepare train and test samples, as well as random states
 events = np.concatenate((signal_array, tt_array, DY_array, ST_array))
 labels = np.concatenate((signal_label, tt_label, DY_label, ST_label))
-events_train, events_test, labels_train, labels_test = train_test_split(events, labels, test_size=0.33, random_state=42)
+sampleweights = np.concatenate((signal_sampleweights, tt_sampleweights, DY_sampleweights, ST_sampleweights))
+
+events_train, events_test, labels_train, labels_test, sampleweights_train, sampleweights_test  = train_test_split(events, labels, sampleweights, test_size=0.33, random_state=42)
 labels_train = label_binarizer.transform(labels_train)
 labels_test = label_binarizer.transform(labels_test)
 
@@ -233,90 +243,157 @@ print(events_train)
 print("Train after norm")
 print(events_train_norm)
 
-
-
-model = tf.keras.Sequential()
-
-#Manuel recommends having the nodes look like a cone and continue to decrease
-model.add(tf.keras.layers.Dense(128, input_dim=input_len))
-
-model.add(tf.keras.layers.Dropout(0.3))
-
-model.add(tf.keras.layers.Dense(64, activation="relu"))
-
-model.add(tf.keras.layers.Dropout(0.3))
-
-model.add(tf.keras.layers.Dense(32, activation="relu"))
-
-model.add(tf.keras.layers.Dropout(0.3))
-
-model.add(tf.keras.layers.Dense(16, activation="relu"))
-
-model.add(tf.keras.layers.Dropout(0.3))
-
-model.add(tf.keras.layers.Dense(8, activation="relu"))
-
-model.add(tf.keras.layers.Dropout(0.3))
-
-model.add(tf.keras.layers.Dense(4, activation="softmax"))
-
-model.compile(
-    optimizer='adam',
-    loss=tf.keras.losses.CategoricalCrossentropy(),
-    metrics=[
-        #'accuracy',
-        tf.keras.metrics.CategoricalAccuracy(),
-    ]
-)
+# This function keeps the initial learning rate for the first ten epochs
+# and decreases it exponentially after that.
+def scheduler(epoch, lr):
+  if epoch < 10:
+    return lr
+  else:
+    return lr * tf.math.exp(-0.1)
 
 
 
+def base_model():
+    model = tf.keras.Sequential()
+
+    #Manuel recommends having the nodes look like a cone and continue to decrease
+    model.add(tf.keras.layers.Dense(128, input_dim=input_len))
+
+    model.add(tf.keras.layers.Dropout(0.3))
+
+    model.add(tf.keras.layers.Dense(64, activation="relu"))
+
+    model.add(tf.keras.layers.Dropout(0.3))
+
+    model.add(tf.keras.layers.Dense(32, activation="relu"))
+
+    model.add(tf.keras.layers.Dropout(0.3))
+
+    model.add(tf.keras.layers.Dense(16, activation="relu"))
+
+    model.add(tf.keras.layers.Dropout(0.3))
+
+    model.add(tf.keras.layers.Dense(8, activation="relu"))
+
+    model.add(tf.keras.layers.Dropout(0.3))
+
+    model.add(tf.keras.layers.Dense(4, activation="softmax"))
+
+    #Testing Softmax layer here
+    model.add(tf.keras.layers.Softmax())
+
+    model.compile(
+        ### Adam optimizer, with initial lr = 0.001
+        optimizer=tf.keras.optimizers.legacy.Adam(learning_rate=0.001),
+        loss=tf.keras.losses.CategoricalCrossentropy(),
+        weighted_metrics=[
+            #'accuracy',
+            tf.keras.metrics.CategoricalAccuracy(),
+            tf.keras.metrics.CategoricalCrossentropy(),
+        ]
+    )
+    return model
+
+model = base_model()
+
+model.summary()
+
+model_NamePath = "./DNNModels/Devin_TT_ST_DY_signalM450"
+
+history = model.fit(
+                    events_train_norm,
+                    labels_train,
+                    sample_weight = sampleweights_train,
+                    validation_data=(
+                        events_test_norm,
+                        labels_test,
+                        sampleweights_test
+                        ),
+                    epochs=100,
+                    #class_weight=class_weight,
+                    batch_size=2048,
+                    # Callback: set of functions to be applied at given stages of the training procedure
+                    callbacks=[
+                        tf.keras.callbacks.ModelCheckpoint(model_NamePath, monitor='val_loss', verbose=False, save_best_only=True),
+                        tf.keras.callbacks.LearningRateScheduler(scheduler), # How this is different from 'conf.optimiz' ?
+                        tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=5) # Stop once you stop improving the val_loss
+                        ]
+                    )
 
 
-history = model.fit(events_train_norm, labels_train, validation_data=(events_test_norm, labels_test), epochs=100, class_weight=class_weight, batch_size=4096)
+model_NamePath = "./DNNModels/SK_Devin_TT_ST_DY_signalM450"
+sk_model = KerasRegressor(build_fn=base_model)
+sk_history = sk_model.fit(
+                    events_train_norm,
+                    labels_train,
+                    sample_weight = sampleweights_train,
+                    validation_data=(
+                        events_test_norm,
+                        labels_test,
+                        sampleweights_test
+                        ),
+                    epochs=100,
+                    #class_weight=class_weight,
+                    batch_size=2048,
+                    # Callback: set of functions to be applied at given stages of the training procedure
+                    callbacks=[
+                        tf.keras.callbacks.ModelCheckpoint(model_NamePath, monitor='val_loss', verbose=False, save_best_only=True),
+                        tf.keras.callbacks.LearningRateScheduler(scheduler), # How this is different from 'conf.optimiz' ?
+                        tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=5) # Stop once you stop improving the val_loss
+                        ]
+                    )
 
-prob_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
-prob_examples = prob_model.predict(events_test_norm)
+#prob_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
+#prob_examples = prob_model.predict(events_test_norm)
 
+predict_examples = model.predict(events_test_norm)
 #test_loss, test_acc = model.evaluate(test_set_norm, test_labels_onehot, verbose=2)
 
 
 
+def make_conf_matrix(model, test_events, test_labels, plot_prefix=""):
+    predict_set = model.predict(test_events)
+    cm = sklearn.metrics.confusion_matrix(np.argmax(test_labels, axis=1), np.argmax(predict_set, axis=1), normalize='true')
+    disp = sklearn.metrics.ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_labels)
+    disp.plot(cmap=plt.cm.Blues)
+    plt.savefig(plot_prefix+"conf_matrix.pdf")
+    plt.close()
 
-cm = sklearn.metrics.confusion_matrix(np.argmax(labels_test, axis=1), np.argmax(prob_examples, axis=1), normalize='true')
-disp = sklearn.metrics.ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_labels)
-disp.plot(cmap=plt.cm.Blues)
-plt.savefig("conf_matrix.pdf")
-plt.close()
+make_conf_matrix(model, events_test_norm, labels_test)
+make_conf_matrix(sk_model, events_test_norm, labels_test, "sk_")
 
-#Lets look at training metrics, maybe just a plot of the history?
-plt.plot(history.history['categorical_accuracy'])
-plt.plot(history.history['val_categorical_accuracy'])
-plt.grid(True)
-plt.xlabel("Epoch")
-plt.ylabel("Categorical Accuracy")
-plt.ylim(0, 1.1)
-plt.legend(['train', 'test'], loc='upper left')
-plt.savefig("accuracy.pdf")
-plt.close()
+def make_history_plots(history, plot_prefix=""):
+    #Lets look at training metrics, maybe just a plot of the history?
+    plt.plot(history.history['categorical_accuracy'])
+    plt.plot(history.history['val_categorical_accuracy'])
+    plt.grid(True)
+    plt.xlabel("Epoch")
+    plt.ylabel("Categorical Accuracy")
+    plt.ylim(0, 1.1)
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig(plot_prefix+"accuracy.pdf")
+    plt.close()
 
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.grid(True)
-plt.yscale("log")
-plt.xlabel("Epoch")
-plt.ylabel("Loss")
-plt.legend(['train', 'test'], loc='upper left')
-plt.savefig("loss.pdf")
-plt.close()
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.grid(True)
+    plt.yscale("log")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig(plot_prefix+"loss.pdf")
+    plt.close()
+
+make_history_plots(history)
+make_history_plots(sk_history, "sk_")
 
 
 
 #Lets put the ROC curve for each class on a plot and calculate AUC
 g, c_ax = plt.subplots(1,1, figsize = (12,8))
 for (idx, c_label) in enumerate(class_labels):
-    fpr, tpr, thresholds = sklearn.metrics.roc_curve(labels_test[:,idx].astype(int), prob_examples[:,idx])
+    fpr, tpr, thresholds = sklearn.metrics.roc_curve(labels_test[:,idx].astype(int), predict_examples[:,idx])
     c_ax.plot(fpr, tpr, label = "{label} (AUC: {auc})".format(label = c_label, auc = sklearn.metrics.auc(fpr, tpr)))
 
 c_ax.plot(fpr, fpr, "b-", label = "Random Guessing")
@@ -334,11 +411,7 @@ g.savefig("roc_curves.pdf")
 
 
 
-do_feature_imp = False
-
-
-if do_feature_imp:
-    from keras.wrappers.scikit_learn import KerasClassifier, KerasRegressor
+def do_feature_imp():
     import eli5
     from eli5.sklearn import PermutationImportance
 
