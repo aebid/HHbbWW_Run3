@@ -1,19 +1,22 @@
 import tensorflow as tf
-
-
+import os
 import uproot
-
 import numpy as np
 import matplotlib.pyplot as plt
-
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelBinarizer
 import sklearn.metrics
 from keras.wrappers.scikit_learn import KerasClassifier, KerasRegressor
+import datetime
 
+curr_time = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
+model_folder = "DNN_Model_"+curr_time+"/"
+os.makedirs(model_folder, exist_ok = True)
 
-
-
+print("Starting DNN training process")
+print("Current model will be saved in "+model_folder)
+print("Saving this file ", __file__, " into folder for future reference")
+os.system("cp {file} {folder}".format(file = __file__, folder = model_folder))
 
 print(tf.__version__)
 
@@ -257,7 +260,8 @@ def base_model():
     model = tf.keras.Sequential()
 
     #Manuel recommends having the nodes look like a cone and continue to decrease
-    model.add(tf.keras.layers.Dense(128, input_dim=input_len))
+    #Manuel says relu is dumb for our normalization, testing tanh on first layer
+    model.add(tf.keras.layers.Dense(128, activation="tanh", input_dim=input_len))
 
     model.add(tf.keras.layers.Dropout(0.3))
 
@@ -298,66 +302,52 @@ model = base_model()
 
 model.summary()
 
-model_NamePath = "./DNNModels/Devin_TT_ST_DY_signalM450"
 
-history = model.fit(
-                    events_train_norm,
-                    labels_train,
-                    sample_weight = sampleweights_train,
-                    validation_data=(
-                        events_test_norm,
-                        labels_test,
-                        sampleweights_test
-                        ),
-                    epochs=100,
-                    #class_weight=class_weight,
-                    batch_size=2048,
-                    # Callback: set of functions to be applied at given stages of the training procedure
-                    callbacks=[
-                        tf.keras.callbacks.ModelCheckpoint(model_NamePath, monitor='val_loss', verbose=False, save_best_only=True),
-                        tf.keras.callbacks.LearningRateScheduler(scheduler), # How this is different from 'conf.optimiz' ?
-                        tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=5) # Stop once you stop improving the val_loss
-                        ]
-                    )
+def fit_model(model, model_NamePath):
+    history = model.fit(
+                        events_train_norm,
+                        labels_train,
+                        sample_weight = sampleweights_train,
+                        validation_data=(
+                            events_test_norm,
+                            labels_test,
+                            sampleweights_test
+                            ),
+                        epochs=100,
+                        #class_weight=class_weight,
+                        batch_size=2048,
+                        # Callback: set of functions to be applied at given stages of the training procedure
+                        callbacks=[
+                            tf.keras.callbacks.ModelCheckpoint(model_NamePath, monitor='val_loss', verbose=False, save_best_only=True),
+                            tf.keras.callbacks.LearningRateScheduler(scheduler), # How this is different from 'conf.optimiz' ?
+                            tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=5) # Stop once you stop improving the val_loss
+                            ]
+                        )
+    return history
 
+save_path = "./"+model_folder+"/TT_ST_DY_signalM450"
+history = fit_model(model, save_path)
 
-model_NamePath = "./DNNModels/SK_Devin_TT_ST_DY_signalM450"
+save_path = "./"+model_folder+"/SK_TT_ST_DY_signalM450"
 sk_model = KerasRegressor(build_fn=base_model)
-sk_history = sk_model.fit(
-                    events_train_norm,
-                    labels_train,
-                    sample_weight = sampleweights_train,
-                    validation_data=(
-                        events_test_norm,
-                        labels_test,
-                        sampleweights_test
-                        ),
-                    epochs=100,
-                    #class_weight=class_weight,
-                    batch_size=2048,
-                    # Callback: set of functions to be applied at given stages of the training procedure
-                    callbacks=[
-                        tf.keras.callbacks.ModelCheckpoint(model_NamePath, monitor='val_loss', verbose=False, save_best_only=True),
-                        tf.keras.callbacks.LearningRateScheduler(scheduler), # How this is different from 'conf.optimiz' ?
-                        tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=5) # Stop once you stop improving the val_loss
-                        ]
-                    )
+sk_history = fit_model(sk_model, save_path)
 
 
 #prob_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 #prob_examples = prob_model.predict(events_test_norm)
 
-predict_examples = model.predict(events_test_norm)
+#predict_examples = model.predict(events_test_norm)
 #test_loss, test_acc = model.evaluate(test_set_norm, test_labels_onehot, verbose=2)
 
 
 
 def make_performance_plots(model, test_events, test_labels, plot_prefix=""):
     predict_set = model.predict(test_events)
+
     cm = sklearn.metrics.confusion_matrix(np.argmax(test_labels, axis=1), np.argmax(predict_set, axis=1), normalize='true')
     disp = sklearn.metrics.ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_labels)
     disp.plot(cmap=plt.cm.Blues)
-    plt.savefig(plot_prefix+"conf_matrix.pdf")
+    plt.savefig(model_folder+plot_prefix+"conf_matrix.pdf")
     plt.close()
 
     #Lets put the ROC curve for each class on a plot and calculate AUC
@@ -372,13 +362,14 @@ def make_performance_plots(model, test_events, test_labels, plot_prefix=""):
     c_ax.grid(True)
     c_ax.set_xlabel("False Positive Rate")
     c_ax.set_ylabel("True Positive Rate")
-    g.savefig(plot_prefix+"roc_curves.pdf")
+    g.savefig(model_folder+plot_prefix+"roc_curves.pdf")
     g.clf()
-    g.close()
+    plt.close()
+    #g.close()
 
 
 make_performance_plots(model, events_test_norm, labels_test)
-make_performance_plots(sk_model, events_test_norm, labels_test, "sk_")
+#make_performance_plots(sk_model, events_test_norm, labels_test, "sk_")
 
 def make_history_plots(history, plot_prefix=""):
     #Lets look at training metrics, maybe just a plot of the history?
@@ -389,7 +380,7 @@ def make_history_plots(history, plot_prefix=""):
     plt.ylabel("Categorical Accuracy")
     plt.ylim(0, 1.1)
     plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig(plot_prefix+"accuracy.pdf")
+    plt.savefig(model_folder+plot_prefix+"accuracy.pdf")
     plt.clf()
     plt.close()
 
@@ -400,12 +391,12 @@ def make_history_plots(history, plot_prefix=""):
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig(plot_prefix+"loss.pdf")
+    plt.savefig(model_folder+plot_prefix+"loss.pdf")
     plt.clf()
     plt.close()
 
 make_history_plots(history)
-make_history_plots(sk_history, "sk_")
+#make_history_plots(sk_history, "sk_")
 
 
 
@@ -415,13 +406,12 @@ def do_feature_imp(sk_model):
     import eli5
     from eli5.sklearn import PermutationImportance
 
-    perm = PermutationImportance(sk_model, random_state=1).fit(events_train_norm, labels_train)
+    perm = PermutationImportance(sk_model, n_iter=10, random_state=1).fit(events_train_norm, labels_train)
     feat_import_dict = eli5.format_as_dict(eli5.explain_weights(perm, top=100))
-
 
     feat_import = feat_import_dict['feature_importances']['importances']
     print(eli5.format_as_text(eli5.explain_weights(perm, top=100, feature_names=input_labels)))
     return perm
 
 
-perm = do_feature_imp(sk_model)
+#perm = do_feature_imp(sk_model)
