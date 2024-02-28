@@ -18,12 +18,18 @@ print("Current model will be saved in "+model_folder)
 print("Saving this file ", __file__, " into folder for future reference")
 os.system("cp {file} {folder}".format(file = __file__, folder = model_folder))
 
+
+print("Input comments about this training")
+comments_file = model_folder+"comments.txt"
+with open(comments_file, 'w', encoding='utf-8') as my_file:
+    my_file.write(input('Comments: '))
+
 print(tf.__version__)
 
 tf.keras.backend.clear_session()
 
 
-signal_sample = "GluGlutoRadion_2L_M450_PreEE.root"
+signal_sample = "input_files/GluGlutoRadion_2L_M450_PreEE.root"
 signal_file = uproot.open(signal_sample)
 signal_tree = signal_file['Double_Tree']
 signal_events = signal_tree.arrays()
@@ -31,7 +37,7 @@ signal_resolved2b_events = signal_events[(signal_events.Double_Res_2b == 1) & (s
 signal_events_filtered = signal_resolved2b_events
 
 
-tt_sample = "TTto2L2Nu_PreEE.root"
+tt_sample = "input_files/TTto2L2Nu_PreEE.root"
 tt_file = uproot.open(tt_sample)
 tt_tree = tt_file['Double_Tree']
 tt_events = tt_tree.arrays()
@@ -39,14 +45,14 @@ tt_resolved2b_events = tt_events[(tt_events.Double_Res_2b == 1) & (tt_events.Dou
 tt_events_filtered = tt_resolved2b_events
 
 
-DY_sample = "DYto2L-2Jets_MLL-10to50_PreEE.root"
+DY_sample = "input_files/DYto2L-2Jets_MLL-10to50_PreEE.root"
 DY_file = uproot.open(DY_sample)
 DY_tree = DY_file['Double_Tree']
 DY_events = DY_tree.arrays()
 DY_resolved2b_events = DY_events[(DY_events.Double_Res_2b == 1) & (DY_events.Double_Signal == 1) & (DY_events.ZMassCut == 1) & (DY_events.InvarMassCut == 1)]
 DY_events_filtered = DY_resolved2b_events
 
-ST_sample = "TbarWplusto2L2Nu_PreEE.root"
+ST_sample = "input_files/TbarWplusto2L2Nu_PreEE.root"
 ST_file = uproot.open(ST_sample)
 ST_tree = ST_file['Double_Tree']
 ST_events = ST_tree.arrays()
@@ -351,7 +357,7 @@ def make_performance_plots(model, test_events, test_labels, plot_prefix=""):
     plt.close()
 
     #Lets put the ROC curve for each class on a plot and calculate AUC
-    g, c_ax = plt.subplots(1,1, figsize = (12,8))
+    g, c_ax = plt.subplots(1,1, figsize = (8,6))
     for (idx, c_label) in enumerate(class_labels):
         fpr, tpr, thresholds = sklearn.metrics.roc_curve(test_labels[:,idx].astype(int), predict_set[:,idx])
         c_ax.plot(fpr, tpr, label = "{label} (AUC: {auc})".format(label = c_label, auc = sklearn.metrics.auc(fpr, tpr)))
