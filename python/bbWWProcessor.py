@@ -12,6 +12,7 @@ import tree_manager
 import corrections
 import genparticles
 import weights
+import high_level_variables
 #import jet_corrections
 
 class EventProcess():
@@ -875,6 +876,8 @@ class EventProcess():
     def add_event_weight(self):
         return weights.add_event_weight(self)
 
+    def add_high_level_variables(self):
+        return high_level_variables.add_high_level_variables(self)
 
     #Output tree
     def update_outfile(self, outfile):
