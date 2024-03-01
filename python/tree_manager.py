@@ -533,6 +533,22 @@ def update_outfile(EventProcess, outfile):
             'EnoughJets': np.array(events_double.EnoughJetsDouble, dtype=np.int32),
 
 
+            'dR_dilep': fill_value(events_double, 'double_dR_dilep', underflow_value, np.float32),
+            'dR_dibjet': fill_value(events_double, 'double_dR_dibjet', underflow_value, np.float32),
+            'dR_dilep_dijet': fill_value(events_double, 'double_dR_dilep_dijet', underflow_value, np.float32),
+            'dR_dilep_dibjet': fill_value(events_double, 'double_dR_dilep_dibjet', underflow_value, np.float32),
+
+            'dPhi_MET_dilep': fill_value(events_double, 'double_dPhi_MET_dilep', underflow_value, np.float32),
+            'dPhi_MET_dibjet': fill_value(events_double, 'double_dPhi_MET_dibjet', underflow_value, np.float32),
+
+            'min_dR_lep0_cleanAk4': fill_value(events_double, 'double_min_dR_lep0_cleanAk4', underflow_value, np.float32),
+            'min_dR_lep1_cleanAk4': fill_value(events_double, 'double_min_dR_lep1_cleanAk4', underflow_value, np.float32),
+            'min_dR_ak4_jet0_leadleps': fill_value(events_double, 'double_min_dR_ak4_jet0_leadleps', underflow_value, np.float32),
+            'min_dR_ak4_jet1_leadleps': fill_value(events_double, 'double_min_dR_ak4_jet1_leadleps', underflow_value, np.float32),
+            'min_dR_cleaned_ak4_jets': fill_value(events_double, 'double_min_dR_cleaned_ak4_jets', underflow_value, np.float32),
+            'min_absdPhi_cleaned_ak4_jets': fill_value(events_double, 'double_min_absdPhi_cleaned_ak4_jets', underflow_value, np.float32),
+
+
             'DY_Est_Evt': np.array(ak.fill_none(events_double.DY_Est_Evt, False), dtype=np.int32),
             'Zveto': np.array(ak.fill_none(events_double.Zveto, False), dtype=np.int32),
             'Zveto_fakeable': np.array(ak.fill_none(events_double.Zveto_fakeable, False), dtype=np.int32),

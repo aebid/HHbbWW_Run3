@@ -224,7 +224,7 @@ def add_double_hlv(EventProcess):
                 dPhi,
                 dPhi - 2*3.14159265
         )
-        return dPhi
+        return abs(dPhi)
 
     events["double_dPhi_MET_dilep"] = delta_phi(events.MET, events.double_lep0 + events.double_lep1)
     events["double_dPhi_MET_dibjet"] = delta_phi(events.MET, events.double_ak4_jet0 + events.double_ak4_jet1)
