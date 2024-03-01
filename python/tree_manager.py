@@ -26,13 +26,15 @@ def update_outfile(EventProcess, outfile):
     double_mask = (events.Double_Signal | events.Double_Fake | events.DY_Est_Evt) #Need to include option for DY est (Signal reqs without the ZpeakVeto and nBjets req)
     single_mask = (events.Single_Signal | events.Single_Fake)
 
-    use_all_data = True
+    use_all_data = False
     if use_all_data:
         double_mask = ak.ones_like(events.Double_Signal)
         single_mask = ak.ones_like(events.Single_Signal)
 
     events_double = events[double_mask]
     events_single = events[single_mask]
+
+
     muons_double = muons[double_mask]
     muons_single = muons[single_mask]
 
@@ -51,6 +53,7 @@ def update_outfile(EventProcess, outfile):
     met_double = met[double_mask]
     met_single = met[single_mask]
 
+    """
     muons_double["px"] = muons_double.px; muons_double["py"] = muons_double.py; muons_double["pz"] = muons_double.pz; muons_double["energy"] = muons_double.energy
     muons_double_pre = muons_double[(muons_double.preselected)]; muons_double_fake = muons_double[(muons_double.fakeable)]; muons_double_tight = muons_double[(muons_double.tight)]
     muons_single["px"] = muons_single.px; muons_single["py"] = muons_single.py; muons_single["pz"] = muons_single.pz; muons_single["energy"] = muons_single.energy
@@ -118,7 +121,27 @@ def update_outfile(EventProcess, outfile):
 
     ak8_jet0_single = ak8_jets_single_cleaned_sorted[:,0]
     ak8_jet0_double = ak8_jets_double_cleaned_sorted[:,0]
+    """
 
+    #New way to get objects!
+    lep0_single = events_single["single_lep0"]
+    lep1_single = events_single["single_lep1"]
+    ak4_jet0_single = events_single["single_ak4_jet0"]
+    ak4_jet1_single = events_single["single_ak4_jet1"]
+    ak4_jet2_single = events_single["single_ak4_jet2"]
+    ak4_jet3_single = events_single["single_ak4_jet3"]
+    ak8_jet0_single = events_single["single_ak8_jet0"]
+    met_single = met[single_mask]
+
+
+    lep0_double = events_double["double_lep0"]
+    lep1_double = events_double["double_lep1"]
+    ak4_jet0_double = events_double["double_ak4_jet0"]
+    ak4_jet1_double = events_double["double_ak4_jet1"]
+    ak4_jet2_double = events_double["double_ak4_jet2"]
+    ak4_jet3_double = events_double["double_ak4_jet3"]
+    ak8_jet0_double = events_double["double_ak8_jet0"]
+    met_double = met[double_mask]
 
     print("Loaded all objects. Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
