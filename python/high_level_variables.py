@@ -161,9 +161,33 @@ def add_double_hlv(EventProcess):
     events["dPhi_MET_dibjet"] = delta_phi(events.MET, events.double_ak4_jet0 + events.double_ak4_jet1)
 
 
-    #minimum dR between lep0 and all ak4 jets (Does this mean preselected/cleaned???) go with cleaned
-    #minimum dR between lep1 and all ak4 jets ^^^
+    #minimum dR between lep0 and all ak4 jets (cleaned)
+    #minimum dR between lep1 and all ak4 jets (cleaned)
     #minimum dR between jet0 and leading two leptons
     #minimum dR between jet1 and leading two leptons
-    #minimum dR among all ak4 jets
+    #minimum dR among all ak4 jets (cleaned)
     #minimum abs(dPhi) among all ak4 jets
+
+
+    lep0_cleaned_ak4_pairs = ak.cartesian([events["double_lep0"], ak4_jets_cleaned], nested=True)
+    lep0_for_min_dR, cleaned_ak4_for_min_dR = ak.unzip(lep0_cleaned_ak4_pairs)
+    events["min_dR_lep0_cleanAk4"] = ak.min(delta_r(lep0_for_min_dR, cleaned_ak4_for_min_dR), axis=2)
+
+    lep1_cleaned_ak4_pairs = ak.cartesian([events["double_lep1"], ak4_jets_cleaned], nested=True)
+    lep1_for_min_dR, cleaned_ak4_for_min_dR = ak.unzip(lep1_cleaned_ak4_pairs)
+    events["min_dR_lep1_cleanAk4"] = ak.min(delta_r(lep1_for_min_dR, cleaned_ak4_for_min_dR), axis=2)
+
+    dR_jet0_lep0 = delta_r(events["double_ak4_jet0"], events["double_lep0"])
+    dR_jet0_lep1 = delta_r(events["double_ak4_jet0"], events["double_lep1"])
+    dR_jet0_leadleps = ak.concatenate([ak.singletons(dR_jet0_lep0), ak.singletons(dR_jet0_lep1)], axis=1)
+    events["min_dR_ak4_jet0_leadleps"] = ak.min(dR_jet0_leadleps, axis=1)
+
+    dR_jet1_lep0 = delta_r(events["double_ak4_jet1"], events["double_lep0"])
+    dR_jet1_lep1 = delta_r(events["double_ak4_jet1"], events["double_lep1"])
+    dR_jet1_leadleps = ak.concatenate([ak.singletons(dR_jet1_lep0), ak.singletons(dR_jet1_lep1)], axis=1)
+    events["min_dR_ak4_jet1_leadleps"] = ak.min(dR_jet1_leadleps, axis=1)
+
+    ak4_jets_cleaned_pairs = ak.combinations(ak4_jets_cleaned, 2, axis=1)
+    ak4_jets_for_min_dR1, ak4_jets_for_min_dR2 = ak.unzip(ak4_jets_cleaned_pairs)
+    events["min_dR_cleaned_ak4_jets"] = ak.min(delta_r(ak4_jets_for_min_dR1, ak4_jets_for_min_dR2), axis=1)
+    events["min_absdPhi_cleaned_ak4_jets"] = ak.min(delta_phi(ak4_jets_for_min_dR1, ak4_jets_for_min_dR2), axis=1)
