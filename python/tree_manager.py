@@ -469,11 +469,16 @@ def update_outfile(EventProcess, outfile):
         print("Whats in the keys?")
         print(outfile.keys())
         print('\t'.join(outfile.keys()))
-        if "Single_Tree" in '\t'.join(outfile.keys()):
-            print("Extending!")
-            outfile["Single_Tree"].extend(single_dicts)
+
+        nSingleEvents = ak.num(events_single, axis=0)
+        if nSingleEvents == 0:
+            print("No single events, skipping!")
         else:
-            outfile["Single_Tree"] = single_dicts
+            if "Single_Tree" in '\t'.join(outfile.keys()):
+                print("Extending!")
+                outfile["Single_Tree"].extend(single_dicts)
+            else:
+                outfile["Single_Tree"] = single_dicts
 
 
 
@@ -660,11 +665,16 @@ def update_outfile(EventProcess, outfile):
         print("Whats in the keys?")
         print(outfile.keys())
         print('\t'.join(outfile.keys()))
-        if "Double_Tree" in '\t'.join(outfile.keys()):
-            print("Extending!")
-            outfile["Double_Tree"].extend(double_dicts)
+
+        nDoubleEvents = ak.num(events_double, axis=0)
+        if nDoubleEvents == 0:
+            print("No single events, skipping!")
         else:
-            outfile["Double_Tree"] = double_dicts
+            if "Double_Tree" in '\t'.join(outfile.keys()):
+                print("Extending!")
+                outfile["Double_Tree"].extend(double_dicts)
+            else:
+                outfile["Double_Tree"] = double_dicts
 
 
 
