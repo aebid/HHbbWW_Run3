@@ -240,11 +240,21 @@ def add_double_hlv(EventProcess):
 
     lep0_cleaned_ak4_pairs = ak.cartesian([events["double_lep0"], ak4_jets_cleaned], nested=True)
     lep0_for_min_dR, cleaned_ak4_for_min_dR = ak.unzip(lep0_cleaned_ak4_pairs)
-    events["double_min_dR_lep0_cleanAk4"] = ak.min(delta_r(lep0_for_min_dR, cleaned_ak4_for_min_dR), axis=2)
+
+    dR = delta_r(lep0_for_min_dR, cleaned_ak4_for_min_dR)
+    min_dR = ak.min(dR, axis=2)
+    padded_dR = ak.fill_none(ak.fill_none(min_dR, 0.0, axis=1), 0.0, axis=0)
+    flat_dR = ak.ravel(padded_dR)
+    events["double_min_dR_lep0_cleanAk4"] = flat_dR
 
     lep1_cleaned_ak4_pairs = ak.cartesian([events["double_lep1"], ak4_jets_cleaned], nested=True)
     lep1_for_min_dR, cleaned_ak4_for_min_dR = ak.unzip(lep1_cleaned_ak4_pairs)
-    events["double_min_dR_lep1_cleanAk4"] = ak.min(delta_r(lep1_for_min_dR, cleaned_ak4_for_min_dR), axis=2)
+
+    dR = delta_r(lep1_for_min_dR, cleaned_ak4_for_min_dR)
+    min_dR = ak.min(dR, axis=2)
+    padded_dR = ak.fill_none(ak.fill_none(min_dR, 0.0, axis=1), 0.0, axis=0)
+    flat_dR = ak.ravel(padded_dR)
+    events["double_min_dR_lep1_cleanAk4"] = flat_dR
 
     dR_jet0_lep0 = delta_r(events["double_ak4_jet0"], events["double_lep0"])
     dR_jet0_lep1 = delta_r(events["double_ak4_jet0"], events["double_lep1"])

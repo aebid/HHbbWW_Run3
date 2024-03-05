@@ -471,6 +471,7 @@ def update_outfile(EventProcess, outfile):
         print('\t'.join(outfile.keys()))
 
         nSingleEvents = ak.num(events_single, axis=0)
+
         if nSingleEvents == 0:
             print("No single events, skipping!")
         else:
@@ -667,8 +668,9 @@ def update_outfile(EventProcess, outfile):
         print('\t'.join(outfile.keys()))
 
         nDoubleEvents = ak.num(events_double, axis=0)
+
         if nDoubleEvents == 0:
-            print("No single events, skipping!")
+            print("No double events, skipping!")
         else:
             if "Double_Tree" in '\t'.join(outfile.keys()):
                 print("Extending!")
