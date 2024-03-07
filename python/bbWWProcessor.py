@@ -173,6 +173,12 @@ class EventProcess():
         #We also have to cut the cuts arrays because they must be the same shape as the events
         self.events["dnn_truth_value"] = dnn_truth_value
 
+        #Re check for zero events after HLT
+        if len(self.events) == 0:
+            print("Zero events after HLT! This will fail ):")
+            self.skip_file = True
+            return
+
 
         #Start of the corrections files -- When 2022 files are available we must update these
         python_folder_base = "/".join((os.path.realpath(__file__)).split('/')[:-1])

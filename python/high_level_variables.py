@@ -284,7 +284,6 @@ def add_double_hlv(EventProcess):
 
     #Normal met only has x/y, so standard tools will not handle it like a 4 vector
     #Must create a new 4vector with eta0 and mass0
-    print(met.pt)
     met_vec = ak.zip(
         {
             "pt": met.pt,
