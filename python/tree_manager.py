@@ -556,6 +556,13 @@ def update_outfile(EventProcess, outfile):
 
 
             'DY_Est_Evt': np.array(ak.fill_none(events_double.DY_Est_Evt, False), dtype=np.int32),
+            'DY_Est_ZPeak_nB0': np.array(ak.fill_none(events_double.DY_Est_ZPeak_nB0, False), dtype=np.int32),
+            'DY_Est_ZPeak_nB1': np.array(ak.fill_none(events_double.DY_Est_ZPeak_nB1, False), dtype=np.int32),
+            'DY_Est_ZPeak_nB2': np.array(ak.fill_none(events_double.DY_Est_ZPeak_nB2, False), dtype=np.int32),
+            'DY_Est_ZVeto_nB0': np.array(ak.fill_none(events_double.DY_Est_ZVeto_nB0, False), dtype=np.int32),
+            'DY_Est_ZVeto_nB1': np.array(ak.fill_none(events_double.DY_Est_ZVeto_nB1, False), dtype=np.int32),
+            'DY_Est_ZVeto_nB2': np.array(ak.fill_none(events_double.DY_Est_ZVeto_nB2, False), dtype=np.int32),
+
             'Zveto': np.array(ak.fill_none(events_double.Zveto, False), dtype=np.int32),
             'Zveto_fakeable': np.array(ak.fill_none(events_double.Zveto_fakeable, False), dtype=np.int32),
             'Zveto_tight': np.array(ak.fill_none(events_double.Zveto_tight, False), dtype=np.int32),
