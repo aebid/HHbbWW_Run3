@@ -624,7 +624,13 @@ def double_lepton_category(EventProcess):
     events["Double_Fake"] = ak.fill_none((events.double_lepton) & (((leading_leptons.tight) == 0) | ((subleading_leptons.tight) == 0)), False)
 
     #Create full selection without the Zmass or nBJets cuts
-    events["DY_Est_Evt"] = two_fakeable_lepton & MET_filters & cone_pt_cuts & charge_cuts & Zmass_cut & Invariant_mass_cut & HLT_cut & two_tight_leptons * ak.fill_none(((leading_leptons.tight) & (subleading_leptons.tight)), False)
+    events["DY_Est_ZPeak_nB0"] = two_fakeable_lepton & MET_filters & cone_pt_cuts & charge_cuts & (Zmass_cut == 0) & Invariant_mass_cut & HLT_cut & two_tight_leptons& double_res_0b_cut
+    events["DY_Est_ZPeak_nB1"] = two_fakeable_lepton & MET_filters & cone_pt_cuts & charge_cuts & (Zmass_cut == 0) & Invariant_mass_cut & HLT_cut & two_tight_leptons& double_res_1b_cut
+    events["DY_Est_ZPeak_nB2"] = two_fakeable_lepton & MET_filters & cone_pt_cuts & charge_cuts & (Zmass_cut == 0) & Invariant_mass_cut & HLT_cut & two_tight_leptons& double_res_2b_cut
+    events["DY_Est_ZVeto_nB0"] = two_fakeable_lepton & MET_filters & cone_pt_cuts & charge_cuts & Zmass_cut & Invariant_mass_cut & HLT_cut & two_tight_leptons& double_res_0b_cut
+    events["DY_Est_ZVeto_nB1"] = two_fakeable_lepton & MET_filters & cone_pt_cuts & charge_cuts & Zmass_cut & Invariant_mass_cut & HLT_cut & two_tight_leptons& double_res_1b_cut
+    events["DY_Est_ZVeto_nB2"] = two_fakeable_lepton & MET_filters & cone_pt_cuts & charge_cuts & Zmass_cut & Invariant_mass_cut & HLT_cut & two_tight_leptons& double_res_2b_cut
+    events["DY_Est_Evt"] = events.DY_Est_ZPeak_nB0 | events.DY_Est_ZPeak_nB1 | events.DY_Est_ZPeak_nB2 | events.DY_Est_ZVeto_nB0 | events.DY_Est_ZVeto_nB1 | events.DY_Est_ZVeto_nB2
 
     if debug:
         print("Double HbbFat: ", events.Double_HbbFat, ak.sum(events.Double_HbbFat))

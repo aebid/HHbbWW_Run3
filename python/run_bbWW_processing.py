@@ -141,6 +141,8 @@ for fname in flist:
 
         if debug: eventProcess.print_event_selection()
 
+        eventProcess.add_high_level_variables()
+
         eventProcess.update_outfile(outfile)
 
         print('Updated in seconds: ' + str((time.time() - startTime)))

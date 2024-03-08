@@ -26,13 +26,15 @@ def update_outfile(EventProcess, outfile):
     double_mask = (events.Double_Signal | events.Double_Fake | events.DY_Est_Evt) #Need to include option for DY est (Signal reqs without the ZpeakVeto and nBjets req)
     single_mask = (events.Single_Signal | events.Single_Fake)
 
-    use_all_data = True
+    use_all_data = False
     if use_all_data:
         double_mask = ak.ones_like(events.Double_Signal)
         single_mask = ak.ones_like(events.Single_Signal)
 
     events_double = events[double_mask]
     events_single = events[single_mask]
+
+
     muons_double = muons[double_mask]
     muons_single = muons[single_mask]
 
@@ -51,6 +53,7 @@ def update_outfile(EventProcess, outfile):
     met_double = met[double_mask]
     met_single = met[single_mask]
 
+    """
     muons_double["px"] = muons_double.px; muons_double["py"] = muons_double.py; muons_double["pz"] = muons_double.pz; muons_double["energy"] = muons_double.energy
     muons_double_pre = muons_double[(muons_double.preselected)]; muons_double_fake = muons_double[(muons_double.fakeable)]; muons_double_tight = muons_double[(muons_double.tight)]
     muons_single["px"] = muons_single.px; muons_single["py"] = muons_single.py; muons_single["pz"] = muons_single.pz; muons_single["energy"] = muons_single.energy
@@ -118,7 +121,27 @@ def update_outfile(EventProcess, outfile):
 
     ak8_jet0_single = ak8_jets_single_cleaned_sorted[:,0]
     ak8_jet0_double = ak8_jets_double_cleaned_sorted[:,0]
+    """
 
+    #New way to get objects!
+    lep0_single = events_single["single_lep0"]
+    lep1_single = events_single["single_lep1"]
+    ak4_jet0_single = events_single["single_ak4_jet0"]
+    ak4_jet1_single = events_single["single_ak4_jet1"]
+    ak4_jet2_single = events_single["single_ak4_jet2"]
+    ak4_jet3_single = events_single["single_ak4_jet3"]
+    ak8_jet0_single = events_single["single_ak8_jet0"]
+    met_single = met[single_mask]
+
+
+    lep0_double = events_double["double_lep0"]
+    lep1_double = events_double["double_lep1"]
+    ak4_jet0_double = events_double["double_ak4_jet0"]
+    ak4_jet1_double = events_double["double_ak4_jet1"]
+    ak4_jet2_double = events_double["double_ak4_jet2"]
+    ak4_jet3_double = events_double["double_ak4_jet3"]
+    ak8_jet0_double = events_double["double_ak8_jet0"]
+    met_double = met[double_mask]
 
     print("Loaded all objects. Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
@@ -446,11 +469,17 @@ def update_outfile(EventProcess, outfile):
         print("Whats in the keys?")
         print(outfile.keys())
         print('\t'.join(outfile.keys()))
-        if "Single_Tree" in '\t'.join(outfile.keys()):
-            print("Extending!")
-            outfile["Single_Tree"].extend(single_dicts)
+
+        nSingleEvents = ak.num(events_single, axis=0)
+
+        if nSingleEvents == 0:
+            print("No single events, skipping!")
         else:
-            outfile["Single_Tree"] = single_dicts
+            if "Single_Tree" in '\t'.join(outfile.keys()):
+                print("Extending!")
+                outfile["Single_Tree"].extend(single_dicts)
+            else:
+                outfile["Single_Tree"] = single_dicts
 
 
 
@@ -510,7 +539,30 @@ def update_outfile(EventProcess, outfile):
             'EnoughJets': np.array(events_double.EnoughJetsDouble, dtype=np.int32),
 
 
+            'dR_dilep': fill_value(events_double, 'double_dR_dilep', underflow_value, np.float32),
+            'dR_dibjet': fill_value(events_double, 'double_dR_dibjet', underflow_value, np.float32),
+            'dR_dilep_dijet': fill_value(events_double, 'double_dR_dilep_dijet', underflow_value, np.float32),
+            'dR_dilep_dibjet': fill_value(events_double, 'double_dR_dilep_dibjet', underflow_value, np.float32),
+
+            'dPhi_MET_dilep': fill_value(events_double, 'double_dPhi_MET_dilep', underflow_value, np.float32),
+            'dPhi_MET_dibjet': fill_value(events_double, 'double_dPhi_MET_dibjet', underflow_value, np.float32),
+
+            'min_dR_lep0_cleanAk4': fill_value(events_double, 'double_min_dR_lep0_cleanAk4', underflow_value, np.float32),
+            'min_dR_lep1_cleanAk4': fill_value(events_double, 'double_min_dR_lep1_cleanAk4', underflow_value, np.float32),
+            'min_dR_ak4_jet0_leadleps': fill_value(events_double, 'double_min_dR_ak4_jet0_leadleps', underflow_value, np.float32),
+            'min_dR_ak4_jet1_leadleps': fill_value(events_double, 'double_min_dR_ak4_jet1_leadleps', underflow_value, np.float32),
+            'min_dR_cleaned_ak4_jets': fill_value(events_double, 'double_min_dR_cleaned_ak4_jets', underflow_value, np.float32),
+            'min_absdPhi_cleaned_ak4_jets': fill_value(events_double, 'double_min_absdPhi_cleaned_ak4_jets', underflow_value, np.float32),
+
+
             'DY_Est_Evt': np.array(ak.fill_none(events_double.DY_Est_Evt, False), dtype=np.int32),
+            'DY_Est_ZPeak_nB0': np.array(ak.fill_none(events_double.DY_Est_ZPeak_nB0, False), dtype=np.int32),
+            'DY_Est_ZPeak_nB1': np.array(ak.fill_none(events_double.DY_Est_ZPeak_nB1, False), dtype=np.int32),
+            'DY_Est_ZPeak_nB2': np.array(ak.fill_none(events_double.DY_Est_ZPeak_nB2, False), dtype=np.int32),
+            'DY_Est_ZVeto_nB0': np.array(ak.fill_none(events_double.DY_Est_ZVeto_nB0, False), dtype=np.int32),
+            'DY_Est_ZVeto_nB1': np.array(ak.fill_none(events_double.DY_Est_ZVeto_nB1, False), dtype=np.int32),
+            'DY_Est_ZVeto_nB2': np.array(ak.fill_none(events_double.DY_Est_ZVeto_nB2, False), dtype=np.int32),
+
             'Zveto': np.array(ak.fill_none(events_double.Zveto, False), dtype=np.int32),
             'Zveto_fakeable': np.array(ak.fill_none(events_double.Zveto_fakeable, False), dtype=np.int32),
             'Zveto_tight': np.array(ak.fill_none(events_double.Zveto_tight, False), dtype=np.int32),
@@ -621,11 +673,17 @@ def update_outfile(EventProcess, outfile):
         print("Whats in the keys?")
         print(outfile.keys())
         print('\t'.join(outfile.keys()))
-        if "Double_Tree" in '\t'.join(outfile.keys()):
-            print("Extending!")
-            outfile["Double_Tree"].extend(double_dicts)
+
+        nDoubleEvents = ak.num(events_double, axis=0)
+
+        if nDoubleEvents == 0:
+            print("No double events, skipping!")
         else:
-            outfile["Double_Tree"] = double_dicts
+            if "Double_Tree" in '\t'.join(outfile.keys()):
+                print("Extending!")
+                outfile["Double_Tree"].extend(double_dicts)
+            else:
+                outfile["Double_Tree"] = double_dicts
 
 
 

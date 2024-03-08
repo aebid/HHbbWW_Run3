@@ -12,6 +12,7 @@ import tree_manager
 import corrections
 import genparticles
 import weights
+import high_level_variables
 #import jet_corrections
 
 class EventProcess():
@@ -171,6 +172,12 @@ class EventProcess():
         print("nEvents after HLT Cuts was ", len(self.events))
         #We also have to cut the cuts arrays because they must be the same shape as the events
         self.events["dnn_truth_value"] = dnn_truth_value
+
+        #Re check for zero events after HLT
+        if len(self.events) == 0:
+            print("Zero events after HLT! This will fail ):")
+            self.skip_file = True
+            return
 
 
         #Start of the corrections files -- When 2022 files are available we must update these
@@ -875,6 +882,8 @@ class EventProcess():
     def add_event_weight(self):
         return weights.add_event_weight(self)
 
+    def add_high_level_variables(self):
+        return high_level_variables.add_high_level_variables(self)
 
     #Output tree
     def update_outfile(self, outfile):
