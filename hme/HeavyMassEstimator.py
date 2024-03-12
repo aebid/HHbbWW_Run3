@@ -2,7 +2,8 @@ import uproot
 import numpy as np
 import awkward as ak
 from scipy.stats import rv_discrete
-from coffea.nanoevents.methods import vector
+import vector
+#from coffea.nanoevents.methods import vector
 
 
 ### Awkward implementation of HME ###
@@ -21,46 +22,39 @@ t = f['Double_Tree']
 events = t.arrays()
 
 
-iterations = 1
+iterations = 100
 
-random_size = len(events)
 random_size = [len(events), iterations]
 
 eta_gen = np.random.uniform(-6,6, random_size)
 phi_gen = np.random.uniform(-3.1415926, 3.1415926, random_size)
 hmass_gen = np.random.normal(125.03, 0.004, random_size)
 
-lep0_p4 = ak.zip(
+lep0_p4 = vector.MomentumNumpy4D(
     {
-        "pt": np.expand_dims(events.lep0_pt, 1),
-        "eta": np.expand_dims(events.lep0_eta, 1),
-        "phi": np.expand_dims(events.lep0_phi, 1),
-        "energy": np.expand_dims(events.lep0_E, 1),
-    },
-    with_name="PtEtaPhiELorentzVector",
-    behavior=vector.behavior,
+        "pt": ak.to_numpy(np.repeat(np.expand_dims(events.lep0_pt, 1), iterations, axis=1)),
+        "eta": ak.to_numpy(np.repeat(np.expand_dims(events.lep0_eta, 1), iterations, axis=1)),
+        "phi": ak.to_numpy(np.repeat(np.expand_dims(events.lep0_phi, 1), iterations, axis=1)),
+        "energy": ak.to_numpy(np.repeat(np.expand_dims(events.lep0_E, 1), iterations, axis=1)),
+    }
 )
 
-lep1_p4 = ak.zip(
+lep1_p4 = vector.MomentumNumpy4D(
     {
-        "pt": np.expand_dims(events.lep1_pt, 1),
-        "eta": np.expand_dims(events.lep1_eta, 1),
-        "phi": np.expand_dims(events.lep1_phi, 1),
-        "energy": np.expand_dims(events.lep1_E, 1),
-    },
-    with_name="PtEtaPhiELorentzVector",
-    behavior=vector.behavior,
+        "pt": ak.to_numpy(np.repeat(np.expand_dims(events.lep1_pt, 1), iterations, axis=1)),
+        "eta": ak.to_numpy(np.repeat(np.expand_dims(events.lep1_eta, 1), iterations, axis=1)),
+        "phi": ak.to_numpy(np.repeat(np.expand_dims(events.lep1_phi, 1), iterations, axis=1)),
+        "energy": ak.to_numpy(np.repeat(np.expand_dims(events.lep1_E, 1), iterations, axis=1)),
+    }
 )
 
-met_p4 = ak.zip(
+met_p4 = vector.MomentumNumpy4D(
     {
-        "px": np.expand_dims(events.met_px, 1),
-        "py": np.expand_dims(events.met_py, 1),
-        "pz": np.expand_dims(events.met_pz, 1),
-        "energy": np.expand_dims(events.met_E, 1),
-    },
-    with_name="PxPyPzELorentzVector",
-    behavior=vector.behavior,
+        "px": ak.to_numpy(np.repeat(np.expand_dims(events.met_px, 1), iterations, axis=1)),
+        "py": ak.to_numpy(np.repeat(np.expand_dims(events.met_py, 1), iterations, axis=1)),
+        "pz": ak.to_numpy(np.repeat(np.expand_dims(events.met_pz, 1), iterations, axis=1)),
+        "energy": ak.to_numpy(np.repeat(np.expand_dims(events.met_E, 1), iterations, axis=1)),
+    }
 )
 
 
@@ -77,54 +71,49 @@ wmass_gen = np.random.choice(onshellWmass_x_new, p=onshellWmass_weights, size=ra
 #Here tao starts the 4 solutions
 #2 cases though, basically is Lep0 or Lep1 the onshell one?
 
-nu_onshellW_pt_l0 = (wmass_gen**2) / (2*lep0_p4.pt * (np.cosh(eta_gen - lep0_p4.eta) - np.cos(phi_gen - lep0_p4.phi)))
+nu_onshellW_pt_l0 = np.array((wmass_gen**2) / (2*lep0_p4.pt * (np.cosh(eta_gen - lep0_p4.eta) - np.cos(phi_gen - lep0_p4.phi))))
 
-nu_onshellW_p4 = ak.zip(
+
+nu_onshellW_p4 = vector.MomentumNumpy4D(
     {
-        "pt": nu_onshellW_pt_l0,
-        "eta": eta_gen,
-        "phi": phi_gen,
-        "mass": 0,
-    },
-    with_name="PtEtaPhiMLorentzVector",
-    behavior=vector.behavior,
+        "pt": ak.to_numpy(nu_onshellW_pt_l0),
+        "eta": ak.to_numpy(eta_gen),
+        "phi": ak.to_numpy(phi_gen),
+        "mass": np.zeros_like(nu_onshellW_pt_l0),
+    }
 )
+
 
 full_p4 = lep0_p4 + lep1_p4 + nu_onshellW_p4
 nu2_px = met_p4.px - nu_onshellW_p4.px
 nu2_py = met_p4.py - nu_onshellW_p4.py
 nu2_pt = ((nu2_px**2) + (nu2_py**2))**(0.5)
 
-full_p4_v2 = ak.zip(
+
+full_p4_v2 = vector.MomentumNumpy4D(
     {
         "pt": (full_p4.pt**2 + full_p4.mass**2)**(0.5),
-        "eta": 0,
+        "eta": np.zeros_like(full_p4.pt),
         "phi": full_p4.pz,
         "energy": full_p4.energy,
-    },
-    with_name="PtEtaPhiELorentzVector",
-    behavior=vector.behavior,
+    }
 )
 
 coshdeta = (hmass_gen**2 + 2*(nu2_px * full_p4.px + nu2_py * full_p4.py - full_p4.mass**2)) / (2.0*full_p4_v2.pt * nu2_pt)
 deta = np.arccosh(coshdeta)
 
-"""
 
-nu2_p4 = ak.zip(
+nu2_p4 = vector.MomentumNumpy4D(
     {
         "px": nu2_px,
         "py": nu2_py,
-        "pz": 0,
-        "mass": 0,
-    },
-    with_name="PtEtaPhiMLorentzVector",
-    behavior=vector.behavior,
+        "pz": np.zeros_like(nu2_px),
+        "mass": np.zeros_like(nu2_px),
+    }
 )
 
-
 htoWW = full_p4 + nu2_p4
-"""
+
 
 #nu_onshellW_pt_l1 = (events.wmass_gen**2) / (2*events.lep1_pt * (np.cosh(events.eta_gen - events.lep1_eta) - np.cos(events.phi_gen - events.lep1_phi)))
 
