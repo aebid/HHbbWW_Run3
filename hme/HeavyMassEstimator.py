@@ -21,8 +21,10 @@ f = uproot.open("GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M450_Run3Sync.root")
 t = f['Double_Tree']
 events = t.arrays()
 
+events = events[events.Double_Signal == 1]
 
-iterations = 100
+
+iterations = 1000
 
 random_size = [len(events), iterations]
 
@@ -57,6 +59,24 @@ met_p4 = vector.MomentumNumpy4D(
     }
 )
 
+bjet0_p4 = vector.MomentumNumpy4D(
+    {
+        "pt": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_pt, 1), iterations, axis=1)),
+        "eta": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_eta, 1), iterations, axis=1)),
+        "phi": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_phi, 1), iterations, axis=1)),
+        "energy": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_E, 1), iterations, axis=1)),
+    }
+)
+
+bjet1_p4 = vector.MomentumNumpy4D(
+    {
+        "pt": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_pt, 1), iterations, axis=1)),
+        "eta": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_eta, 1), iterations, axis=1)),
+        "phi": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_phi, 1), iterations, axis=1)),
+        "energy": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_E, 1), iterations, axis=1)),
+    }
+)
+
 
 #Tao's getOnShellWMass function is very confusing, I'm just going to make a new one and sample the PDF directly
 #First issue was to get the PDF and increase resolution (orignal was 1bin/GeV, but we want fine resolution so we interpolate and create 10x as many)
@@ -69,12 +89,19 @@ wmass_gen = np.random.choice(onshellWmass_x_new, p=onshellWmass_weights, size=ra
 
 
 #Here tao starts the 4 solutions
-#2 cases though, basically is Lep0 or Lep1 the onshell one?
+#4 cases
+#Lep0 is onshell
+    #Nutrino + eta
+    #Nutrino - eta
+#Lep1 is onshell
+    #Nutrino + eta
+    #Nutrino - eta
 
+
+#L0 is onshell
 nu_onshellW_pt_l0 = np.array((wmass_gen**2) / (2*lep0_p4.pt * (np.cosh(eta_gen - lep0_p4.eta) - np.cos(phi_gen - lep0_p4.phi))))
 
-
-nu_onshellW_p4 = vector.MomentumNumpy4D(
+nu_onshellW_l0_p4 = vector.MomentumNumpy4D(
     {
         "pt": ak.to_numpy(nu_onshellW_pt_l0),
         "eta": ak.to_numpy(eta_gen),
@@ -83,73 +110,181 @@ nu_onshellW_p4 = vector.MomentumNumpy4D(
     }
 )
 
-
-full_p4 = lep0_p4 + lep1_p4 + nu_onshellW_p4
-nu2_px = met_p4.px - nu_onshellW_p4.px
-nu2_py = met_p4.py - nu_onshellW_p4.py
-nu2_pt = ((nu2_px**2) + (nu2_py**2))**(0.5)
-
-
-full_p4_v2 = vector.MomentumNumpy4D(
+nu2_l0_p2 = vector.MomentumNumpy2D(
     {
-        "pt": (full_p4.pt**2 + full_p4.mass**2)**(0.5),
-        "eta": np.zeros_like(full_p4.pt),
-        "phi": full_p4.pz,
-        "energy": full_p4.energy,
+        "px": met_p4.px - nu_onshellW_l0_p4.px,
+        "py": met_p4.py - nu_onshellW_l0_p4.py,
     }
 )
 
-coshdeta = (hmass_gen**2 + 2*(nu2_px * full_p4.px + nu2_py * full_p4.py - full_p4.mass**2)) / (2.0*full_p4_v2.pt * nu2_pt)
-deta = np.arccosh(coshdeta)
+full_l0_p4 = lep0_p4 + lep1_p4 + nu_onshellW_l0_p4
 
-
-nu2_p4 = vector.MomentumNumpy4D(
+full_l0_p4_v2 = vector.MomentumNumpy4D(
     {
-        "px": nu2_px,
-        "py": nu2_py,
-        "pz": np.zeros_like(nu2_px),
-        "mass": np.zeros_like(nu2_px),
+        "pt": (full_l0_p4.pt**2 + full_l0_p4.mass**2)**(0.5),
+        "eta": np.zeros_like(full_l0_p4.pt),
+        "phi": full_l0_p4.pz,
+        "energy": full_l0_p4.energy,
     }
 )
 
-htoWW = full_p4 + nu2_p4
+coshdeta_l0 = (hmass_gen**2 + 2*(nu2_l0_p2.px * full_l0_p4.px + nu2_l0_p2.py * full_l0_p4.py) - full_l0_p4.mass**2) / (2.0*full_l0_p4_v2.pt * nu2_l0_p2.pt)
+deta_l0 = np.arccosh(coshdeta_l0)
+
+valid_mask_l0 = coshdeta_l0 >= 1.0
+
+#Minus eta case
+nu2_l0_min_p4 = vector.MomentumNumpy4D(
+    {
+        "pt": nu2_l0_p2.pt,
+        "eta": full_l0_p4_v2.eta - deta_l0,
+        "phi": nu2_l0_p2.phi,
+        "mass": np.zeros_like(nu2_l0_p2.pt),
+    }
+)
+
+htoWW_l0_min = full_l0_p4 + nu2_l0_min_p4
+
+#Plus eta case
+nu2_l0_plus_p4 = vector.MomentumNumpy4D(
+    {
+        "pt": nu2_l0_p2.pt,
+        "eta": full_l0_p4_v2.eta + deta_l0,
+        "phi": nu2_l0_p2.phi,
+        "mass": np.zeros_like(nu2_l0_p2.pt),
+    }
+)
+
+htoWW_l0_plus = full_l0_p4 + nu2_l0_plus_p4
+
+#L1 is onshell
+
+nu_onshellW_pt_l1 = np.array((wmass_gen**2) / (2*lep1_p4.pt * (np.cosh(eta_gen - lep1_p4.eta) - np.cos(phi_gen - lep1_p4.phi))))
 
 
-#nu_onshellW_pt_l1 = (events.wmass_gen**2) / (2*events.lep1_pt * (np.cosh(events.eta_gen - events.lep1_eta) - np.cos(events.phi_gen - events.lep1_phi)))
+
+nu_onshellW_l1_p4 = vector.MomentumNumpy4D(
+    {
+        "pt": ak.to_numpy(nu_onshellW_pt_l1),
+        "eta": ak.to_numpy(eta_gen),
+        "phi": ak.to_numpy(phi_gen),
+        "mass": np.zeros_like(nu_onshellW_pt_l1),
+    }
+)
+
+nu2_l1_p2 = vector.MomentumNumpy2D(
+    {
+        "px": met_p4.px - nu_onshellW_l1_p4.px,
+        "py": met_p4.py - nu_onshellW_l1_p4.py,
+    }
+)
+
+
+full_l1_p4 = lep0_p4 + lep1_p4 + nu_onshellW_l1_p4
+
+
+
+full_l1_p4_v2 = vector.MomentumNumpy4D(
+    {
+        "pt": (full_l1_p4.pt**2 + full_l1_p4.mass**2)**(0.5),
+        "eta": np.zeros_like(full_l1_p4.pt),
+        "phi": full_l1_p4.pz,
+        "energy": full_l1_p4.energy,
+    }
+)
+
+coshdeta_l1 = (hmass_gen**2 + 2*(nu2_l1_p2.px * full_l1_p4.px + nu2_l1_p2.py * full_l1_p4.py) - full_l1_p4.mass**2) / (2.0*full_l1_p4_v2.pt * nu2_l1_p2.pt)
+deta_l1 = np.arccosh(coshdeta_l1)
+
+valid_mask_l1 = coshdeta_l1 >= 1.0
+
+#Minus eta case
+nu2_l1_min_p4 = vector.MomentumNumpy4D(
+    {
+        "pt": nu2_l1_p2.pt,
+        "eta": full_l1_p4_v2.eta - deta_l1,
+        "phi": nu2_l1_p2.phi,
+        "mass": np.zeros_like(nu2_l1_p2.pt),
+    }
+)
+
+htoWW_l1_min = full_l1_p4 + nu2_l1_min_p4
+
+#Plus eta case
+nu2_l1_plus_p4 = vector.MomentumNumpy4D(
+    {
+        "pt": nu2_l1_p2.pt,
+        "eta": full_l1_p4_v2.eta + deta_l1,
+        "phi": nu2_l1_p2.phi,
+        "mass": np.zeros_like(nu2_l1_p2.pt),
+    }
+)
+
+htoWW_l1_plus = full_l1_p4 + nu2_l1_plus_p4
+
+
+
+#Successful iteration bool
+valid_hme = valid_mask_l0 | valid_mask_l1
+
+
+
+hh = bjet0_p4 + bjet1_p4 + htoWW_l0_min
 
 
 
 
-"""
-nuP4FromOffshellW(met, lep1, lep2, nu1, nu2, case, hMass)
-        tmp_p4 = lepton1_p4 + lepton2_p4 + nu1_p4
-        tmp_nu_px = met.Px() - nu1_p4.Px()
-        tmp_nu_py = met.Py() - nu1_p4.Py()
-        nu_pxpy =  ROOT.TVector2(tmp_nu_px, tmp_nu_py)
-        tmp_nu_pt = nu_pxpy.Mod()
-        tmp_p4_v2 = ROOT.TLorentzVector(sqrt(pow(tmp_p4.Pt(), 2) + pow(tmp_p4.M(), 2)), 0, tmp_p4.Pz(), tmp_p4.Energy())
-        chdeta = (pow(hMass, 2) + 2*(nu_pxpy.Px()*tmp_p4.Px() + nu_pxpy.Py()*tmp_p4.Py()) - pow(tmp_p4.M(), 2))/(2.0*tmp_p4_v2.Pt()*tmp_nu_pt)
-        if chdeta < 1.0:
-            #no solution if chdeta<1.0
-            #print("no solution since chdeta<1.0, chdeta ",chdeta)
-            nu2_p4.SetPtEtaPhiM(0.0, 0.0, 0.0, 0.0)
-            return False
-        tmp_nu_phi = nu_pxpy.Phi_mpi_pi(nu_pxpy.Phi())
-        deta = acosh( chdeta )
-        tmp_nu_eta = 0.0
-        if case == 1:
-            tmp_nu_eta = tmp_p4_v2.Eta() - deta
-        else :
-            tmp_nu_eta = tmp_p4_v2.Eta() + deta
-        if (abs(tmp_nu_eta) > 7.0):
-        #very unlikely solution
-            print("tmp_nu_eta ",tmp_nu_eta, " very unlikely solution, pass")
-            nu2_p4.SetPtEtaPhiM(0.0, 0.0, 0.0, 0.0)
-            return False
-        nu2_p4.SetPtEtaPhiM(tmp_nu_pt, tmp_nu_eta, tmp_nu_phi, 0.0)
-        htoWW_tmp = tmp_p4 + nu2_p4
-        if abs(htoWW_tmp.M() - hMass) > 1.0:
-            print("Warning!!! gen hmass ", hMass, " HME htoWW mass ", htoWW_tmp.M())
-        return True
 
-"""
+
+def debug_hme(gh, gw, geta, gphi, tmp_lep0_p4, tmp_lep1_p4, tmp_met_p4):
+    nu0_p4 = vector.MomentumObject4D(
+        pt=(gw**2) / (2*tmp_lep0_p4.pt * (np.cosh(geta - tmp_lep0_p4.eta) - np.cos(gphi - tmp_lep0_p4.phi))),
+        eta=geta,
+        phi=gphi,
+        mass=0,
+    )
+    print("nu0 = ", nu0_p4)
+
+    print(tmp_met_p4.px)
+    print(nu0_p4.px)
+    print(tmp_met_p4.py)
+    print(nu0_p4.py)
+
+    met_min_nu0 = vector.MomentumObject2D(
+        px=(tmp_met_p4.px - nu0_p4.px),
+        py=(tmp_met_p4.py - nu0_p4.py),
+    )
+    print("met minus nu0 = ", met_min_nu0)
+
+
+    leps_plus_nu0 = tmp_lep0_p4 + tmp_lep1_p4 + nu0_p4
+    print("leps plus nu0 = ", leps_plus_nu0)
+
+
+    tmp_4D = vector.MomentumObject4D(
+        pt=(leps_plus_nu0.pt**2 + leps_plus_nu0.mass**2)**(0.5),
+        eta=0,
+        phi=leps_plus_nu0.pz,
+        energy=leps_plus_nu0.energy,
+    )
+    print("temporary vec = ", tmp_4D)
+
+    chdeta = (pow(hMass, 2) + 2*(nu_pxpy.Px()*tmp_p4.Px() + nu_pxpy.Py()*tmp_p4.Py()) - pow(tmp_p4.M(), 2))/(2.0*tmp_p4_v2.Pt()*tmp_nu_pt)
+
+
+    coshdeta = (gh**2 + 2*(met_min_nu0.px * leps_plus_nu0.px + met_min_nu0.py * leps_plus_nu0.py) - leps_plus_nu0.mass**2) / (2.0*tmp_4D.pt * met_min_nu0.pt)
+    deta = np.arccosh(coshdeta)
+    print("coshdeta and deta = ", coshdeta, " ", deta)
+
+    nu1_p4 = vector.MomentumObject4D(
+        pt=met_min_nu0.pt,
+        eta=tmp_4D.eta - deta,
+        phi=met_min_nu0.phi,
+        mass=0,
+    )
+    print("nu1 p4 = ", nu1_p4)
+
+
+    htoWW = leps_plus_nu0 + nu1_p4
+    print("htoWW = ", htoWW)
+    print("h mass = ", htoWW.mass)
