@@ -3,12 +3,14 @@ import numpy as np
 import awkward as ak
 from scipy.stats import rv_discrete, mode
 import vector
+import time
 #from coffea.nanoevents.methods import vector
 
 
 ### Awkward implementation of HME ###
 ### https://github.com/tahuang1991/HeavyMassEstimator/tree/master ###
 
+start_time = time.time()
 
 
 #####
@@ -25,7 +27,7 @@ f = uproot.open("GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M450_Run3Sync.root")
 t = f['Double_Tree']
 events = t.arrays()
 
-events = events[(events.Double_Signal == 1) & (events.Double_Res_2b == 1)]
+events = events[(events.Double_Signal == 1) & ((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1))]
 #Will fail if missing an object, just check that they all have some pT
 events = events[(events.lep0_pt >= 0) & (events.lep1_pt >= 0) & (events.ak4_jet1_pt >= 0) & (events.ak4_jet2_pt >= 0)]
 
@@ -82,6 +84,67 @@ bjet1_p4 = vector.MomentumNumpy4D(
         "energy": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_E, 1), iterations, axis=1)),
     }
 )
+
+#Since we are correctiong bjets, this will be slightly different for each iteration too
+#Bjet corrections
+recobjetrescalec1pdfPU40_weights = recobjetrescalec1pdfPU40_y / np.sum(recobjetrescalec1pdfPU40_y)
+
+bjet_rescale_c1 = np.repeat(np.expand_dims(np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=len(events)), 1), iterations, axis=1)
+
+x1 = (bjet1_p4.mass)**2
+x2 = 2*bjet_rescale_c1*(bjet0_p4.dot(bjet1_p4))
+x3 = (bjet_rescale_c1**2)*((bjet0_p4.mass)**2) - 125.0*125.0
+
+bjet_rescale_c2 = (-x2 + ((x2**2 - 4*x1*x3)**(0.5)))/(2*x1)
+
+retry_counter = 0
+while np.any(x2<0) or np.any((x2*x2 - 4*x1*x3) < 0) or np.any(x1 == 0) or np.any(bjet_rescale_c2 < .0):
+    if retry_counter >= 10:
+        print("Hit max number of retries, HME failed for some events")
+        break
+    print("Trying bjet corr again!")
+
+    print("Change bool = ")
+    print(x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0))
+    print("Old rescale c1 = ")
+    print(bjet_rescale_c1)
+    print("old masked = ", bjet_rescale_c1[x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0)])
+    bjet_rescale_c1 = np.where(
+        x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0),
+            np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights),
+            bjet_rescale_c1
+    )
+    print("New rescale = ")
+    print(bjet_rescale_c1)
+    #bjet_rescale_c1 = np.repeat(np.expand_dims(np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=len(events)), 1), iterations, axis=1)
+
+    x1 = (bjet1_p4.mass)**2
+    x2 = 2*bjet_rescale_c1*(bjet0_p4.dot(bjet1_p4))
+    x3 = (bjet_rescale_c1**2)*((bjet0_p4.mass)**2) - 125.0*125.0
+
+    bjet_rescale_c2 = (-x2 + ((x2**2 - 4*x1*x3)**(0.5)))/(2*x1)
+
+    retry_counter += 1
+
+htoBB = bjet0_p4 * bjet_rescale_c1 + bjet1_p4 * bjet_rescale_c2
+
+
+
+#But the b corrections also affect the MET!!!
+
+dmet_bcorr = vector.MomentumNumpy4D(
+    {
+        "px": bjet0_p4.px * (1 - bjet_rescale_c1) + bjet1_p4.px * (1 - bjet_rescale_c2),
+        "py": bjet0_p4.py * (1 - bjet_rescale_c1) + bjet1_p4.py * (1 - bjet_rescale_c2),
+        "pz": ak.to_numpy(np.repeat(np.expand_dims(events.met_pz, 1), iterations, axis=1)),
+        "energy": ak.to_numpy(np.repeat(np.expand_dims(events.met_E, 1), iterations, axis=1)),
+    }
+)
+
+met_corr_p4 = met_p4 + dmet_bcorr
+
+
+
 
 
 #Tao's getOnShellWMass function is very confusing, I'm just going to make a new one and sample the PDF directly
@@ -232,43 +295,6 @@ htoWW_l1_plus = full_l1_p4 + nu2_l1_plus_p4
 #Successful iteration bool
 valid_hme = valid_mask_l0 | valid_mask_l1
 
-#Since we are correctiong bjets, this will be slightly different for each iteration too
-#Bjet corrections
-recobjetrescalec1pdfPU40_weights = recobjetrescalec1pdfPU40_y / np.sum(recobjetrescalec1pdfPU40_y)
-
-bjet_rescale_c1 = np.repeat(np.expand_dims(np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=len(events)), 1), iterations, axis=1)
-
-x1 = (bjet1_p4.mass)**2
-x2 = 2*bjet_rescale_c1*(bjet0_p4.dot(bjet1_p4))
-x3 = (bjet_rescale_c1**2)*((bjet0_p4.mass)**2) - 125.0*125.0
-
-bjet_rescale_c2 = (-x2 + ((x2**2 - 4*x1*x3)**(0.5)))/(2*x1)
-
-while np.any(x2<0) or np.any((x2*x2 - 4*x1*x3) < 0) or np.any(x1 == 0) or np.any(bjet_rescale_c2 < .0):
-    print("Trying bjet corr again!")
-
-    print("Change bool = ")
-    print(x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0))
-    print("Old rescale c1 = ")
-    print(bjet_rescale_c1)
-    print("old masked = ", bjet_rescale_c1[x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0)])
-    bjet_rescale_c1 = np.where(
-        x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0),
-            np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights),
-            bjet_rescale_c1
-    )
-    print("New rescale = ")
-    print(bjet_rescale_c1)
-    #bjet_rescale_c1 = np.repeat(np.expand_dims(np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=len(events)), 1), iterations, axis=1)
-
-    x1 = (bjet1_p4.mass)**2
-    x2 = 2*bjet_rescale_c1*(bjet0_p4.dot(bjet1_p4))
-    x3 = (bjet_rescale_c1**2)*((bjet0_p4.mass)**2) - 125.0*125.0
-
-    bjet_rescale_c2 = (-x2 + ((x2**2 - 4*x1*x3)**(0.5)))/(2*x1)
-
-
-htoBB = bjet0_p4 * bjet_rescale_c1 + bjet1_p4 * bjet_rescale_c2
 
 #Nest each mass value to create a combined array
 
@@ -308,7 +334,8 @@ HME_mass = mode(ak.values_astype(awk_hh_masses, "int64"))[0]
 
 
 #hh = bjet0_p4 + bjet1_p4 + htoWW_l0_min
-
+end_time = time.time()
+print("Total runtime was ", end_time - start_time)
 
 
 
