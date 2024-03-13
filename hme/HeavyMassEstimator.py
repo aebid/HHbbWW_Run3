@@ -15,6 +15,10 @@ import vector
 #Define PDFs
 onshellWmass_y = [784.0, 896.0, 861.0, 1050.0, 1036.0, 1099.0, 1127.0, 1246.0, 1491.0, 1547.0, 1806.0, 1729.0, 2170.0, 2177.0, 2576.0, 2982.0, 3038.0, 3773.0, 3976.0, 4522.0, 4725.0, 5705.0, 6027.0, 6405.0, 6622.0, 7077.0, 6958.0, 8134.0, 8302.0, 9492.0, 9842.0, 11312.0, 12957.0, 16044.0, 19208.0, 25683.0, 35189.0, 54467.0, 100597.0, 217462.0, 308560.0, 152964.0, 58289.0, 26145.0, 14161.0, 8498.0, 5341.0, 3801.0, 2156.0, 1547.0, 1015.0, 889.0, 651.0, 518.0, 343.0, 273.0, 147.0, 84.0, 91.0, 56.0]
 onshellWmass_x = np.linspace(40,99,60)
+
+
+recobjetrescalec1pdfPU40_y =  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 1.0, 4.0, 6.0, 7.0, 4.0, 4.0, 4.0, 9.0, 6.0, 16.0, 8.0, 7.0, 8.0, 5.0, 6.0, 5.0, 4.0, 8.0, 14.0, 7.0, 21.0, 9.0, 7.0, 14.0, 15.0, 16.0, 9.0, 19.0, 17.0, 28.0, 24.0, 40.0, 51.0, 58.0, 73.0, 88.0, 126.0, 173.0, 269.0, 371.0, 474.0, 594.0, 695.0, 702.0, 777.0, 735.0, 742.0, 636.0, 593.0, 467.0, 458.0, 392.0, 383.0, 341.0, 319.0, 293.0, 270.0, 239.0, 204.0, 184.0, 154.0, 151.0, 153.0, 133.0, 127.0, 101.0, 104.0, 120.0, 77.0, 70.0, 61.0, 57.0, 74.0, 57.0, 73.0, 59.0, 56.0, 47.0, 30.0, 24.0, 38.0, 46.0, 33.0, 32.0, 21.0, 29.0, 30.0, 21.0, 18.0, 25.0, 20.0, 17.0, 19.0, 6.0, 11.0, 14.0, 14.0, 9.0, 12.0, 4.0, 10.0, 11.0, 7.0, 5.0, 7.0, 4.0, 5.0, 4.0, 8.0, 3.0, 2.0, 0.0, 2.0, 8.0, 6.0, 5.0, 0.0, 2.0, 2.0, 6.0, 2.0, 1.0, 1.0, 1.0, 0.0, 2.0, 4.0, 0.0, 1.0, 2.0, 0.0, 2.0, 1.0, 2.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+recobjetrescalec1pdfPU40_x = np.linspace(0, 6.0, 300)
 #####
 
 f = uproot.open("GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M450_Run3Sync.root")
@@ -84,7 +88,6 @@ bjet1_p4 = vector.MomentumNumpy4D(
 onshellWmass_x_new = np.linspace(40, 99.9, 600)
 onshellWmass_y_new = [np.interp(x, onshellWmass_x, onshellWmass_y) for x in np.linspace(40.0, 99.9, 600)]
 onshellWmass_weights = onshellWmass_y_new / np.sum(onshellWmass_y_new)
-
 wmass_gen = np.random.choice(onshellWmass_x_new, p=onshellWmass_weights, size=random_size)
 
 
@@ -227,9 +230,53 @@ htoWW_l1_plus = full_l1_p4 + nu2_l1_plus_p4
 #Successful iteration bool
 valid_hme = valid_mask_l0 | valid_mask_l1
 
+#Since we are correctiong bjets, this will be slightly different for each iteration too
+#Bjet corrections
+recobjetrescalec1pdfPU40_weights = recobjetrescalec1pdfPU40_y / np.sum(recobjetrescalec1pdfPU40_y)
+bjet_rescale_c1 = np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=random_size)
+
+x1 = (bjet1_p4.mass)**2
+x2 = 2*bjet_rescale_c1*(bjet0_p4.dot(bjet1_p4))
+x3 = (bjet_rescale_c1**2)*((bjet0_p4.mass)**2) - 125.0*125.0
+
+bjet_rescale_c2 = (-x2 + ((x2**2 - 4*x1*x3)**(0.5)))/(2*x1)
+
+htoBB = bjet0_p4 * bjet_rescale_c1 + bjet1_p4 * bjet_rescale_c2
+
+#Nest each mass value to create a combined array
+
+#htoWW check
+l0_min_mass = np.expand_dims((htoWW_l0_min).mass, axis=2)
+l0_plus_mass = np.expand_dims((htoWW_l0_plus).mass, axis=2)
+l1_min_mass = np.expand_dims((htoWW_l1_min).mass, axis=2)
+l1_plus_mass = np.expand_dims((htoWW_l1_plus).mass, axis=2)
+htoWW_masses = np.concatenate((l0_min_mass, l0_plus_mass, l1_min_mass, l1_plus_mass), axis=2)
+#Now we want to use mean of the 4 cases
+average_htoWW_masses = np.nanmean(htoWW_masses, axis=2)
 
 
-hh = bjet0_p4 + bjet1_p4 + htoWW_l0_min
+#htoBB check
+l0_min_mass = np.expand_dims((htoBB).mass, axis=2)
+l0_plus_mass = np.expand_dims((htoBB).mass, axis=2)
+l1_min_mass = np.expand_dims((htoBB).mass, axis=2)
+l1_plus_mass = np.expand_dims((htoBB).mass, axis=2)
+htoBB_masses = np.concatenate((l0_min_mass, l0_plus_mass, l1_min_mass, l1_plus_mass), axis=2)
+#Now we want to use mean of the 4 cases
+average_htoBB_masses = np.nanmean(htoBB_masses, axis=2)
+
+
+
+#hh check
+l0_min_mass = np.expand_dims((htoWW_l0_min+htoBB).mass, axis=2)
+l0_plus_mass = np.expand_dims((htoWW_l0_plus+htoBB).mass, axis=2)
+l1_min_mass = np.expand_dims((htoWW_l1_min+htoBB).mass, axis=2)
+l1_plus_mass = np.expand_dims((htoWW_l1_plus+htoBB).mass, axis=2)
+hh_masses = np.concatenate((l0_min_mass, l0_plus_mass, l1_min_mass, l1_plus_mass), axis=2)
+#Now we want to use mean of the 4 cases
+average_hh_masses = np.nanmean(hh_masses, axis=2)
+
+
+#hh = bjet0_p4 + bjet1_p4 + htoWW_l0_min
 
 
 
