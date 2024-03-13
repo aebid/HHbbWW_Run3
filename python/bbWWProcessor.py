@@ -785,7 +785,7 @@ class EventProcess():
         self.pu_reweight_dict = pu_reweight_dict[str(self.Runyear)]
 
         #Run3 jetmet files are in a different format
-        self.corr_files_Run3 = corr_files_dict_run3[str(self.Runyear)][str(self.runera)]
+        if self.Runyear >= 2022: self.corr_files_Run3 = corr_files_dict_run3[str(self.Runyear)][str(self.runera)]
 
         if self.debug > 0:
             print("Muons: ",       self.events.Muon)
