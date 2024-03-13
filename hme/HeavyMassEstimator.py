@@ -1,7 +1,7 @@
 import uproot
 import numpy as np
 import awkward as ak
-from scipy.stats import rv_discrete
+from scipy.stats import rv_discrete, mode
 import vector
 #from coffea.nanoevents.methods import vector
 
@@ -25,10 +25,12 @@ f = uproot.open("GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M450_Run3Sync.root")
 t = f['Double_Tree']
 events = t.arrays()
 
-events = events[events.Double_Signal == 1]
+events = events[(events.Double_Signal == 1) & (events.Double_Res_2b == 1)]
+#Will fail if missing an object, just check that they all have some pT
+events = events[(events.lep0_pt >= 0) & (events.lep1_pt >= 0) & (events.ak4_jet1_pt >= 0) & (events.ak4_jet2_pt >= 0)]
 
 
-iterations = 1000
+iterations = 10000
 
 random_size = [len(events), iterations]
 
@@ -233,13 +235,38 @@ valid_hme = valid_mask_l0 | valid_mask_l1
 #Since we are correctiong bjets, this will be slightly different for each iteration too
 #Bjet corrections
 recobjetrescalec1pdfPU40_weights = recobjetrescalec1pdfPU40_y / np.sum(recobjetrescalec1pdfPU40_y)
-bjet_rescale_c1 = np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=random_size)
+
+bjet_rescale_c1 = np.repeat(np.expand_dims(np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=len(events)), 1), iterations, axis=1)
 
 x1 = (bjet1_p4.mass)**2
 x2 = 2*bjet_rescale_c1*(bjet0_p4.dot(bjet1_p4))
 x3 = (bjet_rescale_c1**2)*((bjet0_p4.mass)**2) - 125.0*125.0
 
 bjet_rescale_c2 = (-x2 + ((x2**2 - 4*x1*x3)**(0.5)))/(2*x1)
+
+while np.any(x2<0) or np.any((x2*x2 - 4*x1*x3) < 0) or np.any(x1 == 0) or np.any(bjet_rescale_c2 < .0):
+    print("Trying bjet corr again!")
+
+    print("Change bool = ")
+    print(x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0))
+    print("Old rescale c1 = ")
+    print(bjet_rescale_c1)
+    print("old masked = ", bjet_rescale_c1[x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0)])
+    bjet_rescale_c1 = np.where(
+        x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0),
+            np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights),
+            bjet_rescale_c1
+    )
+    print("New rescale = ")
+    print(bjet_rescale_c1)
+    #bjet_rescale_c1 = np.repeat(np.expand_dims(np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=len(events)), 1), iterations, axis=1)
+
+    x1 = (bjet1_p4.mass)**2
+    x2 = 2*bjet_rescale_c1*(bjet0_p4.dot(bjet1_p4))
+    x3 = (bjet_rescale_c1**2)*((bjet0_p4.mass)**2) - 125.0*125.0
+
+    bjet_rescale_c2 = (-x2 + ((x2**2 - 4*x1*x3)**(0.5)))/(2*x1)
+
 
 htoBB = bjet0_p4 * bjet_rescale_c1 + bjet1_p4 * bjet_rescale_c2
 
@@ -265,7 +292,6 @@ htoBB_masses = np.concatenate((l0_min_mass, l0_plus_mass, l1_min_mass, l1_plus_m
 average_htoBB_masses = np.nanmean(htoBB_masses, axis=2)
 
 
-
 #hh check
 l0_min_mass = np.expand_dims((htoWW_l0_min+htoBB).mass, axis=2)
 l0_plus_mass = np.expand_dims((htoWW_l0_plus+htoBB).mass, axis=2)
@@ -274,6 +300,11 @@ l1_plus_mass = np.expand_dims((htoWW_l1_plus+htoBB).mass, axis=2)
 hh_masses = np.concatenate((l0_min_mass, l0_plus_mass, l1_min_mass, l1_plus_mass), axis=2)
 #Now we want to use mean of the 4 cases
 average_hh_masses = np.nanmean(hh_masses, axis=2)
+
+#Get awkward array of HH masses using the valid flag
+awk_hh_masses = ak.mask(average_hh_masses, valid_hme)
+HME_mass = mode(ak.values_astype(awk_hh_masses, "int64"))[0]
+
 
 
 #hh = bjet0_p4 + bjet1_p4 + htoWW_l0_min
