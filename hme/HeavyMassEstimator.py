@@ -23,100 +23,82 @@ recobjetrescalec1pdfPU40_y =  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 1.0, 4.0,
 recobjetrescalec1pdfPU40_x = np.linspace(0, 6.0, 300)
 #####
 
-f = uproot.open("GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M450_Run3Sync.root")
-t = f['Double_Tree']
-events = t.arrays()
-
-events = events[(events.Double_Signal == 1) & ((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1))]
-#Will fail if missing an object, just check that they all have some pT
-events = events[(events.lep0_pt >= 0) & (events.lep1_pt >= 0) & (events.ak4_jet1_pt >= 0) & (events.ak4_jet2_pt >= 0)]
+f1 = uproot.open("GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M300_Run3Sync.root")
+f2 = uproot.open("GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M450_Run3Sync.root")
+f3 = uproot.open("GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M700_Run3Sync.root")
 
 
-iterations = 10000
 
-random_size = [len(events), iterations]
+HME_mass_lists = []
+nTimesHME = []
 
-eta_gen = np.random.uniform(-6,6, random_size)
-phi_gen = np.random.uniform(-3.1415926, 3.1415926, random_size)
-hmass_gen = np.random.normal(125.03, 0.004, random_size)
+for f in [f1, f2, f3]:
+    t = f['Double_Tree']
+    events = t.arrays()
 
-lep0_p4 = vector.MomentumNumpy4D(
-    {
-        "pt": ak.to_numpy(np.repeat(np.expand_dims(events.lep0_pt, 1), iterations, axis=1)),
-        "eta": ak.to_numpy(np.repeat(np.expand_dims(events.lep0_eta, 1), iterations, axis=1)),
-        "phi": ak.to_numpy(np.repeat(np.expand_dims(events.lep0_phi, 1), iterations, axis=1)),
-        "energy": ak.to_numpy(np.repeat(np.expand_dims(events.lep0_E, 1), iterations, axis=1)),
-    }
-)
+    events = events[(events.Double_Signal == 1) & ((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1))]
+    #Will fail if missing an object, just check that they all have some pT
+    events = events[(events.lep0_pt >= 0) & (events.lep1_pt >= 0) & (events.ak4_jet1_pt >= 0) & (events.ak4_jet2_pt >= 0)]
 
-lep1_p4 = vector.MomentumNumpy4D(
-    {
-        "pt": ak.to_numpy(np.repeat(np.expand_dims(events.lep1_pt, 1), iterations, axis=1)),
-        "eta": ak.to_numpy(np.repeat(np.expand_dims(events.lep1_eta, 1), iterations, axis=1)),
-        "phi": ak.to_numpy(np.repeat(np.expand_dims(events.lep1_phi, 1), iterations, axis=1)),
-        "energy": ak.to_numpy(np.repeat(np.expand_dims(events.lep1_E, 1), iterations, axis=1)),
-    }
-)
 
-met_p4 = vector.MomentumNumpy4D(
-    {
-        "px": ak.to_numpy(np.repeat(np.expand_dims(events.met_px, 1), iterations, axis=1)),
-        "py": ak.to_numpy(np.repeat(np.expand_dims(events.met_py, 1), iterations, axis=1)),
-        "pz": ak.to_numpy(np.repeat(np.expand_dims(events.met_pz, 1), iterations, axis=1)),
-        "energy": ak.to_numpy(np.repeat(np.expand_dims(events.met_E, 1), iterations, axis=1)),
-    }
-)
+    iterations = 1000
 
-bjet0_p4 = vector.MomentumNumpy4D(
-    {
-        "pt": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_pt, 1), iterations, axis=1)),
-        "eta": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_eta, 1), iterations, axis=1)),
-        "phi": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_phi, 1), iterations, axis=1)),
-        "energy": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_E, 1), iterations, axis=1)),
-    }
-)
+    random_size = [len(events), iterations]
 
-bjet1_p4 = vector.MomentumNumpy4D(
-    {
-        "pt": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_pt, 1), iterations, axis=1)),
-        "eta": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_eta, 1), iterations, axis=1)),
-        "phi": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_phi, 1), iterations, axis=1)),
-        "energy": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_E, 1), iterations, axis=1)),
-    }
-)
+    eta_gen = np.random.uniform(-6,6, random_size)
+    phi_gen = np.random.uniform(-3.1415926, 3.1415926, random_size)
+    hmass_gen = np.random.normal(125.03, 0.004, random_size)
 
-#Since we are correctiong bjets, this will be slightly different for each iteration too
-#Bjet corrections
-recobjetrescalec1pdfPU40_weights = recobjetrescalec1pdfPU40_y / np.sum(recobjetrescalec1pdfPU40_y)
-
-bjet_rescale_c1 = np.repeat(np.expand_dims(np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=len(events)), 1), iterations, axis=1)
-
-x1 = (bjet1_p4.mass)**2
-x2 = 2*bjet_rescale_c1*(bjet0_p4.dot(bjet1_p4))
-x3 = (bjet_rescale_c1**2)*((bjet0_p4.mass)**2) - 125.0*125.0
-
-bjet_rescale_c2 = (-x2 + ((x2**2 - 4*x1*x3)**(0.5)))/(2*x1)
-
-retry_counter = 0
-while np.any(x2<0) or np.any((x2*x2 - 4*x1*x3) < 0) or np.any(x1 == 0) or np.any(bjet_rescale_c2 < .0):
-    if retry_counter >= 10:
-        print("Hit max number of retries, HME failed for some events")
-        break
-    print("Trying bjet corr again!")
-
-    print("Change bool = ")
-    print(x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0))
-    print("Old rescale c1 = ")
-    print(bjet_rescale_c1)
-    print("old masked = ", bjet_rescale_c1[x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0)])
-    bjet_rescale_c1 = np.where(
-        x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0),
-            np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights),
-            bjet_rescale_c1
+    lep0_p4 = vector.MomentumNumpy4D(
+        {
+            "pt": ak.to_numpy(np.repeat(np.expand_dims(events.lep0_pt, 1), iterations, axis=1)),
+            "eta": ak.to_numpy(np.repeat(np.expand_dims(events.lep0_eta, 1), iterations, axis=1)),
+            "phi": ak.to_numpy(np.repeat(np.expand_dims(events.lep0_phi, 1), iterations, axis=1)),
+            "energy": ak.to_numpy(np.repeat(np.expand_dims(events.lep0_E, 1), iterations, axis=1)),
+        }
     )
-    print("New rescale = ")
-    print(bjet_rescale_c1)
-    #bjet_rescale_c1 = np.repeat(np.expand_dims(np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=len(events)), 1), iterations, axis=1)
+
+    lep1_p4 = vector.MomentumNumpy4D(
+        {
+            "pt": ak.to_numpy(np.repeat(np.expand_dims(events.lep1_pt, 1), iterations, axis=1)),
+            "eta": ak.to_numpy(np.repeat(np.expand_dims(events.lep1_eta, 1), iterations, axis=1)),
+            "phi": ak.to_numpy(np.repeat(np.expand_dims(events.lep1_phi, 1), iterations, axis=1)),
+            "energy": ak.to_numpy(np.repeat(np.expand_dims(events.lep1_E, 1), iterations, axis=1)),
+        }
+    )
+
+    met_p4 = vector.MomentumNumpy4D(
+        {
+            "px": ak.to_numpy(np.repeat(np.expand_dims(events.met_px, 1), iterations, axis=1)),
+            "py": ak.to_numpy(np.repeat(np.expand_dims(events.met_py, 1), iterations, axis=1)),
+            "pz": ak.to_numpy(np.repeat(np.expand_dims(events.met_pz, 1), iterations, axis=1)),
+            "energy": ak.to_numpy(np.repeat(np.expand_dims(events.met_E, 1), iterations, axis=1)),
+        }
+    )
+
+    bjet0_p4 = vector.MomentumNumpy4D(
+        {
+            "pt": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_pt, 1), iterations, axis=1)),
+            "eta": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_eta, 1), iterations, axis=1)),
+            "phi": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_phi, 1), iterations, axis=1)),
+            "energy": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_E, 1), iterations, axis=1)),
+        }
+    )
+
+    bjet1_p4 = vector.MomentumNumpy4D(
+        {
+            "pt": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_pt, 1), iterations, axis=1)),
+            "eta": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_eta, 1), iterations, axis=1)),
+            "phi": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_phi, 1), iterations, axis=1)),
+            "energy": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_E, 1), iterations, axis=1)),
+        }
+    )
+
+    #Since we are correctiong bjets, this will be slightly different for each iteration too
+    #Bjet corrections
+    recobjetrescalec1pdfPU40_weights = recobjetrescalec1pdfPU40_y / np.sum(recobjetrescalec1pdfPU40_y)
+
+    bjet_rescale_c1 = np.repeat(np.expand_dims(np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=len(events)), 1), iterations, axis=1)
 
     x1 = (bjet1_p4.mass)**2
     x2 = 2*bjet_rescale_c1*(bjet0_p4.dot(bjet1_p4))
@@ -124,221 +106,261 @@ while np.any(x2<0) or np.any((x2*x2 - 4*x1*x3) < 0) or np.any(x1 == 0) or np.any
 
     bjet_rescale_c2 = (-x2 + ((x2**2 - 4*x1*x3)**(0.5)))/(2*x1)
 
-    retry_counter += 1
+    retry_counter = 0
+    #while np.any(x2<0) or np.any((x2*x2 - 4*x1*x3) < 0) or np.any(x1 == 0) or np.any(bjet_rescale_c2 < .0):
+    while np.any(x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0)):
+        if retry_counter >= 10:
+            print("Hit max number of retries, HME failed for some events")
+            break
+        print("Trying bjet corr again!")
 
-htoBB = bjet0_p4 * bjet_rescale_c1 + bjet1_p4 * bjet_rescale_c2
+        print("Change bool = ")
+        print(x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0))
+        print("Old rescale c1 = ")
+        print(bjet_rescale_c1)
+        print("old masked = ", bjet_rescale_c1[x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0)])
+        bjet_rescale_c1 = np.where(
+            x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0),
+                np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights),
+                bjet_rescale_c1
+        )
+        print("New rescale = ")
+        print(bjet_rescale_c1)
+        #bjet_rescale_c1 = np.repeat(np.expand_dims(np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=len(events)), 1), iterations, axis=1)
 
+        x1 = (bjet1_p4.mass)**2
+        x2 = 2*bjet_rescale_c1*(bjet0_p4.dot(bjet1_p4))
+        x3 = (bjet_rescale_c1**2)*((bjet0_p4.mass)**2) - 125.0*125.0
 
+        bjet_rescale_c2 = (-x2 + ((x2**2 - 4*x1*x3)**(0.5)))/(2*x1)
 
-#But the b corrections also affect the MET!!!
+        retry_counter += 1
 
-dmet_bcorr = vector.MomentumNumpy4D(
-    {
-        "px": bjet0_p4.px * (1 - bjet_rescale_c1) + bjet1_p4.px * (1 - bjet_rescale_c2),
-        "py": bjet0_p4.py * (1 - bjet_rescale_c1) + bjet1_p4.py * (1 - bjet_rescale_c2),
-        "pz": ak.to_numpy(np.repeat(np.expand_dims(events.met_pz, 1), iterations, axis=1)),
-        "energy": ak.to_numpy(np.repeat(np.expand_dims(events.met_E, 1), iterations, axis=1)),
-    }
-)
-
-met_corr_p4 = met_p4 + dmet_bcorr
-
-
-
-
-
-#Tao's getOnShellWMass function is very confusing, I'm just going to make a new one and sample the PDF directly
-#First issue was to get the PDF and increase resolution (orignal was 1bin/GeV, but we want fine resolution so we interpolate and create 10x as many)
-#We probably want to change this to use a function instead of interp
-onshellWmass_x_new = np.linspace(40, 99.9, 600)
-onshellWmass_y_new = [np.interp(x, onshellWmass_x, onshellWmass_y) for x in np.linspace(40.0, 99.9, 600)]
-onshellWmass_weights = onshellWmass_y_new / np.sum(onshellWmass_y_new)
-wmass_gen = np.random.choice(onshellWmass_x_new, p=onshellWmass_weights, size=random_size)
-
-
-#Here tao starts the 4 solutions
-#4 cases
-#Lep0 is onshell
-    #Nutrino + eta
-    #Nutrino - eta
-#Lep1 is onshell
-    #Nutrino + eta
-    #Nutrino - eta
-
-
-#L0 is onshell
-nu_onshellW_pt_l0 = np.array((wmass_gen**2) / (2*lep0_p4.pt * (np.cosh(eta_gen - lep0_p4.eta) - np.cos(phi_gen - lep0_p4.phi))))
-
-nu_onshellW_l0_p4 = vector.MomentumNumpy4D(
-    {
-        "pt": ak.to_numpy(nu_onshellW_pt_l0),
-        "eta": ak.to_numpy(eta_gen),
-        "phi": ak.to_numpy(phi_gen),
-        "mass": np.zeros_like(nu_onshellW_pt_l0),
-    }
-)
-
-nu2_l0_p2 = vector.MomentumNumpy2D(
-    {
-        "px": met_p4.px - nu_onshellW_l0_p4.px,
-        "py": met_p4.py - nu_onshellW_l0_p4.py,
-    }
-)
-
-full_l0_p4 = lep0_p4 + lep1_p4 + nu_onshellW_l0_p4
-
-full_l0_p4_v2 = vector.MomentumNumpy4D(
-    {
-        "pt": (full_l0_p4.pt**2 + full_l0_p4.mass**2)**(0.5),
-        "eta": np.zeros_like(full_l0_p4.pt),
-        "phi": full_l0_p4.pz,
-        "energy": full_l0_p4.energy,
-    }
-)
-
-coshdeta_l0 = (hmass_gen**2 + 2*(nu2_l0_p2.px * full_l0_p4.px + nu2_l0_p2.py * full_l0_p4.py) - full_l0_p4.mass**2) / (2.0*full_l0_p4_v2.pt * nu2_l0_p2.pt)
-deta_l0 = np.arccosh(coshdeta_l0)
-
-valid_mask_l0 = coshdeta_l0 >= 1.0
-
-#Minus eta case
-nu2_l0_min_p4 = vector.MomentumNumpy4D(
-    {
-        "pt": nu2_l0_p2.pt,
-        "eta": full_l0_p4_v2.eta - deta_l0,
-        "phi": nu2_l0_p2.phi,
-        "mass": np.zeros_like(nu2_l0_p2.pt),
-    }
-)
-
-htoWW_l0_min = full_l0_p4 + nu2_l0_min_p4
-
-#Plus eta case
-nu2_l0_plus_p4 = vector.MomentumNumpy4D(
-    {
-        "pt": nu2_l0_p2.pt,
-        "eta": full_l0_p4_v2.eta + deta_l0,
-        "phi": nu2_l0_p2.phi,
-        "mass": np.zeros_like(nu2_l0_p2.pt),
-    }
-)
-
-htoWW_l0_plus = full_l0_p4 + nu2_l0_plus_p4
-
-#L1 is onshell
-
-nu_onshellW_pt_l1 = np.array((wmass_gen**2) / (2*lep1_p4.pt * (np.cosh(eta_gen - lep1_p4.eta) - np.cos(phi_gen - lep1_p4.phi))))
+    htoBB = bjet0_p4 * bjet_rescale_c1 + bjet1_p4 * bjet_rescale_c2
 
 
 
-nu_onshellW_l1_p4 = vector.MomentumNumpy4D(
-    {
-        "pt": ak.to_numpy(nu_onshellW_pt_l1),
-        "eta": ak.to_numpy(eta_gen),
-        "phi": ak.to_numpy(phi_gen),
-        "mass": np.zeros_like(nu_onshellW_pt_l1),
-    }
-)
+    #But the b corrections also affect the MET!!!
 
-nu2_l1_p2 = vector.MomentumNumpy2D(
-    {
-        "px": met_p4.px - nu_onshellW_l1_p4.px,
-        "py": met_p4.py - nu_onshellW_l1_p4.py,
-    }
-)
+    dmet_bcorr = vector.MomentumNumpy4D(
+        {
+            "px": bjet0_p4.px * (1 - bjet_rescale_c1) + bjet1_p4.px * (1 - bjet_rescale_c2),
+            "py": bjet0_p4.py * (1 - bjet_rescale_c1) + bjet1_p4.py * (1 - bjet_rescale_c2),
+            "pz": ak.to_numpy(np.repeat(np.expand_dims(events.met_pz, 1), iterations, axis=1)),
+            "energy": ak.to_numpy(np.repeat(np.expand_dims(events.met_E, 1), iterations, axis=1)),
+        }
+    )
 
-
-full_l1_p4 = lep0_p4 + lep1_p4 + nu_onshellW_l1_p4
+    met_corr_p4 = met_p4 + dmet_bcorr
 
 
 
-full_l1_p4_v2 = vector.MomentumNumpy4D(
-    {
-        "pt": (full_l1_p4.pt**2 + full_l1_p4.mass**2)**(0.5),
-        "eta": np.zeros_like(full_l1_p4.pt),
-        "phi": full_l1_p4.pz,
-        "energy": full_l1_p4.energy,
-    }
-)
-
-coshdeta_l1 = (hmass_gen**2 + 2*(nu2_l1_p2.px * full_l1_p4.px + nu2_l1_p2.py * full_l1_p4.py) - full_l1_p4.mass**2) / (2.0*full_l1_p4_v2.pt * nu2_l1_p2.pt)
-deta_l1 = np.arccosh(coshdeta_l1)
-
-valid_mask_l1 = coshdeta_l1 >= 1.0
-
-#Minus eta case
-nu2_l1_min_p4 = vector.MomentumNumpy4D(
-    {
-        "pt": nu2_l1_p2.pt,
-        "eta": full_l1_p4_v2.eta - deta_l1,
-        "phi": nu2_l1_p2.phi,
-        "mass": np.zeros_like(nu2_l1_p2.pt),
-    }
-)
-
-htoWW_l1_min = full_l1_p4 + nu2_l1_min_p4
-
-#Plus eta case
-nu2_l1_plus_p4 = vector.MomentumNumpy4D(
-    {
-        "pt": nu2_l1_p2.pt,
-        "eta": full_l1_p4_v2.eta + deta_l1,
-        "phi": nu2_l1_p2.phi,
-        "mass": np.zeros_like(nu2_l1_p2.pt),
-    }
-)
-
-htoWW_l1_plus = full_l1_p4 + nu2_l1_plus_p4
 
 
-
-#Successful iteration bool
-valid_hme = valid_mask_l0 | valid_mask_l1
-
-
-#Nest each mass value to create a combined array
-
-#htoWW check
-l0_min_mass = np.expand_dims((htoWW_l0_min).mass, axis=2)
-l0_plus_mass = np.expand_dims((htoWW_l0_plus).mass, axis=2)
-l1_min_mass = np.expand_dims((htoWW_l1_min).mass, axis=2)
-l1_plus_mass = np.expand_dims((htoWW_l1_plus).mass, axis=2)
-htoWW_masses = np.concatenate((l0_min_mass, l0_plus_mass, l1_min_mass, l1_plus_mass), axis=2)
-#Now we want to use mean of the 4 cases
-average_htoWW_masses = np.nanmean(htoWW_masses, axis=2)
+    #Tao's getOnShellWMass function is very confusing, I'm just going to make a new one and sample the PDF directly
+    #First issue was to get the PDF and increase resolution (orignal was 1bin/GeV, but we want fine resolution so we interpolate and create 10x as many)
+    #We probably want to change this to use a function instead of interp
+    onshellWmass_x_new = np.linspace(40, 99.9, 600)
+    onshellWmass_y_new = [np.interp(x, onshellWmass_x, onshellWmass_y) for x in np.linspace(40.0, 99.9, 600)]
+    onshellWmass_weights = onshellWmass_y_new / np.sum(onshellWmass_y_new)
+    wmass_gen = np.random.choice(onshellWmass_x_new, p=onshellWmass_weights, size=random_size)
 
 
-#htoBB check
-l0_min_mass = np.expand_dims((htoBB).mass, axis=2)
-l0_plus_mass = np.expand_dims((htoBB).mass, axis=2)
-l1_min_mass = np.expand_dims((htoBB).mass, axis=2)
-l1_plus_mass = np.expand_dims((htoBB).mass, axis=2)
-htoBB_masses = np.concatenate((l0_min_mass, l0_plus_mass, l1_min_mass, l1_plus_mass), axis=2)
-#Now we want to use mean of the 4 cases
-average_htoBB_masses = np.nanmean(htoBB_masses, axis=2)
+    #Here tao starts the 4 solutions
+    #4 cases
+    #Lep0 is onshell
+        #Nutrino + eta
+        #Nutrino - eta
+    #Lep1 is onshell
+        #Nutrino + eta
+        #Nutrino - eta
 
 
-#hh check
-l0_min_mass = np.expand_dims((htoWW_l0_min+htoBB).mass, axis=2)
-l0_plus_mass = np.expand_dims((htoWW_l0_plus+htoBB).mass, axis=2)
-l1_min_mass = np.expand_dims((htoWW_l1_min+htoBB).mass, axis=2)
-l1_plus_mass = np.expand_dims((htoWW_l1_plus+htoBB).mass, axis=2)
-hh_masses = np.concatenate((l0_min_mass, l0_plus_mass, l1_min_mass, l1_plus_mass), axis=2)
-#Now we want to use mean of the 4 cases
-average_hh_masses = np.nanmean(hh_masses, axis=2)
+    #L0 is onshell
+    nu_onshellW_pt_l0 = np.array((wmass_gen**2) / (2*lep0_p4.pt * (np.cosh(eta_gen - lep0_p4.eta) - np.cos(phi_gen - lep0_p4.phi))))
 
-#Get awkward array of HH masses using the valid flag
-awk_hh_masses = ak.mask(average_hh_masses, valid_hme)
-HME_mass = mode(ak.values_astype(awk_hh_masses, "int64"))[0]
+    nu_onshellW_l0_p4 = vector.MomentumNumpy4D(
+        {
+            "pt": ak.to_numpy(nu_onshellW_pt_l0),
+            "eta": ak.to_numpy(eta_gen),
+            "phi": ak.to_numpy(phi_gen),
+            "mass": np.zeros_like(nu_onshellW_pt_l0),
+        }
+    )
+
+    nu2_l0_p2 = vector.MomentumNumpy2D(
+        {
+            "px": met_corr_p4.px - nu_onshellW_l0_p4.px,
+            "py": met_corr_p4.py - nu_onshellW_l0_p4.py,
+        }
+    )
+
+    full_l0_p4 = lep0_p4 + lep1_p4 + nu_onshellW_l0_p4
+
+    full_l0_p4_v2 = vector.MomentumNumpy4D(
+        {
+            "pt": (full_l0_p4.pt**2 + full_l0_p4.mass**2)**(0.5),
+            "eta": np.zeros_like(full_l0_p4.pt),
+            "phi": full_l0_p4.pz,
+            "energy": full_l0_p4.energy,
+        }
+    )
+
+    coshdeta_l0 = (hmass_gen**2 + 2*(nu2_l0_p2.px * full_l0_p4.px + nu2_l0_p2.py * full_l0_p4.py) - full_l0_p4.mass**2) / (2.0*full_l0_p4_v2.pt * nu2_l0_p2.pt)
+    deta_l0 = np.arccosh(coshdeta_l0)
+
+    valid_mask_l0 = coshdeta_l0 >= 1.0
+
+    #Minus eta case
+    nu2_l0_min_p4 = vector.MomentumNumpy4D(
+        {
+            "pt": nu2_l0_p2.pt,
+            "eta": full_l0_p4_v2.eta - deta_l0,
+            "phi": nu2_l0_p2.phi,
+            "mass": np.zeros_like(nu2_l0_p2.pt),
+        }
+    )
+
+    htoWW_l0_min = full_l0_p4 + nu2_l0_min_p4
+
+    #Plus eta case
+    nu2_l0_plus_p4 = vector.MomentumNumpy4D(
+        {
+            "pt": nu2_l0_p2.pt,
+            "eta": full_l0_p4_v2.eta + deta_l0,
+            "phi": nu2_l0_p2.phi,
+            "mass": np.zeros_like(nu2_l0_p2.pt),
+        }
+    )
+
+    htoWW_l0_plus = full_l0_p4 + nu2_l0_plus_p4
+
+    #L1 is onshell
+
+    nu_onshellW_pt_l1 = np.array((wmass_gen**2) / (2*lep1_p4.pt * (np.cosh(eta_gen - lep1_p4.eta) - np.cos(phi_gen - lep1_p4.phi))))
 
 
 
-#hh = bjet0_p4 + bjet1_p4 + htoWW_l0_min
+    nu_onshellW_l1_p4 = vector.MomentumNumpy4D(
+        {
+            "pt": ak.to_numpy(nu_onshellW_pt_l1),
+            "eta": ak.to_numpy(eta_gen),
+            "phi": ak.to_numpy(phi_gen),
+            "mass": np.zeros_like(nu_onshellW_pt_l1),
+        }
+    )
+
+    nu2_l1_p2 = vector.MomentumNumpy2D(
+        {
+            "px": met_corr_p4.px - nu_onshellW_l1_p4.px,
+            "py": met_corr_p4.py - nu_onshellW_l1_p4.py,
+        }
+    )
+
+
+    full_l1_p4 = lep0_p4 + lep1_p4 + nu_onshellW_l1_p4
+
+
+
+    full_l1_p4_v2 = vector.MomentumNumpy4D(
+        {
+            "pt": (full_l1_p4.pt**2 + full_l1_p4.mass**2)**(0.5),
+            "eta": np.zeros_like(full_l1_p4.pt),
+            "phi": full_l1_p4.pz,
+            "energy": full_l1_p4.energy,
+        }
+    )
+
+    coshdeta_l1 = (hmass_gen**2 + 2*(nu2_l1_p2.px * full_l1_p4.px + nu2_l1_p2.py * full_l1_p4.py) - full_l1_p4.mass**2) / (2.0*full_l1_p4_v2.pt * nu2_l1_p2.pt)
+    deta_l1 = np.arccosh(coshdeta_l1)
+
+    valid_mask_l1 = coshdeta_l1 >= 1.0
+
+    #Minus eta case
+    nu2_l1_min_p4 = vector.MomentumNumpy4D(
+        {
+            "pt": nu2_l1_p2.pt,
+            "eta": full_l1_p4_v2.eta - deta_l1,
+            "phi": nu2_l1_p2.phi,
+            "mass": np.zeros_like(nu2_l1_p2.pt),
+        }
+    )
+
+    htoWW_l1_min = full_l1_p4 + nu2_l1_min_p4
+
+    #Plus eta case
+    nu2_l1_plus_p4 = vector.MomentumNumpy4D(
+        {
+            "pt": nu2_l1_p2.pt,
+            "eta": full_l1_p4_v2.eta + deta_l1,
+            "phi": nu2_l1_p2.phi,
+            "mass": np.zeros_like(nu2_l1_p2.pt),
+        }
+    )
+
+    htoWW_l1_plus = full_l1_p4 + nu2_l1_plus_p4
+
+
+
+    #Successful iteration bool
+    valid_hme = valid_mask_l0 | valid_mask_l1
+
+
+    #Nest each mass value to create a combined array
+
+    #htoWW check
+    l0_min_mass = np.expand_dims((htoWW_l0_min).mass, axis=2)
+    l0_plus_mass = np.expand_dims((htoWW_l0_plus).mass, axis=2)
+    l1_min_mass = np.expand_dims((htoWW_l1_min).mass, axis=2)
+    l1_plus_mass = np.expand_dims((htoWW_l1_plus).mass, axis=2)
+    htoWW_masses = np.concatenate((l0_min_mass, l0_plus_mass, l1_min_mass, l1_plus_mass), axis=2)
+    #Now we want to use mean of the 4 cases
+    average_htoWW_masses = np.nanmean(htoWW_masses, axis=2)
+
+
+    #htoBB check
+    l0_min_mass = np.expand_dims((htoBB).mass, axis=2)
+    l0_plus_mass = np.expand_dims((htoBB).mass, axis=2)
+    l1_min_mass = np.expand_dims((htoBB).mass, axis=2)
+    l1_plus_mass = np.expand_dims((htoBB).mass, axis=2)
+    htoBB_masses = np.concatenate((l0_min_mass, l0_plus_mass, l1_min_mass, l1_plus_mass), axis=2)
+    #Now we want to use mean of the 4 cases
+    average_htoBB_masses = np.nanmean(htoBB_masses, axis=2)
+
+
+    #hh check
+    l0_min_mass = np.expand_dims((htoWW_l0_min+htoBB).mass, axis=2)
+    l0_plus_mass = np.expand_dims((htoWW_l0_plus+htoBB).mass, axis=2)
+    l1_min_mass = np.expand_dims((htoWW_l1_min+htoBB).mass, axis=2)
+    l1_plus_mass = np.expand_dims((htoWW_l1_plus+htoBB).mass, axis=2)
+    hh_masses = np.concatenate((l0_min_mass, l0_plus_mass, l1_min_mass, l1_plus_mass), axis=2)
+    #Now we want to use mean of the 4 cases
+    average_hh_masses = np.nanmean(hh_masses, axis=2)
+
+    #Get awkward array of HH masses using the valid flag
+    awk_hh_masses = ak.mask(average_hh_masses, valid_hme)
+    HME_mass = mode(ak.values_astype(awk_hh_masses, "int64"))[0]
+
+
+
+    #hh = bjet0_p4 + bjet1_p4 + htoWW_l0_min
+    file_time = time.time()
+    print("File runtime was ", file_time - start_time)
+    HME_mass_lists.append(HME_mass)
+    nTimesHME.append(mode(ak.values_astype(awk_hh_masses, "int64"))[1])
+
 end_time = time.time()
 print("Total runtime was ", end_time - start_time)
 
 
 
+import matplotlib.pyplot as plt
+
+plt.hist(HME_mass_lists[0], bins=80, range=(200,1000), density=True)
+plt.hist(HME_mass_lists[1], bins=80, range=(200,1000), density=True)
+plt.hist(HME_mass_lists[2], bins=80, range=(200,1000), density=True)
+
+plt.show()
 
 
 def debug_hme(gh, gw, geta, gphi, tmp_lep0_p4, tmp_lep1_p4, tmp_met_p4):
