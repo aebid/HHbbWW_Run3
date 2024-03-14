@@ -34,7 +34,7 @@ HME_mass_lists = []
 nTimesHME = []
 
 flist = [f1, f2, f3]
-flist = [f2]
+#flist = [f2]
 for f in flist:
     t = f['Double_Tree']
     events = t.arrays()
@@ -44,7 +44,7 @@ for f in flist:
     events = events[(events.lep0_pt >= 0) & (events.lep1_pt >= 0) & (events.ak4_jet1_pt >= 0) & (events.ak4_jet2_pt >= 0)]
 
 
-    iterations = 1000
+    iterations = 10000
 
     random_size = [len(events), iterations]
 
@@ -155,7 +155,38 @@ for f in flist:
         }
     )
 
-    met_corr_p4 = met_p4 + dmet_bcorr
+    met_sigma = 25.2
+    met_smear = vector.MomentumNumpy4D(
+        {
+            "px": np.random.normal(0.0, met_sigma, random_size),
+            "py": np.random.normal(0.0, met_sigma, random_size),
+            "pz": ak.to_numpy(np.repeat(np.expand_dims(events.met_pz, 1), iterations, axis=1)),
+            "energy": ak.to_numpy(np.repeat(np.expand_dims(events.met_E, 1), iterations, axis=1)),
+        }
+    )
+
+    #Eventually I will use the cov CovMatrix
+    """
+    met_px = met_p4.px
+    met_py = met_p4.py
+    met_covXX = events.met_covXX
+    met_covYY = events.met_covYY
+    met_covXY = events.met_covXY
+
+    met_pxpy = (np.array([met_px, met_py])).T
+    met_cov_matrix = (np.array([[met_covXX, met_covXY], [met_covXY, met_covYY]])).T
+
+    met_smear = vector.MomentumNumpy3D(
+        {
+            "px": bjet0_p4.px * (1 - bjet_rescale_c1) + bjet1_p4.px * (1 - bjet_rescale_c2),
+            "py": bjet0_p4.py * (1 - bjet_rescale_c1) + bjet1_p4.py * (1 - bjet_rescale_c2),
+            "pz": ak.to_numpy(np.repeat(np.expand_dims(events.met_pz, 1), iterations, axis=1)),
+            "energy": ak.to_numpy(np.repeat(np.expand_dims(events.met_E, 1), iterations, axis=1)),
+        }
+    )
+    """
+
+    met_corr_p4 = met_p4 + dmet_bcorr + met_smear
 
 
 
@@ -369,7 +400,7 @@ for f in flist:
             print(weights_flat[i])
             HME_mass.append(0.0)
             continue
-        HME_mass.append(weighted_mode(hh_flat[i], weights_flat[i])[0][0])
+        HME_mass.append(weighted_mode(ak.values_astype(hh_flat[i], "int64"), weights_flat[i])[0][0])
 
 
     #np.repeat(hh_flat[0].to_numpy(), ak.values_astype(4*weights_flat, "int64")[0].to_numpy())
