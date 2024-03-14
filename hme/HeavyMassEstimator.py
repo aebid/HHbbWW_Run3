@@ -4,6 +4,7 @@ import awkward as ak
 from scipy.stats import rv_discrete, mode
 import vector
 import time
+from sklearn.utils.extmath import weighted_mode
 #from coffea.nanoevents.methods import vector
 
 
@@ -32,7 +33,9 @@ f3 = uproot.open("GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M700_Run3Sync.root")
 HME_mass_lists = []
 nTimesHME = []
 
-for f in [f1, f2, f3]:
+flist = [f1, f2, f3]
+flist = [f2]
+for f in flist:
     t = f['Double_Tree']
     events = t.arrays()
 
@@ -98,7 +101,8 @@ for f in [f1, f2, f3]:
     #Bjet corrections
     recobjetrescalec1pdfPU40_weights = recobjetrescalec1pdfPU40_y / np.sum(recobjetrescalec1pdfPU40_y)
 
-    bjet_rescale_c1 = np.repeat(np.expand_dims(np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=len(events)), 1), iterations, axis=1)
+    #bjet_rescale_c1 = np.repeat(np.expand_dims(np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=len(events)), 1), iterations, axis=1)
+    bjet_rescale_c1 = np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=[len(events), iterations])
 
     x1 = (bjet1_p4.mass)**2
     x2 = 2*bjet_rescale_c1*(bjet0_p4.dot(bjet1_p4))
@@ -199,9 +203,9 @@ for f in [f1, f2, f3]:
 
     full_l0_p4_v2 = vector.MomentumNumpy4D(
         {
-            "pt": (full_l0_p4.pt**2 + full_l0_p4.mass**2)**(0.5),
-            "eta": np.zeros_like(full_l0_p4.pt),
-            "phi": full_l0_p4.pz,
+            "px": (full_l0_p4.pt**2 + full_l0_p4.mass**2)**(0.5),
+            "py": np.zeros_like(full_l0_p4.pt),
+            "pz": full_l0_p4.pz,
             "energy": full_l0_p4.energy,
         }
     )
@@ -264,9 +268,9 @@ for f in [f1, f2, f3]:
 
     full_l1_p4_v2 = vector.MomentumNumpy4D(
         {
-            "pt": (full_l1_p4.pt**2 + full_l1_p4.mass**2)**(0.5),
-            "eta": np.zeros_like(full_l1_p4.pt),
-            "phi": full_l1_p4.pz,
+            "px": (full_l1_p4.pt**2 + full_l1_p4.mass**2)**(0.5),
+            "py": np.zeros_like(full_l1_p4.pt),
+            "pz": full_l1_p4.pz,
             "energy": full_l1_p4.energy,
         }
     )
@@ -336,10 +340,41 @@ for f in [f1, f2, f3]:
     hh_masses = np.concatenate((l0_min_mass, l0_plus_mass, l1_min_mass, l1_plus_mass), axis=2)
     #Now we want to use mean of the 4 cases
     average_hh_masses = np.nanmean(hh_masses, axis=2)
+    #No we don't! What we want is a hist of all cases but weighted to nSolutions per case!
+    #Count the number of solutions per iteration
+    nSol = np.count_nonzero(np.isnan(hh_masses) == False, axis=2)
+    weights = np.where(
+        nSol >= 1,
+            1/nSol,
+            0.0
+    )
+    weights = np.repeat(np.expand_dims(weights, 2), 4, axis=2)
+    #Simple way to 'weight' would be to repeat values by weights*4
 
-    #Get awkward array of HH masses using the valid flag
-    awk_hh_masses = ak.mask(average_hh_masses, valid_hme)
-    HME_mass = mode(ak.values_astype(awk_hh_masses, "int64"))[0]
+    #hh_masses_nonan = np.nan_to_num(hh_masses, nan=-1.0)
+    hh_flat = ak.flatten(hh_masses, axis=2)
+    weights_flat = ak.flatten(weights, axis=2)
+    valid_flag = hh_flat >= 0.0
+    hh_flat = hh_flat[valid_flag]
+    weights_flat = weights_flat[valid_flag]
+
+    #HME_mass = ak.mean(hh_flat, weight=weights_flat, axis=1)
+
+    print("Starting to find the mode of each event (most common bin)")
+    HME_mass = []
+    for i in range(len(hh_flat)):
+        if len(hh_flat[i]) == 0:
+            print("HME Failed at event ", i)
+            print(hh_flat[i])
+            print(weights_flat[i])
+            HME_mass.append(0.0)
+            continue
+        HME_mass.append(weighted_mode(hh_flat[i], weights_flat[i])[0][0])
+
+
+    #np.repeat(hh_flat[0].to_numpy(), ak.values_astype(4*weights_flat, "int64")[0].to_numpy())
+
+    #hh_masses_flat = hh_masses[~np.isnan(hh_masses)]
 
 
 
@@ -347,7 +382,8 @@ for f in [f1, f2, f3]:
     file_time = time.time()
     print("File runtime was ", file_time - start_time)
     HME_mass_lists.append(HME_mass)
-    nTimesHME.append(mode(ak.values_astype(awk_hh_masses, "int64"))[1])
+    print("Had ", np.count_nonzero(HME_mass)/len(HME_mass), " successrate")
+    #nTimesHME.append(mode(ak.values_astype(awk_hh_masses, "int64"))[1])
 
 end_time = time.time()
 print("Total runtime was ", end_time - start_time)
@@ -356,9 +392,10 @@ print("Total runtime was ", end_time - start_time)
 
 import matplotlib.pyplot as plt
 
-plt.hist(HME_mass_lists[0], bins=80, range=(200,1000), density=True)
-plt.hist(HME_mass_lists[1], bins=80, range=(200,1000), density=True)
-plt.hist(HME_mass_lists[2], bins=80, range=(200,1000), density=True)
+for i in range(len(flist)):
+    plt.hist(HME_mass_lists[i], bins=80, range=(200,1000), density=True)
+#plt.hist(HME_mass_lists[1], bins=80, range=(200,1000), density=True)
+#plt.hist(HME_mass_lists[2], bins=80, range=(200,1000), density=True)
 
 plt.show()
 
@@ -372,11 +409,6 @@ def debug_hme(gh, gw, geta, gphi, tmp_lep0_p4, tmp_lep1_p4, tmp_met_p4):
     )
     print("nu0 = ", nu0_p4)
 
-    print(tmp_met_p4.px)
-    print(nu0_p4.px)
-    print(tmp_met_p4.py)
-    print(nu0_p4.py)
-
     met_min_nu0 = vector.MomentumObject2D(
         px=(tmp_met_p4.px - nu0_p4.px),
         py=(tmp_met_p4.py - nu0_p4.py),
@@ -389,15 +421,24 @@ def debug_hme(gh, gw, geta, gphi, tmp_lep0_p4, tmp_lep1_p4, tmp_met_p4):
 
 
     tmp_4D = vector.MomentumObject4D(
-        pt=(leps_plus_nu0.pt**2 + leps_plus_nu0.mass**2)**(0.5),
-        eta=0,
-        phi=leps_plus_nu0.pz,
+        px=(leps_plus_nu0.pt**2 + leps_plus_nu0.mass**2)**(0.5),
+        py=0,
+        pz=leps_plus_nu0.pz,
         energy=leps_plus_nu0.energy,
     )
     print("temporary vec = ", tmp_4D)
 
-    chdeta = (pow(hMass, 2) + 2*(nu_pxpy.Px()*tmp_p4.Px() + nu_pxpy.Py()*tmp_p4.Py()) - pow(tmp_p4.M(), 2))/(2.0*tmp_p4_v2.Pt()*tmp_nu_pt)
+    ##chdeta = (pow(hMass, 2) + 2*(nu_pxpy.Px()*tmp_p4.Px() + nu_pxpy.Py()*tmp_p4.Py()) - pow(tmp_p4.M(), 2))/(2.0*tmp_p4_v2.Pt()*tmp_nu_pt)
 
+    #print("Showing the chdeta calc")
+    #print(gh)
+    #print(met_min_nu0.px)
+    #print(leps_plus_nu0.px)
+    #print(met_min_nu0.py)
+    #print(leps_plus_nu0.py)
+    #print(leps_plus_nu0.mass)
+    #print(tmp_4D.pt)
+    #print(met_min_nu0.pt)
 
     coshdeta = (gh**2 + 2*(met_min_nu0.px * leps_plus_nu0.px + met_min_nu0.py * leps_plus_nu0.py) - leps_plus_nu0.mass**2) / (2.0*tmp_4D.pt * met_min_nu0.pt)
     deta = np.arccosh(coshdeta)
