@@ -433,6 +433,9 @@ class HeavyMassEstimator(object):
         else:
             self.b1rescalefactor[0] = rescalec2
             self.b2rescalefactor[0] = rescalec1
+        if self.debug:
+            print("B1 rescale = ", self.b1rescalefactor[0])
+            print("B2 rescale = ", self.b2rescalefactor[0])
         return True
 
     def metCorrection(self):
@@ -508,6 +511,15 @@ class HeavyMassEstimator(object):
         nu_pxpy =  ROOT.TVector2(tmp_nu_px, tmp_nu_py)
         tmp_nu_pt = nu_pxpy.Mod()
         tmp_p4_v2 = ROOT.TLorentzVector(sqrt(pow(tmp_p4.Pt(), 2) + pow(tmp_p4.M(), 2)), 0, tmp_p4.Pz(), tmp_p4.Energy())
+        print("Showing the chdeta calc")
+        print(hMass)
+        print(nu_pxpy.Px())
+        print(tmp_p4.Px())
+        print(nu_pxpy.Py())
+        print(tmp_p4.Py())
+        print(tmp_p4.M())
+        print(tmp_p4_v2.Pt())
+        print(tmp_nu_pt)
         chdeta = (pow(hMass, 2) + 2*(nu_pxpy.Px()*tmp_p4.Px() + nu_pxpy.Py()*tmp_p4.Py()) - pow(tmp_p4.M(), 2))/(2.0*tmp_p4_v2.Pt()*tmp_nu_pt)
         if self.debug: print("chdeta = ", chdeta)
         if chdeta < 1.0:
@@ -527,6 +539,11 @@ class HeavyMassEstimator(object):
             print("tmp_nu_eta ",tmp_nu_eta, " very unlikely solution, pass")
             nu2_p4.SetPtEtaPhiM(0.0, 0.0, 0.0, 0.0)
             return False
+        if self.debug:
+            print("Investigating the nu2_p4")
+            print("pt = ", tmp_nu_pt)
+            print("eta = ", tmp_nu_eta)
+            print("phi = ", tmp_nu_phi)
         nu2_p4.SetPtEtaPhiM(tmp_nu_pt, tmp_nu_eta, tmp_nu_phi, 0.0)
         htoWW_tmp = tmp_p4 + nu2_p4
         if abs(htoWW_tmp.M() - hMass) > 1.0:
@@ -596,6 +613,10 @@ class HeavyMassEstimator(object):
                         print("Warning! no bject correction is found! ignore this iteration, it ", it, " total trials ", ibjetcorr)
                       continue
                     met_corr = self.met + ROOT.TVector2(met_dpx, met_dpy)+ self.metCorrection()
+                    if self.debug:
+                        print("Old met = ", self.met)
+                        print("dmet = ", met_dpx, met_dpy)
+                        print("met corr = ", self.metCorrection())
                 else:
                     met_corr = self.met
                     self.b1rescalefactor[0] = 1.0
@@ -638,6 +659,12 @@ class HeavyMassEstimator(object):
                 if not(solutions[isolution]):
                     isolution += 1
                     continue
+                print("Found a solution with gen info ")
+                print("Gen W = ", self.wmass_gen[0])
+                print("Gen H = ", self.hmass_gen[0])
+                print("Gen eta = ", self.eta_gen[0])
+                print("Gen phi = ", self.phi_gen[0])
+
                 case = isolution/2
                 self.assignMuP4(case)
                 self.nu_onshellW_pt[0] = self.nuPtFromOnshellW(self.eta_gen[0], self.phi_gen[0], self.lepton_onshellW_p4, self.wmass_gen[0])
@@ -657,6 +684,7 @@ class HeavyMassEstimator(object):
                     print("Error!! hmass_gen ", self.hmass_gen[0], " higgs mass from HME htoWW_p4 ", self.htoWW_p4.M())
                 if self.debug:
                     print("it ",it, " get this h2tohh_mass ",self.h2tohh_p4.M()," higgs from WW ", self.htoWW_p4.M()," higgs from bb ", self.htoBB_p4.M())
+                    print("htoWW pt/eta/phi/E = ", self.htoWW_p4.Pt(), " ", self.htoWW_p4.Eta(), " ", self.htoWW_p4.Phi(), " ", self.htoWW_p4.E())
                 self.l_onshellW_eta[0] = self.lepton_onshellW_p4.Eta()
                 self.l_onshellW_phi[0] = self.lepton_onshellW_p4.Phi()
                 self.l_onshellW_pt[0] = self.lepton_onshellW_p4.Pt()
