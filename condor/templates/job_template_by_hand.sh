@@ -11,6 +11,11 @@ HLTCut=("1")
 useXrootD=("1")
 PYTHON_FOLDER=("/afs/cern.ch/work/d/daebi/diHiggs/HHbbWW_Run3/python/")
 
+HME_FOLDER=("/afs/cern.ch/work/d/daebi/diHiggs/HHbbWW_Run3/hme")
+iterations=("1000")
+singleHME=("0")
+doubleHME=("1")
+
 source /cvmfs/sft.cern.ch/lcg/views/LCG_104/x86_64-el9-gcc13-opt/setup.sh
 
 ls -lh
@@ -31,7 +36,12 @@ else
   rm tmp_file*
 fi
 
-cd ..
+ls -lh
+
+echo 'Starting HME'
+
+python3 ${HME_FOLDER}/run_hme.py -i out_by_hand_${filename}.root -o out_by_hand_HME_${filename}.root -d 0 -it ${iterations} -SL ${singleHME} -DL ${doubleHME}
+
 ls -lh
 
 echo 'Done!'

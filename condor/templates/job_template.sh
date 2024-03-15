@@ -11,6 +11,9 @@ SF=("0")
 HLTCut=("1")
 useXrootD=("1")
 
+iterations=("1000")
+singleHME=("0")
+doubleHME=("1")
 
 cd python
 export X509_USER_PROXY=../$1
@@ -38,6 +41,11 @@ else
 fi
 
 cd ..
+
+ls -lh
+
+python3 hme/run_hme.py -i out_condor_${filename}.root -o out_condor_hme_${filename}.root -it ${iterations} -SL ${singleHME} -DL ${doubleHME} -d 0
+
 ls -lh
 
 echo 'Done!'
