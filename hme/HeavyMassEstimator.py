@@ -5,6 +5,7 @@ from scipy.stats import rv_discrete, mode
 import vector
 import time
 from sklearn.utils.extmath import weighted_mode
+from scipy.stats import mode
 #from coffea.nanoevents.methods import vector
 
 
@@ -31,11 +32,14 @@ f3 = uproot.open("GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M700_Run3Sync.root")
 
 
 HME_mass_lists = []
+HME_mass_average_it_lists = []
+HME_mass_average_sols_lists = []
 nTimesHME = []
 
 flist = [f1, f2, f3]
 #flist = [f2]
 for f in flist:
+    print("Starting")
     t = f['Double_Tree']
     events = t.arrays()
 
@@ -44,7 +48,7 @@ for f in flist:
     events = events[(events.lep0_pt >= 0) & (events.lep1_pt >= 0) & (events.ak4_jet1_pt >= 0) & (events.ak4_jet2_pt >= 0)]
 
 
-    iterations = 10000
+    iterations = 1000
 
     random_size = [len(events), iterations]
 
@@ -101,7 +105,7 @@ for f in flist:
     #Bjet corrections
     recobjetrescalec1pdfPU40_weights = recobjetrescalec1pdfPU40_y / np.sum(recobjetrescalec1pdfPU40_y)
 
-    #bjet_rescale_c1 = np.repeat(np.expand_dims(np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=len(events)), 1), iterations, axis=1)
+    print("Starting bjet corrections")
     bjet_rescale_c1 = np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights, size=[len(events), iterations])
 
     x1 = (bjet1_p4.mass)**2
@@ -111,7 +115,6 @@ for f in flist:
     bjet_rescale_c2 = (-x2 + ((x2**2 - 4*x1*x3)**(0.5)))/(2*x1)
 
     retry_counter = 0
-    #while np.any(x2<0) or np.any((x2*x2 - 4*x1*x3) < 0) or np.any(x1 == 0) or np.any(bjet_rescale_c2 < .0):
     while np.any(x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0)):
         if retry_counter >= 10:
             print("Hit max number of retries, HME failed for some events")
@@ -145,7 +148,6 @@ for f in flist:
 
 
     #But the b corrections also affect the MET!!!
-
     dmet_bcorr = vector.MomentumNumpy4D(
         {
             "px": bjet0_p4.px * (1 - bjet_rescale_c1) + bjet1_p4.px * (1 - bjet_rescale_c2),
@@ -191,6 +193,7 @@ for f in flist:
 
 
 
+    print("Starting htoWW")
 
     #Tao's getOnShellWMass function is very confusing, I'm just going to make a new one and sample the PDF directly
     #First issue was to get the PDF and increase resolution (orignal was 1bin/GeV, but we want fine resolution so we interpolate and create 10x as many)
@@ -341,7 +344,7 @@ for f in flist:
     valid_hme = valid_mask_l0 | valid_mask_l1
 
 
-    #Nest each mass value to create a combined array
+    print("Checking final objects")
 
     #htoWW check
     l0_min_mass = np.expand_dims((htoWW_l0_min).mass, axis=2)
@@ -382,7 +385,6 @@ for f in flist:
     weights = np.repeat(np.expand_dims(weights, 2), 4, axis=2)
     #Simple way to 'weight' would be to repeat values by weights*4
 
-    #hh_masses_nonan = np.nan_to_num(hh_masses, nan=-1.0)
     hh_flat = ak.flatten(hh_masses, axis=2)
     weights_flat = ak.flatten(weights, axis=2)
     valid_flag = hh_flat >= 0.0
@@ -393,26 +395,30 @@ for f in flist:
 
     print("Starting to find the mode of each event (most common bin)")
     HME_mass = []
+
+    #Average all over whole it
+    HME_mass_average_it = ak.to_list(ak.fill_none(ak.nan_to_num(ak.mean(hh_flat, weight=weights_flat, axis=1)), 0.0))
+    #Average over all sols, but mode of that over it
+    tmp_avgsols = ak.mean(hh_masses, weight=weights, axis=2)
+    HME_mass_average_sols = ak.to_list(ak.nan_to_num(mode(ak.values_astype(ak.mask(tmp_avgsols, tmp_avgsols > 0), "int64"), axis=1)[0]))
+
     for i in range(len(hh_flat)):
         if len(hh_flat[i]) == 0:
             print("HME Failed at event ", i)
-            print(hh_flat[i])
-            print(weights_flat[i])
             HME_mass.append(0.0)
+            #HME_mass_average_it.append(0.0)
+            #HME_mass_average_sols.append(0.0)
             continue
         HME_mass.append(weighted_mode(ak.values_astype(hh_flat[i], "int64"), weights_flat[i])[0][0])
 
 
-    #np.repeat(hh_flat[0].to_numpy(), ak.values_astype(4*weights_flat, "int64")[0].to_numpy())
-
-    #hh_masses_flat = hh_masses[~np.isnan(hh_masses)]
 
 
-
-    #hh = bjet0_p4 + bjet1_p4 + htoWW_l0_min
     file_time = time.time()
     print("File runtime was ", file_time - start_time)
     HME_mass_lists.append(HME_mass)
+    HME_mass_average_it_lists.append(HME_mass_average_it)
+    HME_mass_average_sols_lists.append(HME_mass_average_sols)
     print("Had ", np.count_nonzero(HME_mass)/len(HME_mass), " successrate")
     #nTimesHME.append(mode(ak.values_astype(awk_hh_masses, "int64"))[1])
 
@@ -425,8 +431,6 @@ import matplotlib.pyplot as plt
 
 for i in range(len(flist)):
     plt.hist(HME_mass_lists[i], bins=80, range=(200,1000), density=True)
-#plt.hist(HME_mass_lists[1], bins=80, range=(200,1000), density=True)
-#plt.hist(HME_mass_lists[2], bins=80, range=(200,1000), density=True)
 
 plt.show()
 
