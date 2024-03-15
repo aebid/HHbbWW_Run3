@@ -451,9 +451,10 @@ class HeavyMassEstimator():
 
         #Average all over whole it
         HME_mass_average_it = ak.to_list(ak.fill_none(ak.nan_to_num(ak.mean(hh_flat, weight=weights_flat, axis=1)), 0.0))
+
         #Average over all sols, but mode of that over it
-        tmp_avgsols = ak.mean(hh_masses, weight=weights, axis=2)
-        HME_mass_average_sols = ak.to_list(ak.nan_to_num(mode(ak.values_astype(ak.mask(tmp_avgsols, tmp_avgsols > 0), "int64"), axis=1)[0]))
+        #Does not work on lxplus ):
+        #HME_mass_average_sols = ak.to_list(ak.nan_to_num(mode(tmp2_avgsols, axis=1)[0]))
 
         for i in range(len(hh_flat)):
             if len(hh_flat[i]) == 0:
@@ -468,11 +469,10 @@ class HeavyMassEstimator():
         file_time = time.time()
         print("File runtime was ", file_time - start_time)
         print("Had ", np.count_nonzero(HME_mass)/len(HME_mass), " successrate")
-        #nTimesHME.append(mode(ak.values_astype(awk_hh_masses, "int64"))[1])
 
         self.events_double["HME"] = HME_mass
         self.events_double["HME_average_all"] = HME_mass_average_it
-        self.events_double["HME_average_it_mode_all"] = HME_mass_average_sols
+        #self.events_double["HME_average_it_mode_all"] = HME_mass_average_sols
 
 
 
