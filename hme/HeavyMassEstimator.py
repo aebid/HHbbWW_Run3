@@ -454,7 +454,10 @@ class HeavyMassEstimator():
 
         #Average over all sols, but mode of that over it
         #Does not work on lxplus ):
-        #HME_mass_average_sols = ak.to_list(ak.nan_to_num(mode(tmp2_avgsols, axis=1)[0]))
+        #tmp_avgsols = ak.mean(hh_masses, weight=weights, axis=2)
+        #HME_mass_average_sols = ak.to_list(ak.nan_to_num(mode(ak.values_astype(ak.mask(tmp_avgsols, tmp_avgsols > 0), "int64"), axis=1)[0]))
+
+
 
         for i in range(len(hh_flat)):
             if len(hh_flat[i]) == 0:
