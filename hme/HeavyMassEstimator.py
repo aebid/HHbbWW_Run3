@@ -43,10 +43,14 @@ for f in flist:
     t = f['Double_Tree']
     events = t.arrays()
 
-    events = events[(events.Double_Signal == 1) & ((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1))]
+    #events = events[(events.Double_Signal == 1) & ((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1))]
     #Will fail if missing an object, just check that they all have some pT
-    events = events[(events.lep0_pt >= 0) & (events.lep1_pt >= 0) & (events.ak4_jet1_pt >= 0) & (events.ak4_jet2_pt >= 0)]
+    #events = events[(events.lep0_pt >= 0) & (events.lep1_pt >= 0) & (events.ak4_jet1_pt >= 0) & (events.ak4_jet2_pt >= 0)]
 
+    good_res_event_mask = (events.Double_Signal == 1) & ((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1)) & (events.lep0_pt >= 0) & (events.lep1_pt >= 0) & (events.ak4_jet0_pt >= 0) & (events.ak4_jet1_pt >= 0)
+    good_boost_event_mask = (events.Double_Signal == 1) & (events.Double_HbbFat == 1) & (events.lep0_pt >= 0) & (events.lep1_pt >= 0) & (events.ak8_jet0_pt >= 0)
+
+    events = events[good_res_event_mask]
 
     iterations = 1000
 
