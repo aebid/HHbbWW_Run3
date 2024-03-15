@@ -37,7 +37,7 @@ HME_mass_average_sols_lists = []
 nTimesHME = []
 
 flist = [f1, f2, f3]
-#flist = [f2]
+#flist = [f3]
 for f in flist:
     print("Starting")
     t = f['Double_Tree']
@@ -50,7 +50,9 @@ for f in flist:
     good_res_event_mask = (events.Double_Signal == 1) & ((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1)) & (events.lep0_pt >= 0) & (events.lep1_pt >= 0) & (events.ak4_jet0_pt >= 0) & (events.ak4_jet1_pt >= 0)
     good_boost_event_mask = (events.Double_Signal == 1) & (events.Double_HbbFat == 1) & (events.lep0_pt >= 0) & (events.lep1_pt >= 0) & (events.ak8_jet0_pt >= 0)
 
-    events = events[good_res_event_mask]
+    events = events[(events.Double_Signal == 1) & ((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1) | (events.Double_HbbFat == 1))]
+    #events = events[(events.Double_Signal == 1) & (events.Double_HbbFat == 1)]
+
 
     iterations = 1000
 
@@ -87,23 +89,65 @@ for f in flist:
         }
     )
 
+
+    #Preparing Jets to work with either Boosted (fatjet subjets) or Resolved (ak4 jets)
+    #First need to make base vector, then will choose which ones to use later and pad to the correct iteration size
+
+    ak4_jet0_p4 = vector.MomentumNumpy4D(
+        {
+            "pt": events.ak4_jet0_pt,
+            "eta": events.ak4_jet0_eta,
+            "phi": events.ak4_jet0_phi,
+            "energy": events.ak4_jet0_E,
+        }
+    )
+
+    ak4_jet1_p4 = vector.MomentumNumpy4D(
+        {
+            "pt": events.ak4_jet1_pt,
+            "eta": events.ak4_jet1_eta,
+            "phi": events.ak4_jet1_phi,
+            "energy": events.ak4_jet1_E,
+        }
+    )
+
+    ak8_subjet0_p4 = vector.MomentumNumpy4D(
+        {
+            "px": events.ak8_jet0_subjet1_px,
+            "py": events.ak8_jet0_subjet1_py,
+            "pz": events.ak8_jet0_subjet1_pz,
+            "energy": events.ak8_jet0_subjet1_E,
+        }
+    )
+
+    ak8_subjet1_p4 = vector.MomentumNumpy4D(
+        {
+            "px": events.ak8_jet0_subjet2_px,
+            "py": events.ak8_jet0_subjet2_py,
+            "pz": events.ak8_jet0_subjet2_pz,
+            "energy": events.ak8_jet0_subjet2_E,
+        }
+    )
+
     bjet0_p4 = vector.MomentumNumpy4D(
         {
-            "pt": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_pt, 1), iterations, axis=1)),
-            "eta": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_eta, 1), iterations, axis=1)),
-            "phi": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_phi, 1), iterations, axis=1)),
-            "energy": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet0_E, 1), iterations, axis=1)),
+            "pt": ak.to_numpy(np.repeat(np.expand_dims(np.where((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1), ak4_jet0_p4.pt, ak8_subjet0_p4.pt), 1), iterations, axis=1)),
+            "eta": ak.to_numpy(np.repeat(np.expand_dims(np.where((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1), ak4_jet0_p4.eta, ak8_subjet0_p4.eta), 1), iterations, axis=1)),
+            "phi": ak.to_numpy(np.repeat(np.expand_dims(np.where((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1), ak4_jet0_p4.phi, ak8_subjet0_p4.phi), 1), iterations, axis=1)),
+            "energy": ak.to_numpy(np.repeat(np.expand_dims(np.where((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1), ak4_jet0_p4.E, ak8_subjet0_p4.E), 1), iterations, axis=1)),
         }
     )
 
     bjet1_p4 = vector.MomentumNumpy4D(
         {
-            "pt": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_pt, 1), iterations, axis=1)),
-            "eta": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_eta, 1), iterations, axis=1)),
-            "phi": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_phi, 1), iterations, axis=1)),
-            "energy": ak.to_numpy(np.repeat(np.expand_dims(events.ak4_jet1_E, 1), iterations, axis=1)),
+            "pt": ak.to_numpy(np.repeat(np.expand_dims(np.where((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1), ak4_jet1_p4.pt, ak8_subjet1_p4.pt), 1), iterations, axis=1)),
+            "eta": ak.to_numpy(np.repeat(np.expand_dims(np.where((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1), ak4_jet1_p4.eta, ak8_subjet1_p4.eta), 1), iterations, axis=1)),
+            "phi": ak.to_numpy(np.repeat(np.expand_dims(np.where((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1), ak4_jet1_p4.phi, ak8_subjet1_p4.phi), 1), iterations, axis=1)),
+            "energy": ak.to_numpy(np.repeat(np.expand_dims(np.where((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1), ak4_jet1_p4.E, ak8_subjet1_p4.E), 1), iterations, axis=1)),
         }
     )
+
+
 
     #Since we are correctiong bjets, this will be slightly different for each iteration too
     #Bjet corrections
@@ -130,6 +174,11 @@ for f in flist:
         print("Old rescale c1 = ")
         print(bjet_rescale_c1)
         print("old masked = ", bjet_rescale_c1[x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0)])
+        print("Looking at x1/x2/x3/rescale_c2 for fails")
+        print(x1[x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0)])
+        print(x2[x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0)])
+        print(x3[x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0)])
+        print(bjet_rescale_c2[x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0)])
         bjet_rescale_c1 = np.where(
             x2<0 | (x2*x2 - 4*x1*x3 < 0) | (x1 == 0) | (bjet_rescale_c2 < .0),
                 np.random.choice(recobjetrescalec1pdfPU40_x, p=recobjetrescalec1pdfPU40_weights),
@@ -426,8 +475,21 @@ for f in flist:
     print("Had ", np.count_nonzero(HME_mass)/len(HME_mass), " successrate")
     #nTimesHME.append(mode(ak.values_astype(awk_hh_masses, "int64"))[1])
 
+    events["HME"] = HME_mass
+    events["HME_average_all"] = HME_mass_average_it
+    events["HME_average_it_mode_all"] = HME_mass_average_sols
+    outfile = uproot.recreate("tmp"+f.file_path)
+    outfile["Double_HME_Tree"] = events
+
+
+
 end_time = time.time()
 print("Total runtime was ", end_time - start_time)
+
+
+events["HME"] = HME_mass
+outfile = uproot.recreate("tmp.root")
+outfile["Double_HME_Tree"] = events
 
 
 
