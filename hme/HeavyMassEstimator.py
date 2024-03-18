@@ -6,6 +6,7 @@ import vector
 import time
 from sklearn.utils.extmath import weighted_mode
 from scipy.stats import mode
+import psutil
 
 
 class HeavyMassEstimator():
@@ -24,6 +25,10 @@ class HeavyMassEstimator():
         self.events_single = self.events_single[self.events_single.Single_Signal == 1]
         self.events_double = uproot_file['Double_Tree'].arrays()
         self.events_double = self.events_double[(self.events_double.Double_Signal == 1) & ((self.events_double.Double_Res_2b == 1) | (self.events_double.Double_Res_1b == 1) | (self.events_double.Double_HbbFat == 1))]
+
+        print("Loaded hme events")
+        print("Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+
 
     def save_tree(self):
         outfile = uproot.recreate(self.outname)
@@ -145,6 +150,10 @@ class HeavyMassEstimator():
                 "energy": ak.to_numpy(np.repeat(np.expand_dims(np.where((events.Double_Res_2b == 1) | (events.Double_Res_1b == 1), ak4_jet1_p4.E, ak8_subjet1_p4.E), 1), iterations, axis=1)),
             }
         )
+
+        print("Loaded double HME data")
+        print("Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+
 
 
 
@@ -477,6 +486,10 @@ class HeavyMassEstimator():
         self.events_double["HME_average_all"] = HME_mass_average_it
         #self.events_double["HME_average_it_mode_all"] = HME_mass_average_sols
 
+        print("Finished double HME")
+        print("Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+
+
 
 
     def run_HME(self):
@@ -484,6 +497,10 @@ class HeavyMassEstimator():
             self.single_HME()
         if self.do_double_HME:
             self.double_HME()
+
+        print("Saving HME trees")
+        print("Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
+
 
         self.save_tree()
 
