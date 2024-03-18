@@ -11,12 +11,13 @@ import os
 
 
 class HeavyMassEstimator():
-    def __init__(self, inputFile, outputFile, iterations=10000, doSingleHME=1, doDoubleHME=1, debug=False):
+    def __init__(self, inputFile, outputFile, iterations=10000, doSingleHME=1, doDoubleHME=1, nEvts=1000, debug=False):
         self.fname = inputFile
-        self.outname = outputFile
+        #self.outfile = outputFile
         self.iterations = iterations
         self.do_single_HME = doSingleHME
         self.do_double_HME = doDoubleHME
+        self.nEvts = nEvts
         self.debug = debug
         print("Initializing HME")
 
@@ -27,20 +28,34 @@ class HeavyMassEstimator():
         self.events_double = uproot_file['Double_Tree'].arrays()
         self.events_double = self.events_double[(self.events_double.Double_Signal == 1) & ((self.events_double.Double_Res_2b == 1) | (self.events_double.Double_Res_1b == 1) | (self.events_double.Double_HbbFat == 1))]
 
+        #Prepare the output file, and create a hard copy of the nEvents tree
+        self.outfile = uproot.recreate(outputFile)
+        self.outfile["nEvents"] = self.nEvents_Tree
+
         print("Loaded hme events")
         print("Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
 
-    def save_tree(self):
-        outfile = uproot.recreate(self.outname)
-        outfile["Single_HME_Tree"] = self.events_single
-        outfile["Double_HME_Tree"] = self.events_double
-        outfile["nEvents"] = self.nEvents_Tree
+    def save_single_tree(self, events):
+        if "Single_HME_Tree" in '\t'.join(self.outfile.keys()):
+            print("Extending Single!")
+            self.outfile["Single_HME_Tree"].extend(events)
+        else:
+            self.outfile["Single_HME_Tree"] = events
 
-    def single_HME(self):
+    def save_double_tree(self, events):
+        if "Double_HME_Tree" in '\t'.join(self.outfile.keys()):
+            print("Extending Double!")
+            self.outfile["Double_HME_Tree"].extend(events)
+        else:
+            self.outfile["Double_HME_Tree"] = events
+
+
+
+    def single_HME(self, events):
         print("Single not implemented yet!!!")
 
-    def double_HME(self):
+    def double_HME(self, events):
         ### Awkward implementation of HME ###
         ### https://github.com/tahuang1991/HeavyMassEstimator/tree/master ###
 
@@ -56,7 +71,6 @@ class HeavyMassEstimator():
         #####
 
         print("Starting Double HME")
-        events = self.events_double
         print("Looking at ", len(events), " events")
 
         iterations = self.iterations
@@ -483,8 +497,8 @@ class HeavyMassEstimator():
         print("File runtime was ", file_time - start_time)
         print("Had ", np.count_nonzero(HME_mass)/len(HME_mass), " successrate")
 
-        self.events_double["HME"] = HME_mass
-        self.events_double["HME_average_all"] = HME_mass_average_it
+        events["HME"] = HME_mass
+        events["HME_average_all"] = HME_mass_average_it
         #self.events_double["HME_average_it_mode_all"] = HME_mass_average_sols
 
         print("Finished double HME")
@@ -494,16 +508,22 @@ class HeavyMassEstimator():
 
 
     def run_HME(self):
-        if self.do_single_HME:
-            self.single_HME()
-        if self.do_double_HME:
-            self.double_HME()
+        for nLoopIter in range(int(len(self.events_single)/self.nEvts)+1):
+            print("At single loop iter ", nLoopIter)
+            tmp_events = self.events_single[(self.nEvts*nLoopIter):(self.nEvts*(nLoopIter+1))]
+            if self.do_single_HME:
+                self.single_HME(tmp_events)
+            self.save_single_tree(tmp_events)
+        for nLoopIter in range(int(len(self.events_double)/self.nEvts)+1):
+            print("At single loop iter ", nLoopIter)
+            tmp_events = self.events_double[(self.nEvts*nLoopIter):(self.nEvts*(nLoopIter+1))]
+            if self.do_double_HME:
+                self.double_HME(tmp_events)
+            self.save_double_tree(tmp_events)
 
         print("Saving HME trees")
         print("Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
-
-        self.save_tree()
 
 
 
