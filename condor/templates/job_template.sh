@@ -13,7 +13,7 @@ useXrootD=("1")
 
 iterations=("1000")
 singleHME=("0")
-doubleHME=("1")
+doubleHME=("0")
 
 cd python
 export X509_USER_PROXY=../$1
