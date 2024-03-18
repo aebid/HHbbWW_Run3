@@ -25,7 +25,7 @@ def main():
       use_dict = True
       pickle_file = "../dataset/dataset_names/2022/2022_Datasets.pkl"
       nFilesPerJob = 10
-      subdir = "2022_data_15Mar24/"
+      subdir = "2022_data_18Mar24/"
       runyear = "2022"
       storage_folder = "/eos/user/d/daebi/"
       cross_section = 1.0
@@ -64,7 +64,7 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
     #HME Values
     iterations = 10000
     singleHME = 0
-    doubleHME = 0
+    doubleHME = 1
 
     nJobs = math.ceil(len(file_list)/nFilesPerJob)
     remaining_files = file_list
@@ -242,10 +242,23 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
                 job_file.write('HLTCut=("{}")\n'.format(HLTCut))
             elif "useXrootD=" in line:
                 job_file.write('useXrootD=("{}")\n'.format(useXrootD))
+            elif "runera=" in line:
+                job_file.write('runera=("{}")\n'.format(runera))
+            elif "iterations=" in line:
+                job_file.write('iterations=("{}")\n'.format(iterations))
+            elif "singleHME=" in line:
+                job_file.write('singleHME=("{}")\n'.format(singleHME))
+            elif "doubleHME=" in line:
+                job_file.write('doubleHME=("{}")\n'.format(doubleHME))
             elif "PYTHON_FOLDER=" in line:
                 cwd = os.getcwd()
                 pwd_to_python = cwd[:-6] + "python"
                 string_to_write = 'PYTHON_FOLDER=("{}")\n'.format(pwd_to_python)
+                job_file.write(string_to_write)
+            elif "HME_FOLDER=" in line:
+                cwd = os.getcwd()
+                pwd_to_hme = cwd[:-6] + "hme"
+                string_to_write = 'HME_FOLDER=("{}")\n'.format(pwd_to_hme)
                 job_file.write(string_to_write)
             else:
                 job_file.write(line)
