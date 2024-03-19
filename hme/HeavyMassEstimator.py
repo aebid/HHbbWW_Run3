@@ -21,12 +21,17 @@ class HeavyMassEstimator():
         self.debug = debug
         print("Initializing HME")
 
+
         uproot_file = uproot.open(self.fname)
         self.nEvents_Tree = uproot_file['nEvents'].arrays()
-        self.events_single = uproot_file['Single_Tree'].arrays()
-        self.events_single = self.events_single[self.events_single.Single_Signal == 1]
-        self.events_double = uproot_file['Double_Tree'].arrays()
-        self.events_double = self.events_double[(self.events_double.Double_Signal == 1) & ((self.events_double.Double_Res_2b == 1) | (self.events_double.Double_Res_1b == 1) | (self.events_double.Double_HbbFat == 1))]
+        self.events_single = {}
+        if 'Single_Tree' in '\t'.join(uproot_file.keys()):
+            self.events_single = uproot_file['Single_Tree'].arrays()
+            self.events_single = self.events_single[self.events_single.Single_Signal == 1]
+        self.events_double = {}
+        if 'Double_Tree' in '\t'.join(uproot_file.keys()):
+            self.events_double = uproot_file['Double_Tree'].arrays()
+            self.events_double = self.events_double[(self.events_double.Double_Signal == 1) & ((self.events_double.Double_Res_2b == 1) | (self.events_double.Double_Res_1b == 1) | (self.events_double.Double_HbbFat == 1))]
 
         #Prepare the output file, and create a hard copy of the nEvents tree
         self.outfile = uproot.recreate(outputFile)
@@ -508,19 +513,22 @@ class HeavyMassEstimator():
 
 
     def run_HME(self):
-        for nLoopIter in range(int(len(self.events_single)/self.nEvts)+1):
-            print("At single loop iter ", nLoopIter)
-            tmp_events = self.events_single[(self.nEvts*nLoopIter):(self.nEvts*(nLoopIter+1))]
-            if self.do_single_HME:
-                self.single_HME(tmp_events)
-            self.save_single_tree(tmp_events)
-        for nLoopIter in range(int(len(self.events_double)/self.nEvts)+1):
-            print("At single loop iter ", nLoopIter)
-            tmp_events = self.events_double[(self.nEvts*nLoopIter):(self.nEvts*(nLoopIter+1))]
-            if self.do_double_HME:
-                self.double_HME(tmp_events)
-            self.save_double_tree(tmp_events)
-
+        if len(self.events_single) != 0:
+            for nLoopIter in range(int(len(self.events_single)/self.nEvts)+1):
+                print("At single loop iter ", nLoopIter)
+                tmp_events = self.events_single[(self.nEvts*nLoopIter):(self.nEvts*(nLoopIter+1))]
+                if self.do_single_HME:
+                    self.single_HME(tmp_events)
+                self.save_single_tree(tmp_events)
+        else: print("No single events!")
+        if len(self.events_double) != 0:
+            for nLoopIter in range(int(len(self.events_double)/self.nEvts)+1):
+                print("At single loop iter ", nLoopIter)
+                tmp_events = self.events_double[(self.nEvts*nLoopIter):(self.nEvts*(nLoopIter+1))]
+                if self.do_double_HME:
+                    self.double_HME(tmp_events)
+                self.save_double_tree(tmp_events)
+        else: print("No double events!")
         print("Saving HME trees")
         print("Memory usage in MB is ", psutil.Process(os.getpid()).memory_info()[0] / float(2 ** 20))
 
