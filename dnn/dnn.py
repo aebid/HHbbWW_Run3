@@ -9,6 +9,9 @@ import sklearn.metrics
 from keras.wrappers.scikit_learn import KerasClassifier, KerasRegressor
 import datetime
 
+
+
+
 curr_time = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
 model_folder = "DNN_Model_"+curr_time+"/"
 os.makedirs(model_folder, exist_ok = True)
@@ -28,14 +31,26 @@ print(tf.__version__)
 
 tf.keras.backend.clear_session()
 
+signal300_sample = "input_files/GluGlutoRadion_2L_M300_PreEE.root"
+signal300_file = uproot.open(signal300_sample)
+signal300_tree = signal300_file['Double_Tree']
+signal300_events = signal300_tree.arrays()
+signal300_resolved2b_events = signal300_events[(signal300_events.Double_Res_2b == 1) & (signal300_events.Double_Signal == 1) & (signal300_events.ZMassCut == 1) & (signal300_events.InvarMassCut == 1)]
+signal300_events_filtered = signal300_resolved2b_events
 
-signal_sample = "input_files/GluGlutoRadion_2L_M450_PreEE.root"
-signal_file = uproot.open(signal_sample)
-signal_tree = signal_file['Double_Tree']
-signal_events = signal_tree.arrays()
-signal_resolved2b_events = signal_events[(signal_events.Double_Res_2b == 1) & (signal_events.Double_Signal == 1) & (signal_events.ZMassCut == 1) & (signal_events.InvarMassCut == 1)]
-signal_events_filtered = signal_resolved2b_events
+signal450_sample = "input_files/GluGlutoRadion_2L_M450_PreEE.root"
+signal450_file = uproot.open(signal450_sample)
+signal450_tree = signal450_file['Double_Tree']
+signal450_events = signal450_tree.arrays()
+signal450_resolved2b_events = signal450_events[(signal450_events.Double_Res_2b == 1) & (signal450_events.Double_Signal == 1) & (signal450_events.ZMassCut == 1) & (signal450_events.InvarMassCut == 1)]
+signal450_events_filtered = signal450_resolved2b_events
 
+signal700_sample = "input_files/GluGlutoRadion_2L_M450_PreEE.root"
+signal700_file = uproot.open(signal700_sample)
+signal700_tree = signal700_file['Double_Tree']
+signal700_events = signal700_tree.arrays()
+signal700_resolved2b_events = signal700_events[(signal700_events.Double_Res_2b == 1) & (signal700_events.Double_Signal == 1) & (signal700_events.ZMassCut == 1) & (signal700_events.InvarMassCut == 1)]
+signal700_events_filtered = signal700_resolved2b_events
 
 tt_sample = "input_files/TTto2L2Nu_PreEE.root"
 tt_file = uproot.open(tt_sample)
@@ -62,7 +77,7 @@ ST_events_filtered = ST_resolved2b_events
 
 
 print("After filtering for only Double_Res_2b, we have these events left")
-print("Signal ", len(signal_events_filtered))
+print("Signal ", len(signal300_events_filtered) + len(signal450_events_filtered) + len(signal700_events_filtered))
 print("TT ", len(tt_events_filtered))
 print("DY ", len(DY_events_filtered))
 print("ST ", len(ST_events_filtered))
@@ -70,8 +85,8 @@ print("Starting the training and then will test")
 
 
 #Lets try to use class weights? This allows us to have a weight per class to emphasize underrepresented data in the training
-total_events = len(signal_events_filtered) + len(tt_events_filtered) + len(DY_events_filtered) + len(ST_events_filtered)
-signal_classweight = 1.0/len(signal_events_filtered)
+total_events = len(signal300_events_filtered) + len(signal450_events_filtered) + len(signal700_events_filtered) + len(tt_events_filtered) + len(DY_events_filtered) + len(ST_events_filtered)
+signal_classweight = 1.0/(len(signal300_events_filtered) + len(signal450_events_filtered) + len(signal700_events_filtered))
 tt_classweight = 1.0/len(tt_events_filtered)
 DY_classweight = 1.0/len(DY_events_filtered)
 ST_classweight = 1.0/len(ST_events_filtered)
@@ -87,7 +102,6 @@ print(class_labels)
 label_binarizer = LabelBinarizer().fit([0,1,2,3])
 
 
-#Put in a list of [ [px, py, pz, E, ...], [px, py, pz, E, ...], [px, py, pz, E, ...] ]
 input_labels = [
     "Lep0 px", "Lep0 py", "Lep0 pz", "Lep0 E", "Lep0 pdgId", "Lep0 charge",
     "Lep1 px", "Lep1 py", "Lep1 pz", "Lep1 E", "Lep1 pdgId", "Lep1 charge",
@@ -106,9 +120,15 @@ input_labels = [
     "n Cleaned Ak4 Jets",
     "n Medium B Ak4 Jets",
     "Lep0 Lep1 dR",
-    "Jet0 Jet1 dR"
+    "Jet0 Jet1 dR",
+    "HME",
+    "param"
 ]
-def create_nparray(events):
+
+def create_nparray(events, param=[300,700]):
+    #param input is the parametric DNN hh mass
+    #for signal, we give true mass, for background we give random
+    #we will train for mass 300, 450, and 700 initially, so for now we give random [300, 700]
     array = np.array([
         events.lep0_px,
         events.lep0_py,
@@ -186,52 +206,55 @@ def create_nparray(events):
 
         #For now we must do dR by hand (not in tree)
         ((events.lep0_eta - events.lep1_eta)**2 + (events.lep0_phi - events.lep1_phi)**2)**(0.5),
-        ((events.ak4_jet0_eta - events.ak4_jet1_eta)**2 + (events.ak4_jet0_phi - events.ak4_jet1_phi)**2)**(0.5)
+        ((events.ak4_jet0_eta - events.ak4_jet1_eta)**2 + (events.ak4_jet0_phi - events.ak4_jet1_phi)**2)**(0.5),
+
+        events.HME,
+
+        np.random.uniform(param[0], param[1], len(events))
 
     ])
     return array
 
-"""
-#Test simple inputs to see that resutls make sense (cannot classify)
-def create_nparray(events):
-    array = np.array([
-        events.met_px,
-        events.met_py,
-        events.met_pz,
-        events.met_E,
-    ])
-    return array
-"""
 
 
-signal_array = create_nparray(signal_events_filtered)
-signal_array = signal_array.transpose()
-signal_label = np.full(len(signal_array), 0)
-signal_sampleweights = np.full(len(signal_array), signal_classweight)
+signal300_array = create_nparray(signal300_events_filtered, [300, 300])
+signal300_array = signal300_array.transpose()
+signal300_label = np.full(len(signal300_array), 0)
+signal300_sampleweights = np.full(len(signal300_array), signal_classweight)
 
-tt_array = create_nparray(tt_events_filtered)
+signal450_array = create_nparray(signal450_events_filtered, [450, 450])
+signal450_array = signal450_array.transpose()
+signal450_label = np.full(len(signal450_array), 0)
+signal450_sampleweights = np.full(len(signal450_array), signal_classweight)
+
+signal700_array = create_nparray(signal300_events_filtered, [700, 700])
+signal700_array = signal700_array.transpose()
+signal700_label = np.full(len(signal700_array), 0)
+signal700_sampleweights = np.full(len(signal700_array), signal_classweight)
+
+tt_array = create_nparray(tt_events_filtered, [300, 700])
 tt_array = tt_array.transpose()
 tt_label = np.full(len(tt_array), 1)
 tt_sampleweights = np.full(len(tt_array), tt_classweight)
 
-DY_array = create_nparray(DY_events_filtered)
+DY_array = create_nparray(DY_events_filtered, [300, 700])
 DY_array = DY_array.transpose()
 DY_label = np.full(len(DY_array), 2)
 DY_sampleweights = np.full(len(DY_array), DY_classweight)
 
-ST_array = create_nparray(ST_events_filtered)
+ST_array = create_nparray(ST_events_filtered, [300, 700])
 ST_array = ST_array.transpose()
 ST_label = np.full(len(ST_array), 3)
 ST_sampleweights = np.full(len(ST_array), ST_classweight)
 
 #How many inputs?
-input_len = len(signal_array[0])
+input_len = len(signal300_array[0])
 
 
 #Prepare train and test samples, as well as random states
-events = np.concatenate((signal_array, tt_array, DY_array, ST_array))
-labels = np.concatenate((signal_label, tt_label, DY_label, ST_label))
-sampleweights = np.concatenate((signal_sampleweights, tt_sampleweights, DY_sampleweights, ST_sampleweights))
+events = np.concatenate((signal300_array, signal450_array, signal700_array, tt_array, DY_array, ST_array))
+labels = np.concatenate((signal300_label, signal450_label, signal700_label, tt_label, DY_label, ST_label))
+sampleweights = np.concatenate((signal300_sampleweights, signal450_sampleweights, signal700_sampleweights, tt_sampleweights, DY_sampleweights, ST_sampleweights))
 
 events_train, events_test, labels_train, labels_test, sampleweights_train, sampleweights_test  = train_test_split(events, labels, sampleweights, test_size=0.33, random_state=42)
 labels_train = label_binarizer.transform(labels_train)
@@ -269,6 +292,12 @@ def base_model():
     #Manuel says relu is dumb for our normalization, testing tanh on first layer
     model.add(tf.keras.layers.Dense(128, activation="tanh", input_dim=input_len))
 
+    model.add(tf.keras.layers.Dense(256, activation="relu"))
+
+    model.add(tf.keras.layers.Dropout(0.3))
+
+    model.add(tf.keras.layers.Dense(128, activation="relu"))
+
     model.add(tf.keras.layers.Dropout(0.3))
 
     model.add(tf.keras.layers.Dense(64, activation="relu"))
@@ -294,12 +323,14 @@ def base_model():
 
     model.compile(
         ### Adam optimizer, with initial lr = 0.001
-        optimizer=tf.keras.optimizers.legacy.Adam(learning_rate=0.001),
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+        #loss=tf.keras.losses.CategoricalHinge(),
         loss=tf.keras.losses.CategoricalCrossentropy(),
         weighted_metrics=[
             #'accuracy',
             tf.keras.metrics.CategoricalAccuracy(),
             tf.keras.metrics.CategoricalCrossentropy(),
+            tf.keras.metrics.CategoricalHinge(),
         ]
     )
     return model
@@ -324,26 +355,13 @@ def fit_model(model, model_NamePath):
                         batch_size=2048,
                         # Callback: set of functions to be applied at given stages of the training procedure
                         callbacks=[
-                            tf.keras.callbacks.ModelCheckpoint(model_NamePath, monitor='val_loss', verbose=False, save_best_only=True),
+                            #tf.keras.callbacks.ModelCheckpoint(model_NamePath, monitor='val_loss', verbose=False, save_best_only=True),
                             tf.keras.callbacks.LearningRateScheduler(scheduler), # How this is different from 'conf.optimiz' ?
-                            tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=5) # Stop once you stop improving the val_loss
+                            tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=10) # Stop once you stop improving the val_loss
                             ]
                         )
     return history
 
-save_path = "./"+model_folder+"/TT_ST_DY_signalM450"
-history = fit_model(model, save_path)
-
-save_path = "./"+model_folder+"/SK_TT_ST_DY_signalM450"
-sk_model = KerasRegressor(build_fn=base_model)
-sk_history = fit_model(sk_model, save_path)
-
-
-#prob_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
-#prob_examples = prob_model.predict(events_test_norm)
-
-#predict_examples = model.predict(events_test_norm)
-#test_loss, test_acc = model.evaluate(test_set_norm, test_labels_onehot, verbose=2)
 
 
 
@@ -374,9 +392,6 @@ def make_performance_plots(model, test_events, test_labels, plot_prefix=""):
     #g.close()
 
 
-make_performance_plots(model, events_test_norm, labels_test)
-#make_performance_plots(sk_model, events_test_norm, labels_test, "sk_")
-
 def make_history_plots(history, plot_prefix=""):
     #Lets look at training metrics, maybe just a plot of the history?
     plt.plot(history.history['categorical_accuracy'])
@@ -401,9 +416,6 @@ def make_history_plots(history, plot_prefix=""):
     plt.clf()
     plt.close()
 
-make_history_plots(history)
-#make_history_plots(sk_history, "sk_")
-
 
 
 
@@ -420,4 +432,20 @@ def do_feature_imp(sk_model):
     return perm
 
 
-#perm = do_feature_imp(sk_model)
+
+
+save_path = "./"+model_folder+"/TT_ST_DY_signalM450"
+history = fit_model(model, save_path)
+model.save(save_path)
+make_performance_plots(model, events_test_norm, labels_test)
+make_history_plots(history)
+
+
+"""
+save_path = "./"+model_folder+"/SK_TT_ST_DY_signalM450"
+sk_model = KerasRegressor(build_fn=base_model)
+sk_history = fit_model(sk_model, save_path)
+make_performance_plots(sk_model, events_test_norm, labels_test, "sk_")
+make_history_plots(sk_history, "sk_")
+perm = do_feature_imp(sk_model)
+"""
