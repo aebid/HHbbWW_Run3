@@ -25,7 +25,7 @@ def main():
       use_dict = True
       pickle_file = "../dataset/dataset_names/2022/2022_Datasets.pkl"
       nFilesPerJob = 10
-      subdir = "2022_data_14Feb24/"
+      subdir = "2022_data_18Mar24/"
       runyear = "2022"
       storage_folder = "/eos/user/d/daebi/"
       cross_section = 1.0
@@ -60,6 +60,11 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
     SF = 0
     HLTCut = 1
     useXrootD = 0
+
+    #HME Values
+    iterations = 10000
+    singleHME = 0
+    doubleHME = 1
 
     nJobs = math.ceil(len(file_list)/nFilesPerJob)
     remaining_files = file_list
@@ -113,9 +118,9 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
     if dataset_name in trigger_lists:
         isMC = 0
         DNN_Truth = 8
-    elif (("GluGluToBulkGravitonToHHTo" in dataset_name) or ("GluGluToRadionToHHTo" in dataset_name)):
+    elif (("GluGluToBulkGravitonToHHTo" in dataset_name) or ("GluGluToRadionToHHTo" in dataset_name) or ("GluGluto" in dataset_name)):
         DNN_Truth = 0
-    elif ("TTTo" in dataset_name):
+    elif (("TTTo" in dataset_name) or ("TTto" in dataset_name)):
         DNN_Truth = 1
     elif ("ST_" in dataset_name):
         DNN_Truth = 2
@@ -192,6 +197,12 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
                 job_file.write('useXrootD=("{}")\n'.format(useXrootD))
             elif "runera=" in line:
                 job_file.write('runera=("{}")\n'.format(runera))
+            elif "iterations=" in line:
+                job_file.write('iterations=("{}")\n'.format(iterations))
+            elif "singleHME=" in line:
+                job_file.write('singleHME=("{}")\n'.format(singleHME))
+            elif "doubleHME=" in line:
+                job_file.write('doubleHME=("{}")\n'.format(doubleHME))
             else:
                 job_file.write(line)
 
@@ -231,10 +242,23 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
                 job_file.write('HLTCut=("{}")\n'.format(HLTCut))
             elif "useXrootD=" in line:
                 job_file.write('useXrootD=("{}")\n'.format(useXrootD))
+            elif "runera=" in line:
+                job_file.write('runera=("{}")\n'.format(runera))
+            elif "iterations=" in line:
+                job_file.write('iterations=("{}")\n'.format(iterations))
+            elif "singleHME=" in line:
+                job_file.write('singleHME=("{}")\n'.format(singleHME))
+            elif "doubleHME=" in line:
+                job_file.write('doubleHME=("{}")\n'.format(doubleHME))
             elif "PYTHON_FOLDER=" in line:
                 cwd = os.getcwd()
                 pwd_to_python = cwd[:-6] + "python"
                 string_to_write = 'PYTHON_FOLDER=("{}")\n'.format(pwd_to_python)
+                job_file.write(string_to_write)
+            elif "HME_FOLDER=" in line:
+                cwd = os.getcwd()
+                pwd_to_hme = cwd[:-6] + "hme"
+                string_to_write = 'HME_FOLDER=("{}")\n'.format(pwd_to_hme)
                 job_file.write(string_to_write)
             else:
                 job_file.write(line)
@@ -251,7 +275,8 @@ def make_jobs(subdir, project_folder, storage_folder, file_list, cross_section, 
         elif "transfer_input_files    =" in line:
             cwd = os.getcwd()
             pwd_to_python = cwd[:-6] + "python"
-            string_to_write = "transfer_input_files    = $(Proxy_path), {}\n".format(pwd_to_python)
+            pwd_to_hme = cwd[:-6] + "hme"
+            string_to_write = "transfer_input_files    = $(Proxy_path), {}, {}\n".format(pwd_to_python, pwd_to_hme)
         elif "output_destination      =" in str(line):
             string_to_write = 'output_destination      = root://eosuser.cern.ch/'+dataset_storage_folder+'/\n'
         else:
