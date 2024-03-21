@@ -11,7 +11,9 @@ import datetime
 
 
 class DNN_Model():
-    def __init__(self):
+    def __init__(self, quiet=0, debug=0):
+        self.quiet = quiet
+        self.debug = debug
         self.curr_time = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
         self.model_folder = "DNN_Model_"+self.curr_time+"/"
         os.makedirs(self.model_folder, exist_ok = True)
@@ -87,6 +89,8 @@ class DNN_Model():
         self.full_array = []
         self.full_label = []
         self.full_weight = []
+
+        self.model = []
 
     def add_to_class_dict(self, classification, filename, param=[300,700]):
         classification = str(classification)
@@ -235,10 +239,11 @@ class DNN_Model():
         os.system("cp {file} {folder}".format(file = __file__, folder = self.model_folder))
 
 
-        print("Input comments about this training")
-        comments_file = self.model_folder+"comments.txt"
-        with open(comments_file, 'w', encoding='utf-8') as my_file:
-            my_file.write(input('Comments: '))
+        if not self.quiet:
+            print("Input comments about this training")
+            comments_file = self.model_folder+"comments.txt"
+            with open(comments_file, 'w', encoding='utf-8') as my_file:
+                my_file.write(input('Comments: '))
 
 
         tf.keras.backend.clear_session()
@@ -347,9 +352,9 @@ class DNN_Model():
             )
             return model
 
-        model = base_model()
+        self.model = base_model()
 
-        model.summary()
+        self.model.summary()
 
 
         def fit_model(model, model_NamePath):
@@ -364,7 +369,7 @@ class DNN_Model():
                                     ),
                                 epochs=100,
                                 #class_weight=class_weight,
-                                batch_size=2048,
+                                batch_size=1024,
                                 # Callback: set of functions to be applied at given stages of the training procedure
                                 callbacks=[
                                     #tf.keras.callbacks.ModelCheckpoint(model_NamePath, monitor='val_loss', verbose=False, save_best_only=True),
@@ -447,9 +452,9 @@ class DNN_Model():
 
 
         save_path = "./"+self.model_folder+"/TT_ST_DY_signal"
-        history = fit_model(model, save_path)
-        model.save(save_path)
-        make_performance_plots(model, events_test_norm, labels_test)
+        history = fit_model(self.model, save_path)
+        self.model.save(save_path)
+        make_performance_plots(self.model, events_test_norm, labels_test)
         make_history_plots(history)
 
 
@@ -463,19 +468,48 @@ class DNN_Model():
         """
 
 
-dnn = DNN_Model()
-dnn.add_to_class_dict(0, "input_files/with_hme/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-300/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-300_PreEE.root", [300,300])
-dnn.add_to_class_dict(0, "input_files/with_hme/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-450/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-450_PreEE.root", [450,450])
-dnn.add_to_class_dict(0, "input_files/with_hme/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-700/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-700_PreEE.root", [700,700])
+    def load_model(self, modelname):
+        self.model = tf.keras.models.load_model(modelname)
+        print("Loaded model ", modelname)
+        print(self.model.summary())
 
-dnn.add_to_class_dict(1, "input_files/with_hme/TTto2L2Nu/TTto2L2Nu_PreEE.root")
+    def predict(self, filename):
+        #Never give the param to predict, should always be full range [300,700]
+        print("Going to predict events on file ", filename)
+        events = self.prepare_events(filename)
+        array = (self.create_nparray(events)).transpose()
+        pred = self.model.predict(array)
+        return pred
 
-dnn.add_to_class_dict(2, "input_files/with_hme/DYJetsToLL_M-50/DYJetsToLL_M-50_PreEE.root")
-dnn.add_to_class_dict(2, "input_files/with_hme/DYto2L-2Jets_MLL-10to50/DYto2L-2Jets_MLL-10to50_PreEE.root")
 
-dnn.add_to_class_dict(3, "input_files/with_hme/TbarWplusto2L2Nu/TbarWplusto2L2Nu_PreEE.root")
-dnn.add_to_class_dict(3, "input_files/with_hme/TWminusto2L2Nu/TWminusto2L2Nu_PreEE.root")
 
-dnn.finalize_class_dict()
 
-dnn.train_model()
+train_example = False
+predict_example = False
+
+if train_example:
+    dnn = DNN_Model()
+
+    dnn.add_to_class_dict(0, "input_files/with_hme/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-300/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-300_PreEE.root", [300,300])
+    dnn.add_to_class_dict(0, "input_files/with_hme/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-450/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-450_PreEE.root", [450,450])
+    dnn.add_to_class_dict(0, "input_files/with_hme/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-700/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-700_PreEE.root", [700,700])
+
+    dnn.add_to_class_dict(1, "input_files/with_hme/TTto2L2Nu/TTto2L2Nu_PreEE.root")
+
+    dnn.add_to_class_dict(2, "input_files/with_hme/DYJetsToLL_M-50/DYJetsToLL_M-50_PreEE.root")
+    dnn.add_to_class_dict(2, "input_files/with_hme/DYto2L-2Jets_MLL-10to50/DYto2L-2Jets_MLL-10to50_PreEE.root")
+
+    dnn.add_to_class_dict(3, "input_files/with_hme/TbarWplusto2L2Nu/TbarWplusto2L2Nu_PreEE.root")
+    dnn.add_to_class_dict(3, "input_files/with_hme/TWminusto2L2Nu/TWminusto2L2Nu_PreEE.root")
+
+    dnn.finalize_class_dict()
+
+    dnn.train_model()
+
+if predict_example:
+    dnn = DNN_Model()
+
+    pred_file = "input_files/with_hme/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-450/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-450_PostEE.root"
+    old_model = "DNN_Model_Example/TT_ST_DY_signal"
+    dnn.load_model(old_model)
+    print(dnn.predict(pred_file))
