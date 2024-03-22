@@ -25,6 +25,8 @@ class DNN_Model():
             "Ak4 Jet1 px", "Ak4 Jet1 py", "Ak4 Jet1 pz", "Ak4 Jet1 E", "Ak4 Jet1 btagDeepFlavB",
             "Ak4 Jet2 px", "Ak4 Jet2 py", "Ak4 Jet2 pz", "Ak4 Jet2 E", "Ak4 Jet2 btagDeepFlavB",
             "Ak4 Jet3 px", "Ak4 Jet3 py", "Ak4 Jet3 pz", "Ak4 Jet3 E", "Ak4 Jet3 btagDeepFlavB",
+            "AK8 Jet0 px", "Ak8 Jet0 py", "Ak8 Jet0 pz", "Ak8 Jet0 E",
+            "Ak8 Jet0 Tau1", "Ak8 Jet0 Tau2", "Ak8 Jet0 Tau3", "Ak8 Jet0 Tau4",
             "MET px", "MET py", "MET pz", "MET E",
             "HT",
             "ll px", "ll py", "ll pz", "ll E", "ll mass",
@@ -172,6 +174,15 @@ class DNN_Model():
             events.ak4_jet3_E,
             events.ak4_jet3_btagDeepFlavB,
 
+            events.ak8_jet0_px,
+            events.ak8_jet0_py,
+            events.ak8_jet0_pz,
+            events.ak8_jet0_E,
+            events.ak8_jet0_tau1,
+            events.ak8_jet0_tau2,
+            events.ak8_jet0_tau3,
+            events.ak8_jet0_tau4,
+
             events.met_px,
             events.met_py,
             events.met_pz,
@@ -224,7 +235,8 @@ class DNN_Model():
         f = uproot.open(filename)
         t = f['Double_HME_Tree']
         events = t.arrays()
-        mask = (events.Double_Res_2b == 1) & (events.Double_Signal == 1) & (events.HME > 0)
+        #mask = (events.Double_Res_2b == 1) & (events.Double_Signal == 1) & (events.HME > 0)
+        mask = (events.Double_Signal == 1) & (events.HME > 0)
         events_filtered = events[mask]
         return events_filtered
 
