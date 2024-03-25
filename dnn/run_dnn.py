@@ -2,7 +2,7 @@ from dnn import DNN_Model
 import argparse
 
 #Call example
-#python3 run_dnn.py -i inputFile.root -o outputFile.root -m DNN_Model_Example/TT_ST_DY_signal -t 0 -p 1 -d 0
+#python3 run_dnn.py -i inputFile.root -o outputFile.root -m DNN_Model_Example/TT_ST_DY_signal -p 1 -d 0
 
 parser = argparse.ArgumentParser(description='HeavyMassEstimator for H->hh->bbWW')
 parser.add_argument("-i", "--inputFile", dest="infile", type=str, default=[], help="input file name. [Default: [] ]")
