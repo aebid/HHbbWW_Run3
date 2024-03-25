@@ -16,7 +16,6 @@ class DNN_Model():
         self.debug = debug
         self.curr_time = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
         self.model_folder = "DNN_Model_"+self.curr_time+"/"
-        os.makedirs(self.model_folder, exist_ok = True)
 
         self.input_labels = [
             "Lep0 px", "Lep0 py", "Lep0 pz", "Lep0 E", "Lep0 pdgId", "Lep0 charge",
@@ -248,6 +247,7 @@ class DNN_Model():
         print("Starting DNN training process")
         print("Current model will be saved in "+self.model_folder)
         print("Saving this file ", __file__, " into folder for future reference")
+        os.makedirs(self.model_folder, exist_ok = True)
         os.system("cp {file} {folder}".format(file = __file__, folder = self.model_folder))
 
 
@@ -300,6 +300,10 @@ class DNN_Model():
         events_train_norm = norm_inputs(events_train)
         events_test_norm = norm_inputs(events_test)
 
+        #Was having problems with normalization, norm_inputs method was causing issues with predict
+        events_train_norm = events_train
+        events_test_norm = events_test
+
         print("Train before norm")
         print(events_train)
         print("Train after norm")
@@ -317,9 +321,12 @@ class DNN_Model():
         def base_model():
             model = tf.keras.Sequential()
 
+            #model.add(tf.keras.layers.BatchNormalization(input_dim=input_len))
+            model.add(tf.keras.layers.Normalization(input_dim=input_len))
+
             #Manuel recommends having the nodes look like a cone and continue to decrease
             #Manuel says relu is dumb for our normalization, testing tanh on first layer
-            model.add(tf.keras.layers.Dense(128, activation="tanh", input_dim=input_len))
+            model.add(tf.keras.layers.Dense(128, activation="tanh"))
 
             model.add(tf.keras.layers.Dense(256, activation="relu"))
 
@@ -490,6 +497,9 @@ class DNN_Model():
         print("Going to predict events on file ", filename)
         events = self.prepare_events(filename)
         array = (self.create_nparray(events)).transpose()
+        #norm_inputs = tf.keras.layers.Normalization(axis=-1)
+        #norm_inputs.adapt(array)
+        #array_norm = norm_inputs(array)
         pred = self.model.predict(array)
         return pred
 
