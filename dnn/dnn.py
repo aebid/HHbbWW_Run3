@@ -105,7 +105,7 @@ class DNN_Model():
         for classification in self.class_dict.keys():
             nEvtsClass = 0.0
             for i, filename in enumerate(self.class_dict[classification]['filelist']):
-                events = self.prepare_events(filename)
+                events = self.prepare_events(filename)#[:1000] #Experimental! Having a problem with overfitting
                 array = (self.create_nparray(events, self.class_dict[classification]['paramlist'][i])).transpose()
                 nEvtsClass += len(events)
                 self.class_dict[classification]['eventslist'].append(events)
@@ -286,7 +286,7 @@ class DNN_Model():
         labels = self.full_label
         sampleweights = self.full_weight
 
-        events_train, events_test, labels_train, labels_test, sampleweights_train, sampleweights_test  = train_test_split(events, labels, sampleweights, test_size=0.33, random_state=42)
+        events_train, events_test, labels_train, labels_test, sampleweights_train, sampleweights_test  = train_test_split(events, labels, sampleweights, test_size=0.33)
         labels_train = label_binarizer.transform(labels_train)
         labels_test = label_binarizer.transform(labels_test)
 
@@ -317,6 +317,9 @@ class DNN_Model():
             else:
                 return lr * tf.math.exp(-0.1)
 
+        l1_value = 0.00001
+        l2_value = 0.0001
+        dropout_value = 0.3
 
         def base_model():
             model = tf.keras.Sequential()
@@ -326,31 +329,31 @@ class DNN_Model():
 
             #Manuel recommends having the nodes look like a cone and continue to decrease
             #Manuel says relu is dumb for our normalization, testing tanh on first layer
-            model.add(tf.keras.layers.Dense(128, activation="tanh"))
+            model.add(tf.keras.layers.Dense(128, activation="tanh"))#, kernel_regularizer=tf.keras.regularizers.L1L2(l1=l1_value, l2=l2_value)))
 
-            model.add(tf.keras.layers.Dense(256, activation="relu"))
+            model.add(tf.keras.layers.Dense(256, activation="relu"))#, kernel_regularizer=tf.keras.regularizers.L1L2(l1=l1_value, l2=l2_value)))
 
-            model.add(tf.keras.layers.Dropout(0.3))
+            model.add(tf.keras.layers.Dropout(dropout_value))
 
-            model.add(tf.keras.layers.Dense(128, activation="relu"))
+            model.add(tf.keras.layers.Dense(128, activation="relu"))#, kernel_regularizer=tf.keras.regularizers.L1L2(l1=l1_value, l2=l2_value)))
 
-            model.add(tf.keras.layers.Dropout(0.3))
+            model.add(tf.keras.layers.Dropout(dropout_value))
 
-            model.add(tf.keras.layers.Dense(64, activation="relu"))
+            model.add(tf.keras.layers.Dense(64, activation="relu"))#, kernel_regularizer=tf.keras.regularizers.L1L2(l1=l1_value, l2=l2_value)))
 
-            model.add(tf.keras.layers.Dropout(0.3))
+            model.add(tf.keras.layers.Dropout(dropout_value))
 
-            model.add(tf.keras.layers.Dense(32, activation="relu"))
+            model.add(tf.keras.layers.Dense(32, activation="relu"))#, kernel_regularizer=tf.keras.regularizers.L1L2(l1=l1_value, l2=l2_value)))
 
-            model.add(tf.keras.layers.Dropout(0.3))
+            model.add(tf.keras.layers.Dropout(dropout_value))
 
-            model.add(tf.keras.layers.Dense(16, activation="relu"))
+            model.add(tf.keras.layers.Dense(16, activation="relu"))#, kernel_regularizer=tf.keras.regularizers.L1L2(l1=l1_value, l2=l2_value)))
 
-            model.add(tf.keras.layers.Dropout(0.3))
+            model.add(tf.keras.layers.Dropout(dropout_value))
 
-            model.add(tf.keras.layers.Dense(8, activation="relu"))
+            model.add(tf.keras.layers.Dense(8, activation="relu"))#, kernel_regularizer=tf.keras.regularizers.L1L2(l1=l1_value, l2=l2_value)))
 
-            model.add(tf.keras.layers.Dropout(0.3))
+            model.add(tf.keras.layers.Dropout(dropout_value))
 
             model.add(tf.keras.layers.Dense(4, activation="softmax"))
 
@@ -386,14 +389,14 @@ class DNN_Model():
                                     labels_test,
                                     sampleweights_test
                                     ),
-                                epochs=100,
+                                epochs=20,
                                 #class_weight=class_weight,
-                                batch_size=1024,
+                                batch_size=64,
                                 # Callback: set of functions to be applied at given stages of the training procedure
                                 callbacks=[
                                     #tf.keras.callbacks.ModelCheckpoint(model_NamePath, monitor='val_loss', verbose=False, save_best_only=True),
                                     tf.keras.callbacks.LearningRateScheduler(scheduler), # How this is different from 'conf.optimiz' ?
-                                    tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=10) # Stop once you stop improving the val_loss
+                                    tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=1E-7, patience=5) # Stop once you stop improving the val_loss
                                     ]
                                 )
             return history
@@ -452,6 +455,37 @@ class DNN_Model():
             plt.clf()
             plt.close()
 
+        def validate_dnn_output(plot_prefix=""):
+            predict_list = []
+            fname_list = []
+            plotbins = 100
+            plotrange = (0.0, 1.0)
+            for classification in self.class_dict.keys():
+                for fname in self.class_dict[classification]['filelist']:
+                    print("Going to predict ", fname)
+                    predict_list.append(self.predict(fname))
+                    fname_list.append(fname)
+            for i in range(len(predict_list)):
+                plt.hist(predict_list[i][:,0], bins=plotbins, range=plotrange, density=True, histtype='step', label=fname_list[i].split('/')[-1], alpha=0.5)
+
+            plt.legend(loc='upper right')
+            plt.yscale('log')
+            plt.savefig(self.model_folder+plot_prefix+"dnn_values.pdf")
+
+            plt.clf()
+
+            acceptance_list = []
+            x = np.linspace(0.0, 1.0, 101)
+            for i in range(len(predict_list)):
+                tmp_list = []
+                for cut in x:
+                    tmp_list.append(np.sum(predict_list[i][:,0] > cut)/len(predict_list[i]))
+                acceptance_list.append(tmp_list)
+                plt.plot(x, acceptance_list[i], label=fname_list[i].split('/')[-1])
+
+            plt.legend(loc='upper right')
+            plt.yscale('log')
+            plt.savefig(self.model_folder+plot_prefix+"dnn_acceptance.pdf")
 
 
 
@@ -475,6 +509,7 @@ class DNN_Model():
         self.model.save(save_path)
         make_performance_plots(self.model, events_test_norm, labels_test)
         make_history_plots(history)
+        validate_dnn_output()
 
 
         """
