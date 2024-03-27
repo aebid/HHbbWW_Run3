@@ -15,7 +15,7 @@ class DNN_Model():
         self.quiet = quiet
         self.debug = debug
         self.curr_time = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
-        self.model_folder = "DNN_Model_"+self.curr_time+"/"
+        self.model_folder = "DNN_Models/DNN_Model_"+self.curr_time+"/"
 
         self.input_labels = [
             "Lep0 px", "Lep0 py", "Lep0 pz", "Lep0 E", "Lep0 pdgId", "Lep0 charge",
@@ -36,8 +36,20 @@ class DNN_Model():
             "n Fakeable Electrons",
             "n Cleaned Ak4 Jets",
             "n Medium B Ak4 Jets",
-            "Lep0 Lep1 dR",
-            "Jet0 Jet1 dR",
+
+            "dR_dilep",
+            "dR_dibjet",
+            "dR_dilep_dijet",
+            "dR_dilep_dibjet",
+            "dPhi_MET_dilep",
+            "dPhi_MET_dibjet",
+            "min_dR_lep0_cleanAk4",
+            "min_dR_lep1_cleanAk4",
+            "min_dR_ak4_jet0_leadleps",
+            "min_dR_ak4_jet1_leadleps",
+            "min_dR_cleaned_ak4_jets",
+            "min_absdPhi_cleaned_ak4_jets",
+
             "HME",
             "param"
         ]
@@ -48,7 +60,7 @@ class DNN_Model():
                 "filelist": [],
                 "paramlist": [],
                 "eventslist": [],
-                "classweight": 0.0,
+                "classweight": 1.0,
                 "arrays": [],
                 "labels": [],
                 "weights": [],
@@ -58,7 +70,7 @@ class DNN_Model():
                 "filelist": [],
                 "paramlist": [],
                 "eventslist": [],
-                "classweight": 0.0,
+                "classweight": 1.0,
                 "arrays": [],
                 "labels": [],
                 "weights": [],
@@ -68,7 +80,7 @@ class DNN_Model():
                 "filelist": [],
                 "paramlist": [],
                 "eventslist": [],
-                "classweight": 0.0,
+                "classweight": 1.0,
                 "arrays": [],
                 "labels": [],
                 "weights": [],
@@ -78,7 +90,7 @@ class DNN_Model():
                 "filelist": [],
                 "paramlist": [],
                 "eventslist": [],
-                "classweight": 0.0,
+                "classweight": 1.0,
                 "arrays": [],
                 "labels": [],
                 "weights": [],
@@ -115,7 +127,7 @@ class DNN_Model():
                 array_list.append(array)
                 label_list.append(np.full(len(array), int(classification)))
 
-            self.class_dict[classification]['classweight'] = 1.0/nEvtsClass
+            self.class_dict[classification]['classweight'] *= 1.0/nEvtsClass
             for i in range(len(self.class_dict[classification]['filelist'])):
                 self.class_dict[classification]['weights'].append(np.full(len(self.class_dict[classification]['arrays'][i]), self.class_dict[classification]['classweight']))
 
@@ -218,9 +230,18 @@ class DNN_Model():
             events.n_cleaned_ak4_jets,
             events.n_medium_btag_ak4_jets,
 
-            #For now we must do dR by hand (not in tree)
-            ((events.lep0_eta - events.lep1_eta)**2 + (events.lep0_phi - events.lep1_phi)**2)**(0.5),
-            ((events.ak4_jet0_eta - events.ak4_jet1_eta)**2 + (events.ak4_jet0_phi - events.ak4_jet1_phi)**2)**(0.5),
+            events.dR_dilep,
+            events.dR_dibjet,
+            events.dR_dilep_dijet,
+            events.dR_dilep_dibjet,
+            events.dPhi_MET_dilep,
+            events.dPhi_MET_dibjet,
+            events.min_dR_lep0_cleanAk4,
+            events.min_dR_lep1_cleanAk4,
+            events.min_dR_ak4_jet0_leadleps,
+            events.min_dR_ak4_jet1_leadleps,
+            events.min_dR_cleaned_ak4_jets,
+            events.min_absdPhi_cleaned_ak4_jets,
 
             events.HME,
 
@@ -367,13 +388,13 @@ class DNN_Model():
                                     labels_test,
                                     sampleweights_test
                                     ),
-                                epochs=30,
+                                epochs=100,
                                 batch_size=64,
                                 # Callback: set of functions to be applied at given stages of the training procedure
                                 callbacks=[
                                     #tf.keras.callbacks.ModelCheckpoint(model_NamePath, monitor='val_loss', verbose=False, save_best_only=True),
                                     tf.keras.callbacks.LearningRateScheduler(scheduler), # How this is different from 'conf.optimiz' ?
-                                    tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=1E-8, patience=5) # Stop once you stop improving the val_loss
+                                    tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=5) # Stop once you stop improving the val_loss
                                     ]
                                 )
             return history
@@ -446,7 +467,7 @@ class DNN_Model():
                 plt.hist(predict_list[i][:,0], bins=plotbins, range=plotrange, density=True, histtype='step', label=fname_list[i].split('/')[-1], alpha=0.5)
 
             plt.legend(loc='upper right', fontsize="4")
-            #plt.yscale('log')
+            plt.yscale('log')
             plt.savefig(self.model_folder+plot_prefix+"dnn_values.pdf")
             plt.clf()
             plt.close()
