@@ -274,8 +274,6 @@ class DNN_Model():
         print(class_labels)
         #Manuel has code for better classweights, input plotting, and something else ask him he will send code
 
-        #Turn the labels into onehots, prepare the binarizer
-        label_binarizer = LabelBinarizer().fit([0,1,2,3])
 
         #How many inputs?
         input_len = len(self.full_array[0])
@@ -287,27 +285,11 @@ class DNN_Model():
         sampleweights = self.full_weight
 
         events_train, events_test, labels_train, labels_test, sampleweights_train, sampleweights_test  = train_test_split(events, labels, sampleweights, test_size=0.33)
-        labels_train = label_binarizer.transform(labels_train)
-        labels_test = label_binarizer.transform(labels_test)
 
 
-        #Create a layer to normalize the inputs
-        #Inputs for DNN must be normalized, set normalization funcs on the train set
-        norm_inputs = tf.keras.layers.Normalization(axis=-1)
-        norm_inputs.adapt(events_train)
-
-
-        events_train_norm = norm_inputs(events_train)
-        events_test_norm = norm_inputs(events_test)
-
-        #Was having problems with normalization, norm_inputs method was causing issues with predict
-        events_train_norm = events_train
-        events_test_norm = events_test
-
-        print("Train before norm")
-        print(events_train)
-        print("Train after norm")
-        print(events_train_norm)
+        #labels_train = tf.keras.utils.to_categorical(labels_train, num_classes=4)
+        #labels_test = tf.keras.utils.to_categorical(labels_test, num_classes=4)
+        #Sparse categorical is better for mutually exclusive, and we do not need onehots for that
 
         # This function keeps the initial learning rate for the first ten epochs
         # and decreases it exponentially after that.
@@ -324,11 +306,8 @@ class DNN_Model():
         def base_model():
             model = tf.keras.Sequential()
 
-            #model.add(tf.keras.layers.BatchNormalization(input_dim=input_len))
             model.add(tf.keras.layers.Normalization(input_dim=input_len))
 
-            #Manuel recommends having the nodes look like a cone and continue to decrease
-            #Manuel says relu is dumb for our normalization, testing tanh on first layer
             model.add(tf.keras.layers.Dense(128, activation="tanh"))#, kernel_regularizer=tf.keras.regularizers.L1L2(l1=l1_value, l2=l2_value)))
 
             model.add(tf.keras.layers.Dense(256, activation="relu"))#, kernel_regularizer=tf.keras.regularizers.L1L2(l1=l1_value, l2=l2_value)))
@@ -357,19 +336,18 @@ class DNN_Model():
 
             model.add(tf.keras.layers.Dense(4, activation="softmax"))
 
-            #Testing Softmax layer here
-            model.add(tf.keras.layers.Softmax())
 
             model.compile(
                 ### Adam optimizer, with initial lr = 0.001
                 optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
                 #loss=tf.keras.losses.CategoricalHinge(),
-                loss=tf.keras.losses.CategoricalCrossentropy(),
+                loss=tf.keras.losses.SparseCategoricalCrossentropy(),
                 weighted_metrics=[
                     #'accuracy',
-                    tf.keras.metrics.CategoricalAccuracy(),
-                    tf.keras.metrics.CategoricalCrossentropy(),
-                    tf.keras.metrics.CategoricalHinge(),
+                    tf.keras.metrics.SparseCategoricalCrossentropy(),
+                    tf.keras.metrics.SparseCategoricalAccuracy(),
+                    #tf.keras.metrics.CategoricalAccuracy(),
+                    #tf.keras.metrics.CategoricalCrossentropy(),
                 ]
             )
             return model
@@ -381,22 +359,21 @@ class DNN_Model():
 
         def fit_model(model, model_NamePath):
             history = model.fit(
-                                events_train_norm,
+                                events_train,
                                 labels_train,
                                 sample_weight = sampleweights_train,
                                 validation_data=(
-                                    events_test_norm,
+                                    events_test,
                                     labels_test,
                                     sampleweights_test
                                     ),
-                                epochs=20,
-                                #class_weight=class_weight,
+                                epochs=30,
                                 batch_size=64,
                                 # Callback: set of functions to be applied at given stages of the training procedure
                                 callbacks=[
                                     #tf.keras.callbacks.ModelCheckpoint(model_NamePath, monitor='val_loss', verbose=False, save_best_only=True),
                                     tf.keras.callbacks.LearningRateScheduler(scheduler), # How this is different from 'conf.optimiz' ?
-                                    tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=1E-7, patience=5) # Stop once you stop improving the val_loss
+                                    tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=1E-8, patience=5) # Stop once you stop improving the val_loss
                                     ]
                                 )
             return history
@@ -433,8 +410,8 @@ class DNN_Model():
 
         def make_history_plots(history, plot_prefix=""):
             #Lets look at training metrics, maybe just a plot of the history?
-            plt.plot(history.history['categorical_accuracy'])
-            plt.plot(history.history['val_categorical_accuracy'])
+            plt.plot(history.history['sparse_categorical_accuracy'])
+            plt.plot(history.history['val_sparse_categorical_accuracy'])
             plt.grid(True)
             plt.xlabel("Epoch")
             plt.ylabel("Categorical Accuracy")
@@ -468,11 +445,11 @@ class DNN_Model():
             for i in range(len(predict_list)):
                 plt.hist(predict_list[i][:,0], bins=plotbins, range=plotrange, density=True, histtype='step', label=fname_list[i].split('/')[-1], alpha=0.5)
 
-            plt.legend(loc='upper right')
-            plt.yscale('log')
+            plt.legend(loc='upper right', fontsize="4")
+            #plt.yscale('log')
             plt.savefig(self.model_folder+plot_prefix+"dnn_values.pdf")
-
             plt.clf()
+            plt.close()
 
             acceptance_list = []
             x = np.linspace(0.0, 1.0, 101)
@@ -483,9 +460,11 @@ class DNN_Model():
                 acceptance_list.append(tmp_list)
                 plt.plot(x, acceptance_list[i], label=fname_list[i].split('/')[-1])
 
-            plt.legend(loc='upper right')
-            plt.yscale('log')
+            plt.legend(loc='upper right', fontsize="4")
+            #plt.yscale('log')
             plt.savefig(self.model_folder+plot_prefix+"dnn_acceptance.pdf")
+            plt.clf()
+            plt.close()
 
 
 
@@ -494,7 +473,7 @@ class DNN_Model():
             import eli5
             from eli5.sklearn import PermutationImportance
 
-            perm = PermutationImportance(sk_model, n_iter=10, random_state=1).fit(events_train_norm, labels_train)
+            perm = PermutationImportance(sk_model, n_iter=10, random_state=1).fit(events_train, labels_train)
             feat_import_dict = eli5.format_as_dict(eli5.explain_weights(perm, top=100))
 
             feat_import = feat_import_dict['feature_importances']['importances']
@@ -503,11 +482,10 @@ class DNN_Model():
 
 
 
-
         save_path = "./"+self.model_folder+"/TT_ST_DY_signal"
         history = fit_model(self.model, save_path)
         self.model.save(save_path)
-        make_performance_plots(self.model, events_test_norm, labels_test)
+        make_performance_plots(self.model, events_test, tf.keras.utils.to_categorical(labels_test, num_classes=4))
         make_history_plots(history)
         validate_dnn_output()
 
@@ -516,7 +494,7 @@ class DNN_Model():
         save_path = "./"+model_folder+"/SK_TT_ST_DY_signalM450"
         sk_model = KerasRegressor(build_fn=base_model)
         sk_history = fit_model(sk_model, save_path)
-        make_performance_plots(sk_model, events_test_norm, labels_test, "sk_")
+        make_performance_plots(sk_model, events_test, labels_test, "sk_")
         make_history_plots(sk_history, "sk_")
         perm = do_feature_imp(sk_model)
         """
@@ -537,36 +515,3 @@ class DNN_Model():
         #array_norm = norm_inputs(array)
         pred = self.model.predict(array)
         return pred
-
-
-
-
-train_example = False
-predict_example = False
-
-if train_example:
-    dnn = DNN_Model()
-
-    dnn.add_to_class_dict(0, "input_files/with_hme/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-300/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-300_PreEE.root", [300,300])
-    dnn.add_to_class_dict(0, "input_files/with_hme/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-450/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-450_PreEE.root", [450,450])
-    dnn.add_to_class_dict(0, "input_files/with_hme/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-700/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-700_PreEE.root", [700,700])
-
-    dnn.add_to_class_dict(1, "input_files/with_hme/TTto2L2Nu/TTto2L2Nu_PreEE.root")
-
-    dnn.add_to_class_dict(2, "input_files/with_hme/DYJetsToLL_M-50/DYJetsToLL_M-50_PreEE.root")
-    dnn.add_to_class_dict(2, "input_files/with_hme/DYto2L-2Jets_MLL-10to50/DYto2L-2Jets_MLL-10to50_PreEE.root")
-
-    dnn.add_to_class_dict(3, "input_files/with_hme/TbarWplusto2L2Nu/TbarWplusto2L2Nu_PreEE.root")
-    dnn.add_to_class_dict(3, "input_files/with_hme/TWminusto2L2Nu/TWminusto2L2Nu_PreEE.root")
-
-    dnn.finalize_class_dict()
-
-    dnn.train_model()
-
-if predict_example:
-    dnn = DNN_Model()
-
-    pred_file = "input_files/with_hme/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-450/GluGlutoRadiontoHHto2B2Vto2B2L2Nu_M-450_PostEE.root"
-    old_model = "DNN_Model_Example/TT_ST_DY_signal"
-    dnn.load_model(old_model)
-    print(dnn.predict(pred_file))
